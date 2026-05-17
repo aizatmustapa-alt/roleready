@@ -149,7 +149,53 @@ function htmlToText(html: string) {
   );
 }
 
-// ─── Puppeteer-core browser fallback ───────────────────────────────────────
+// ─── Jina AI Reader fallback (used in serverless / production) ─────────────
+
+async function fetchJobWithJina(url: string): Promise<JobAdDetails | null> {
+  try {
+    const res = await fetch(`https://r.jina.ai/${url}`, {
+      headers: { Accept: "text/plain", "X-Timeout": "25" },
+      signal: AbortSignal.timeout(28000),
+    });
+
+    if (!res.ok) return null;
+
+    const text = await res.text();
+    if (!text || text.trim().length < 300) return null;
+
+    // Jina returns "Title: ...\nURL Source: ...\n\nMarkdown Content:\n{body}"
+    const titleMatch = text.match(/^Title:\s*(.+)$/m);
+    const rawTitle = titleMatch?.[1]?.trim() ?? "";
+    const title = rawTitle
+      .replace(/\s*[|–—-]\s*(SEEK|LinkedIn|Indeed|Adzuna)[^]*$/i, "")
+      .trim() || "Job from link";
+
+    // Try to extract company — often appears after "Company:" or as first bold line
+    const companyMatch = text.match(/(?:^|\n)(?:Company|Advertiser|Employer):\s*(.+)/i);
+    const company = companyMatch?.[1]?.trim() || "Company from job ad";
+
+    const locationMatch = text.match(/(?:^|\n)(?:Location|Where):\s*(.+)/i);
+    const location = locationMatch?.[1]?.trim() || "";
+
+    const salaryMatch = text.match(/(?:^|\n)(?:Salary|Pay|Remuneration):\s*(.+)/i);
+    const salary = salaryMatch?.[1]?.trim() || "";
+
+    console.log(`[job-ad] Jina fetch ok — title: "${title}", length: ${text.length}`);
+
+    return {
+      title,
+      company,
+      location,
+      salary,
+      description: text.slice(0, 30000),
+    };
+  } catch (e) {
+    console.warn("[job-ad] Jina fallback failed:", e);
+    return null;
+  }
+}
+
+// ─── Puppeteer-core browser fallback (local dev only) ──────────────────────
 
 const CHROME_PATHS = [
   "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
@@ -328,10 +374,11 @@ export async function fetchJobAdDetails(jobUrl: string): Promise<JobAdDetails> {
   });
 
   if (!response.ok) {
-    // Before giving up, try the browser fallback for blocked sites
     if (isBlockedJobBoard(jobUrl)) {
-      const browserResult = await fetchJobWithBrowser(jobUrl);
-      if (browserResult) return browserResult;
+      const fallback = IS_SERVERLESS
+        ? await fetchJobWithJina(jobUrl)
+        : await fetchJobWithBrowser(jobUrl);
+      if (fallback) return fallback;
     }
     throw new Error(
       isBlockedJobBoard(jobUrl)
@@ -358,12 +405,17 @@ export async function fetchJobAdDetails(jobUrl: string): Promise<JobAdDetails> {
     meta(html, ["description", "og:description"]) ||
     htmlToText(html);
 
-  const title =
+  const rawTitle =
     nd?.title ||
     (structured?.title ? decodeHtml(String(structured.title)) : "") ||
     meta(html, ["og:title", "twitter:title"]) ||
     pageTitle ||
     "Job from link";
+
+  // Strip trailing site names like "- SEEK", "| LinkedIn", "– Indeed"
+  const title = rawTitle
+    .replace(/\s*[|–—-]\s*(SEEK|LinkedIn|Indeed|Adzuna)[^]*$/i, "")
+    .trim() || "Job from link";
 
   const company =
     nd?.company ||
@@ -393,10 +445,14 @@ export async function fetchJobAdDetails(jobUrl: string): Promise<JobAdDetails> {
     description: description.slice(0, 30000)
   };
 
-  // If description is too short and this is a known blocked site, try headless browser
+  // If description is too short and this is a known blocked site, try a scraping fallback
   if (result.description.trim().length < 300 && isBlockedJobBoard(jobUrl)) {
-    const browserResult = await fetchJobWithBrowser(jobUrl);
-    if (browserResult) return browserResult;
+    // Serverless (Vercel): use Jina AI reader — no binary dependencies
+    // Local dev: use Puppeteer with local Chrome
+    const fallback = IS_SERVERLESS
+      ? await fetchJobWithJina(jobUrl)
+      : await fetchJobWithBrowser(jobUrl);
+    if (fallback) return fallback;
   }
 
   return result;
