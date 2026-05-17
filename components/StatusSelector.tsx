@@ -33,37 +33,65 @@ export function StatusSelector({ applicationId, currentStatus }: Props) {
   const router = useRouter();
   const [status, setStatus] = useState<ApplicationStatus>(currentStatus);
   const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  function showToast(type: "success" | "error", text: string) {
+    setToast({ type, text });
+    setTimeout(() => setToast(null), 3000);
+  }
 
   async function handleChange(next: ApplicationStatus) {
     if (next === status || saving) return;
+    const prev = status;
     setStatus(next);
     setSaving(true);
 
-    await fetch(`/api/applications/${applicationId}/status`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: next })
-    });
+    try {
+      const res = await fetch(`/api/applications/${applicationId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: next }),
+      });
 
-    setSaving(false);
-    router.refresh();
+      if (!res.ok) {
+        const payload = await res.json().catch(() => null);
+        setStatus(prev);
+        showToast("error", payload?.error ?? "Failed to update status.");
+      } else {
+        showToast("success", `Status updated to ${next}`);
+        router.refresh();
+      }
+    } catch {
+      setStatus(prev);
+      showToast("error", "Network error — status not saved.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
-    <div className={`flex flex-wrap gap-1.5 transition-opacity ${saving ? "opacity-50" : ""}`}>
-      {STATUSES.map((s) => (
-        <button
-          key={s}
-          type="button"
-          disabled={saving}
-          onClick={() => handleChange(s)}
-          className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
-            s === status ? activeClass[s] : buttonClass[s]
-          }`}
-        >
-          {s}
-        </button>
-      ))}
+    <div className="space-y-2">
+      <div className={`flex flex-wrap gap-1.5 transition-opacity ${saving ? "opacity-60" : ""}`}>
+        {STATUSES.map((s) => (
+          <button
+            key={s}
+            type="button"
+            disabled={saving}
+            onClick={() => handleChange(s)}
+            className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+              s === status ? activeClass[s] : buttonClass[s]
+            }`}
+          >
+            {s}
+          </button>
+        ))}
+      </div>
+
+      {toast && (
+        <p className={`text-xs font-medium ${toast.type === "success" ? "text-teal-700" : "text-red-600"}`}>
+          {toast.type === "success" ? "✓" : "✕"} {toast.text}
+        </p>
+      )}
     </div>
   );
 }
