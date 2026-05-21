@@ -75,8 +75,8 @@ function buildPrompt({
       "Cover letter must sound natural, specific to this company and role, and be under 350 words.",
       "Avoid generic phrases like 'I am excited to apply' unless followed by a specific reason from the job ad.",
       "Match explanation must cite evidence from the resume and the job ad.",
-      "Format tailoredResume in markdown: use # for the candidate name, ## for every section heading (e.g. ## EXPERIENCE), ### for each job title / employer / date line, - for every bullet point, and **text** for bold emphasis within paragraphs. Do not use ---, HTML, or plain all-caps lines as section separators.",
-      "Format coverLetter in markdown: use # for the candidate name header, then plain paragraphs. No bullet points, no section headings."
+      "Format tailoredResume in markdown: use # for the candidate name, ## for every section heading (e.g. ## EXPERIENCE), ### for each job title / employer / date line, - for every bullet point, and **text** for bold emphasis. Do NOT use ---, <hr>, horizontal rules, extra blank lines between bullets, or any other visual separators. One blank line between sections only.",
+      "Format coverLetter in markdown: use # for the candidate name header, then plain paragraphs separated by a single blank line. No bullet points, no section headings, no horizontal rules."
     ],
     profile,
     masterResumeText: masterResume.resume_text,
@@ -161,6 +161,21 @@ async function generateWithAnthropic(prompt: string) {
   return toolUseBlock.input as GeneratedApplication;
 }
 
+function cleanDocument(text: string): string {
+  return text
+    .split("\n")
+    .map((line) => line.trimEnd())
+    .filter((line, i, arr) => {
+      // Remove horizontal rule lines (---, ***, ___)
+      if (/^[-*_]{3,}\s*$/.test(line)) return false;
+      // Collapse consecutive blank lines into one
+      if (line === "" && arr[i - 1] === "") return false;
+      return true;
+    })
+    .join("\n")
+    .trim();
+}
+
 function normalizeProvider(value: unknown) {
   return value === "anthropic" || value === "openai" ? value : null;
 }
@@ -220,6 +235,8 @@ export async function POST(request: Request, { params }: Props) {
     const provider = requestedProvider ?? normalizeProvider(process.env.AI_PROVIDER) ?? "openai";
     generated = provider === "anthropic" ? await generateWithAnthropic(prompt) : await generateWithOpenAI(prompt);
     generated.matchScore = Math.max(0, Math.min(100, Math.round(generated.matchScore)));
+    generated.tailoredResume = cleanDocument(generated.tailoredResume);
+    generated.coverLetter = cleanDocument(generated.coverLetter);
     const { error: updateError } = await supabase
       .from("applications")
       .update({
