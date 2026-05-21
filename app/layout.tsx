@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import { headers } from "next/headers";
 import { MobileNav } from "@/components/MobileNav";
 import { Sidebar } from "@/components/Sidebar";
 import { SignOutButton } from "@/components/SignOutButton";
@@ -38,7 +39,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     ? await supabase.from("profiles").select("name,email,avatar_url").eq("id", user.id).maybeSingle()
     : { data: null };
 
-  const authed = Boolean(user);
+  const headersList = await headers();
+  const pathname = headersList.get("x-pathname") ?? "";
+  const isAuthPage = pathname.startsWith("/auth/");
+  const authed = Boolean(user) && !isAuthPage;
   const displayName = profile?.name || null;
   const displayEmail = profile?.email || user?.email || null;
   const avatarUrl = profile?.avatar_url || null;
