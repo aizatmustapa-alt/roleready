@@ -52,7 +52,13 @@ const steps = [
   },
 ];
 
-const trustLabels = ["SEEK", "Indeed", "LinkedIn", "Glassdoor", "Jora"];
+const trustLabels = [
+  { name: "SEEK",       color: "#1C3F94" },
+  { name: "Indeed",     color: "#2164F3" },
+  { name: "LinkedIn",   color: "#0A66C2" },
+  { name: "Glassdoor",  color: "#0CAA41" },
+  { name: "Jora",       color: "#E8580A" },
+];
 
 function ImageFallback({ className }: { className?: string }) {
   return (
@@ -231,11 +237,11 @@ export function LandingPage() {
 
         <section className="applyhq-fade-up bg-[#fffaf4] px-5 py-20 sm:px-8 lg:px-10">
           <div className="mx-auto max-w-5xl text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">Trusted by job seekers across Australia</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-600">Jobs sourced from across Australia&apos;s top boards</p>
             <div className="mt-9 flex flex-wrap items-center justify-center gap-x-12 gap-y-6">
-              {trustLabels.map((label) => (
-                <span key={label} className="text-xl font-extrabold tracking-tight text-slate-300 sm:text-2xl">
-                  {label}
+              {trustLabels.map(({ name, color }) => (
+                <span key={name} className="text-xl font-extrabold tracking-tight sm:text-2xl" style={{ color }}>
+                  {name}
                 </span>
               ))}
             </div>
