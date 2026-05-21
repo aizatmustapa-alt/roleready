@@ -403,8 +403,14 @@ export async function GET(request: Request) {
     });
   }
 
+  // Cap pool before scoring: max 20 per source to keep the prompt manageable
+  const poolForScoring = [
+    ...allJobs.filter((j) => j.source === "Adzuna").slice(0, 20),
+    ...allJobs.filter((j) => j.source !== "Adzuna").slice(0, 20),
+  ];
+
   // AI batch scoring on merged pool
-  const jobsForScoring = allJobs.map((j) => ({
+  const jobsForScoring = poolForScoring.map((j) => ({
     id: j.id,
     title: j.title,
     company: j.company,
@@ -415,12 +421,12 @@ export async function GET(request: Request) {
   try {
     scores = await scoreJobs(masterResume.resume_text, jobsForScoring, provider);
   } catch {
-    scores = allJobs.map((j) => ({ id: j.id, score: 50, reason: "Match scoring unavailable." }));
+    scores = poolForScoring.map((j) => ({ id: j.id, score: 50, reason: "Match scoring unavailable." }));
   }
 
   const scoreMap = new Map(scores.map((s) => [s.id, s]));
 
-  const results: GrabResult[] = allJobs.map((j) => {
+  const results: GrabResult[] = poolForScoring.map((j) => {
     const s = scoreMap.get(j.id) ?? { score: 50, reason: "" };
     return { ...j, matchScore: Math.max(0, Math.min(100, Math.round(s.score))), matchReason: s.reason };
   });
