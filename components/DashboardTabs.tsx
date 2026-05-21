@@ -363,8 +363,8 @@ export function DashboardTabs({
       setShowAllMatches(false);
       setMatchNotice(
         nextMatches.length > 0
-          ? `Found ${nextMatches.length} fresh ${nextMatches.length === 1 ? "match" : "matches"}${payload.searchQuery ? ` for "${payload.searchQuery}"` : ""}.`
-          : `Checked Adzuna${payload.searchQuery ? ` for "${payload.searchQuery}"` : ""}, but didn't find fresh matches yet.`
+          ? `Found ${nextMatches.length} fresh ${nextMatches.length === 1 ? "match" : "matches"}${payload.searchQuery ? ` for "${payload.searchQuery}"` : ""}.`
+          : `Checked Adzuna${payload.searchQuery ? ` for "${payload.searchQuery}"` : ""}, but didn't find fresh matches yet.`
       );
     } catch {
       setMatchError("Couldn't refresh matches just now.");
@@ -556,7 +556,7 @@ export function DashboardTabs({
                   <h3 className="mt-4 text-xl font-semibold text-[#14213d]">No fresh matches just yet.</h3>
                   <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600">
                     {lastSearchQuery
-                      ? `We checked for "${lastSearchQuery}". Try refreshing later, or add more target keywords to your resume.`
+                      ? `We checked for "${lastSearchQuery}". Try refreshing later, or add more target keywords to your resume.`
                       : "Try refreshing, or add more keywords to your resume so the search has a clearer signal."}
                   </p>
                 </div>
