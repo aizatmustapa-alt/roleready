@@ -1,14 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 export default function ResetPasswordPage() {
+  const [ready, setReady] = useState(false);
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    const supabase = createSupabaseBrowserClient();
+    if (!supabase) return;
+
+    // Check for an existing session (set by the callback route via PKCE exchange)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setReady(true);
+    });
+
+    // Also handle the implicit flow where the token arrives as a URL hash
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "PASSWORD_RECOVERY" || (event === "SIGNED_IN" && session)) {
+        setReady(true);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   async function updatePassword(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -48,6 +68,8 @@ export default function ResetPasswordPage() {
 
         {done ? (
           <p className="mt-5 text-sm font-semibold text-teal-700">Password updated! Redirecting…</p>
+        ) : !ready ? (
+          <p className="mt-5 text-sm text-stone-500 animate-pulse">Verifying reset link…</p>
         ) : (
           <form onSubmit={updatePassword} className="mt-5 space-y-4">
             <label className="block space-y-1.5">
