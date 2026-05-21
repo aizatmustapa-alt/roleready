@@ -191,7 +191,6 @@ async function fetchAdzunaJobs({
     what: query,
     max_days_old: String(maxDaysOld),
     sort_by: "date",
-    content_type: "application/json",
   });
 
   const res = await fetch(`https://api.adzuna.com/v1/api/jobs/au/search/1?${params}`, {
