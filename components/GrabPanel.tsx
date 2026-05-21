@@ -188,12 +188,6 @@ export function GrabPanel({ hasResume }: Props) {
                           {salary ? ` · ${salary}` : ""}
                           {job.salary && !salary ? ` · ${job.salary}` : ""}
                         </p>
-                        {job.source && (
-                          <span className="mt-1 inline-block rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-stone-500">
-                            {job.source}
-                          </span>
-                        )}
-
                         {job.matchReason && <p className="mt-1 text-sm text-stone-500">{job.matchReason}</p>}
                       </div>
                     </div>

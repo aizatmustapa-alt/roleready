@@ -340,7 +340,7 @@ export function DashboardTabs({
     if (!resumeFileName) return;
     setLoadingMatches(true);
     setMatchError("");
-    setMatchNotice(force ? "Searching live job boards again..." : "Checking today’s matches...");
+    setMatchNotice(force ? "Searching Adzuna again..." : "Checking today’s matches...");
 
     try {
       const params = new URLSearchParams();
@@ -364,7 +364,7 @@ export function DashboardTabs({
       setMatchNotice(
         nextMatches.length > 0
           ? `Found ${nextMatches.length} fresh ${nextMatches.length === 1 ? "match" : "matches"}${payload.searchQuery ? ` for “${payload.searchQuery}”` : ""}.`
-          : `Checked live job boards${payload.searchQuery ? ` for “${payload.searchQuery}”` : ""}, but didn’t find fresh matches yet.`
+          : `Checked Adzuna${payload.searchQuery ? ` for “${payload.searchQuery}”` : “”}, but didn’t find fresh matches yet.`
       );
     } catch {
       setMatchError("Couldn’t refresh matches just now.");
