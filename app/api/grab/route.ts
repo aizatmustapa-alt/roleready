@@ -409,22 +409,35 @@ export async function GET(request: Request) {
     ...allJobs.filter((j) => j.source !== "Adzuna").slice(0, 20),
   ];
 
-  // AI batch scoring on merged pool
-  const jobsForScoring = poolForScoring.map((j) => ({
-    id: j.id,
-    title: j.title,
-    company: j.company,
-    description: j.description
-  }));
+  // Reuse any scores already stored for these job IDs so scores stay consistent across refreshes
+  const { data: existingCached } = await supabase
+    .from("cached_grabbed_jobs")
+    .select("external_id, match_score, match_reason")
+    .eq("user_id", user.id)
+    .in("external_id", poolForScoring.map((j) => j.id));
 
-  let scores: { id: string; score: number; reason: string }[];
-  try {
-    scores = await scoreJobs(masterResume.resume_text, jobsForScoring, provider);
-  } catch {
-    scores = poolForScoring.map((j) => ({ id: j.id, score: 50, reason: "Match scoring unavailable." }));
+  const cachedScoreMap = new Map(
+    (existingCached ?? []).map((row) => [row.external_id, { score: row.match_score as number, reason: row.match_reason as string }])
+  );
+
+  // Only call AI for jobs we haven't scored before
+  const jobsNeedingScore = poolForScoring
+    .filter((j) => !cachedScoreMap.has(j.id))
+    .map((j) => ({ id: j.id, title: j.title, company: j.company, description: j.description }));
+
+  let newScores: { id: string; score: number; reason: string }[] = [];
+  if (jobsNeedingScore.length > 0) {
+    try {
+      newScores = await scoreJobs(masterResume.resume_text, jobsNeedingScore, provider);
+    } catch {
+      newScores = jobsNeedingScore.map((j) => ({ id: j.id, score: 50, reason: "Match scoring unavailable." }));
+    }
   }
 
-  const scoreMap = new Map(scores.map((s) => [s.id, s]));
+  const scoreMap = new Map<string, { score: number; reason: string }>([
+    ...cachedScoreMap.entries(),
+    ...newScores.map((s) => [s.id, { score: s.score, reason: s.reason }] as [string, { score: number; reason: string }]),
+  ]);
 
   const results: GrabResult[] = poolForScoring.map((j) => {
     const s = scoreMap.get(j.id) ?? { score: 50, reason: "" };
