@@ -5,6 +5,20 @@ import { Download, Eye, FileText, Mail, Pencil } from "lucide-react";
 import { CoverLetterRenderer, ResumeRenderer } from "@/components/ResumeRenderer";
 import type { MasterCoverLetter, MasterResume } from "@/types/database";
 
+function hasMarkdown(text: string) {
+  return /^#{1,3} /m.test(text) || /^- /m.test(text);
+}
+
+function PlainTextPreview({ content }: { content: string }) {
+  return (
+    <div className="bg-stone-100 px-4 py-6 md:px-8 md:py-8">
+      <div className="mx-auto w-full max-w-[794px] bg-white px-10 py-10 shadow-[0_2px_16px_rgba(0,0,0,0.10)] md:px-16 md:py-14">
+        <pre className="whitespace-pre-wrap font-sans text-sm leading-7 text-slate-700">{content}</pre>
+      </div>
+    </div>
+  );
+}
+
 function FileInputField({
   name,
   savedFileName,
@@ -154,7 +168,9 @@ export function DocumentsForm({ masterResume, masterCoverLetter }: Props) {
               <input type="hidden" name="resume_text" value={resumeText} />
               <div className="max-h-[520px] overflow-auto rounded-b-[1.8rem]">
                 {resumeText.trim()
-                  ? <ResumeRenderer content={resumeText} />
+                  ? hasMarkdown(resumeText)
+                    ? <ResumeRenderer content={resumeText} />
+                    : <PlainTextPreview content={resumeText} />
                   : <p className="px-7 py-10 text-sm italic text-slate-400">No resume text yet — switch to Edit to add content.</p>
                 }
               </div>
@@ -202,7 +218,9 @@ export function DocumentsForm({ masterResume, masterCoverLetter }: Props) {
               <input type="hidden" name="cover_letter_text" value={coverText} />
               <div className="max-h-[520px] overflow-auto rounded-b-[1.8rem]">
                 {coverText.trim()
-                  ? <CoverLetterRenderer content={coverText} />
+                  ? hasMarkdown(coverText)
+                    ? <CoverLetterRenderer content={coverText} />
+                    : <PlainTextPreview content={coverText} />
                   : <p className="px-7 py-10 text-sm italic text-slate-400">No cover letter text yet — switch to Edit to add content.</p>
                 }
               </div>
