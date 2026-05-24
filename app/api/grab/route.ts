@@ -16,6 +16,16 @@ type AdzunaJob = {
   created: string;
 };
 
+type JoobleJob = {
+  title: string;
+  company: string;
+  location: string;
+  salary: string;
+  snippet: string;
+  link: string;
+  updated: string;
+};
+
 export type GrabResult = {
   id: string;
   title: string;
@@ -175,12 +185,18 @@ async function fetchAdzunaJobs({
   appId,
   appKey,
   query,
+  where,
+  workType,
+  salaryMin,
   maxDaysOld,
   resultsPerPage,
 }: {
   appId: string;
   appKey: string;
   query: string;
+  where?: string;
+  workType?: string;
+  salaryMin?: number;
   maxDaysOld: number;
   resultsPerPage: number;
 }) {
@@ -192,6 +208,9 @@ async function fetchAdzunaJobs({
     max_days_old: String(maxDaysOld),
     sort_by: "date",
   });
+  if (where) params.set("where", where);
+  if (workType) params.set(workType, "1");
+  if (salaryMin) params.set("salary_min", String(salaryMin));
 
   const res = await fetch(`https://api.adzuna.com/v1/api/jobs/au/search/1?${params}`, {
     headers: { Accept: "application/json" },
@@ -200,6 +219,42 @@ async function fetchAdzunaJobs({
   if (!res.ok) throw new Error(`Adzuna returned HTTP ${res.status}`);
   const data = (await res.json()) as { results?: AdzunaJob[] };
   return data.results ?? [];
+}
+
+async function fetchJoobleJobs({
+  apiKey,
+  query,
+  location,
+}: {
+  apiKey: string;
+  query: string;
+  location?: string;
+}): Promise<GrabResult[]> {
+  const body: Record<string, string | number> = { keywords: query, page: 1 };
+  if (location) body.location = location;
+
+  const res = await fetch(`https://jooble.org/api/${apiKey}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    cache: "no-store",
+  });
+  if (!res.ok) throw new Error(`Jooble returned HTTP ${res.status}`);
+  const data = (await res.json()) as { jobs?: JoobleJob[] };
+
+  return (data.jobs ?? []).map((j) => ({
+    id: j.link,
+    title: j.title,
+    company: j.company ?? "",
+    location: j.location ?? "",
+    description: j.snippet ?? "",
+    jobUrl: j.link,
+    salary: j.salary || undefined,
+    matchScore: 0,
+    matchReason: "",
+    postedAt: j.updated,
+    source: "Jooble",
+  }));
 }
 
 export async function GET(request: Request) {
@@ -243,7 +298,10 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const manualQuery = url.searchParams.get("q")?.trim();
-  const forceRefresh = url.searchParams.get("refresh") === "true" || Boolean(manualQuery);
+  const locationParam = url.searchParams.get("location")?.trim() || undefined;
+  const workTypeParam = url.searchParams.get("work_type")?.trim() || undefined;
+  const salaryMinParam = url.searchParams.get("salary_min") ? Number(url.searchParams.get("salary_min")) : undefined;
+  const forceRefresh = url.searchParams.get("refresh") === "true" || Boolean(manualQuery) || Boolean(locationParam) || Boolean(workTypeParam) || Boolean(salaryMinParam);
 
   if (!forceRefresh) {
     const { data: cachedRows } = await supabase
@@ -278,37 +336,41 @@ export async function GET(request: Request) {
   }
 
   let actualSearchQuery = keywords.searchQuery;
-  let adzunaJobs: AdzunaJob[] = [];
+  const joobleApiKey = process.env.JOOBLE_API_KEY;
 
-  // Primary search — 30 days
-  try {
-    adzunaJobs = await fetchAdzunaJobs({ appId, appKey, query: actualSearchQuery, maxDaysOld: 30, resultsPerPage: 30 });
-  } catch (e) {
-    console.error("[grab] Adzuna primary fetch failed:", e);
-  }
+  // Run Adzuna + Jooble in parallel
+  const [adzunaSettled, joobleSettled] = await Promise.allSettled([
+    fetchAdzunaJobs({ appId, appKey, query: actualSearchQuery, where: locationParam, workType: workTypeParam, salaryMin: salaryMinParam, maxDaysOld: 30, resultsPerPage: 25 }),
+    joobleApiKey
+      ? fetchJoobleJobs({ apiKey: joobleApiKey, query: actualSearchQuery, location: locationParam })
+      : Promise.resolve([]),
+  ]);
 
-  // Fallback: if no results, retry with just the job title and a wider date window
-  if (adzunaJobs.length === 0 && keywords.jobTitle.trim()) {
+  let adzunaJobs: AdzunaJob[] = adzunaSettled.status === "fulfilled" ? adzunaSettled.value : [];
+  let joobleJobs: GrabResult[] = joobleSettled.status === "fulfilled" ? joobleSettled.value : [];
+  if (adzunaSettled.status === "rejected") console.error("[grab] Adzuna primary fetch failed:", adzunaSettled.reason);
+  if (joobleSettled.status === "rejected") console.error("[grab] Jooble fetch failed:", joobleSettled.reason);
+
+  // Fallback: if both returned nothing, retry Adzuna with just job title and a wider window
+  if (adzunaJobs.length === 0 && joobleJobs.length === 0 && keywords.jobTitle.trim()) {
     actualSearchQuery = keywords.jobTitle.trim();
     try {
-      adzunaJobs = await fetchAdzunaJobs({ appId, appKey, query: actualSearchQuery, maxDaysOld: 60, resultsPerPage: 30 });
+      adzunaJobs = await fetchAdzunaJobs({ appId, appKey, query: actualSearchQuery, where: locationParam, workType: workTypeParam, salaryMin: salaryMinParam, maxDaysOld: 60, resultsPerPage: 25 });
     } catch (e) {
       console.error("[grab] Adzuna fallback fetch failed:", e);
     }
+    // Retry Jooble with title too
+    if (joobleApiKey) {
+      try {
+        joobleJobs = await fetchJoobleJobs({ apiKey: joobleApiKey, query: actualSearchQuery, location: locationParam });
+      } catch (e) {
+        console.error("[grab] Jooble fallback fetch failed:", e);
+      }
+    }
   }
 
-  if (adzunaJobs.length === 0) {
-    await supabase.from("cached_grabbed_jobs").delete().eq("user_id", user.id);
-    return NextResponse.json({
-      jobs: [],
-      searchQuery: actualSearchQuery,
-      jobTitle: keywords.jobTitle,
-      cached: false,
-      fetchedAt: new Date().toISOString()
-    });
-  }
-
-  const allJobs: GrabResult[] = adzunaJobs.map((j) => ({
+  // Convert Adzuna results to GrabResult[]
+  const adzunaGrabResults: GrabResult[] = adzunaJobs.map((j) => ({
     id: j.id,
     title: j.title,
     company: j.company.display_name,
@@ -320,8 +382,30 @@ export async function GET(request: Request) {
     matchScore: 0,
     matchReason: "",
     postedAt: j.created,
-    source: "Adzuna"
+    source: "Adzuna",
   }));
+
+  // Merge and deduplicate by normalised URL (strip query params / tracking)
+  const seenUrls = new Set<string>();
+  const allJobs: GrabResult[] = [];
+  for (const job of [...adzunaGrabResults, ...joobleJobs]) {
+    const key = job.jobUrl.split("?")[0].toLowerCase();
+    if (!seenUrls.has(key)) {
+      seenUrls.add(key);
+      allJobs.push(job);
+    }
+  }
+
+  if (allJobs.length === 0) {
+    await supabase.from("cached_grabbed_jobs").delete().eq("user_id", user.id);
+    return NextResponse.json({
+      jobs: [],
+      searchQuery: actualSearchQuery,
+      jobTitle: keywords.jobTitle,
+      cached: false,
+      fetchedAt: new Date().toISOString()
+    });
+  }
 
   // Reuse any scores already stored for these job IDs so scores stay consistent across refreshes
   const { data: existingCached } = await supabase
@@ -334,9 +418,10 @@ export async function GET(request: Request) {
     (existingCached ?? []).map((row) => [row.external_id, { score: row.match_score as number, reason: row.match_reason as string }])
   );
 
-  // Only call AI for jobs we haven't scored before
+  // Only call AI for jobs we haven't scored before; cap at 40 to control cost
   const jobsNeedingScore = allJobs
     .filter((j) => !cachedScoreMap.has(j.id))
+    .slice(0, 40)
     .map((j) => ({ id: j.id, title: j.title, company: j.company, description: j.description }));
 
   let newScores: { id: string; score: number; reason: string }[] = [];
@@ -382,7 +467,7 @@ export async function GET(request: Request) {
         match_reason: job.matchReason,
         posted_at: job.postedAt ? new Date(job.postedAt).toISOString() : null,
         search_query: actualSearchQuery,
-        source: "Adzuna",
+        source: job.source ?? "Adzuna",
         fetched_at: fetchedAt,
       }))
     );

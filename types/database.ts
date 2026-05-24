@@ -89,6 +89,11 @@ export type Application = {
   generated_by: string | null;
   generated_at: string | null;
   applied_at: string | null;
+  notes: string | null;
+  hiring_manager: string | null;
+  location_type: string | null;
+  role_summary: string | null;
+  other_notes: string | null;
   created_at: string;
   updated_at: string;
 };

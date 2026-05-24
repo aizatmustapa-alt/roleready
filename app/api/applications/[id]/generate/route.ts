@@ -3,7 +3,7 @@ import OpenAI from "openai";
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-export const maxDuration = 60;
+export const maxDuration = 120;
 import type { ApplicationWithJob, MasterCoverLetter, MasterResume, Profile } from "@/types/database";
 
 type Props = {
@@ -23,21 +23,34 @@ const responseSchema = {
   additionalProperties: false,
   required: ["matchScore", "matchExplanation", "missingKeywords", "tailoredResume", "coverLetter"],
   properties: {
-    matchScore: { type: "integer", description: "Integer from 0 to 100." },
-    matchExplanation: { type: "string" },
+    matchScore: {
+      type: "integer",
+      description: "Integer from 0 to 100 representing how well the candidate's resume matches the job."
+    },
+    matchExplanation: {
+      type: "string",
+      description: "Short structured analysis ONLY — no resume content, no experience details, no contact info. Contains exactly 4 markdown sections in order: ## Summary (2-3 sentences), ## Strengths (3-4 bullet points starting with '- '), ## Gaps (2-3 bullet points starting with '- '), ## Recommendation (1-2 sentences). Total length under 600 words."
+    },
     missingKeywords: {
       type: "array",
+      description: "Short skill or keyword strings that appear in the job ad but are absent or weak in the resume.",
       items: { type: "string" }
     },
-    tailoredResume: { type: "string" },
-    coverLetter: { type: "string" }
+    tailoredResume: {
+      type: "string",
+      description: "The full tailored resume in markdown. Must contain the complete rewritten resume text — not a summary or analysis."
+    },
+    coverLetter: {
+      type: "string",
+      description: "The full tailored cover letter in markdown. Must contain the complete cover letter text — not a summary or analysis."
+    }
   }
 };
 
 const systemInstructions =
   "You are a careful senior job application writer. Never invent experience, employers, dates, credentials, metrics, tools, or achievements. Only rewrite, reorder, condense, and emphasize information that appears in the master resume. Use the master cover letter only for tone, structure, and already stated facts. Make the resume ATS-friendly, concrete, and targeted to the job ad. Avoid generic claims unless the resume proves them. Clearly identify missing requirements.";
 
-const generationTimeoutMs = 90000;
+const generationTimeoutMs = 110000;
 
 async function withTimeout<T>(promise: Promise<T>, label: string) {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
@@ -74,9 +87,9 @@ function buildPrompt({
       "If a job requirement is missing or weak, list it in missingKeywords instead of pretending it exists.",
       "Cover letter must sound natural, specific to this company and role, and be under 350 words.",
       "Avoid generic phrases like 'I am excited to apply' unless followed by a specific reason from the job ad.",
-      "Match explanation must cite evidence from the resume and the job ad.",
+      "Format matchExplanation using exactly these four section headings in this exact order, with no extra words in the heading: ## Summary, ## Strengths, ## Gaps, ## Recommendation. Summary: 2-3 sentences on overall fit. Strengths: 3 to 4 bullet points starting with '- ', each citing a specific piece of resume evidence. Gaps: 2 to 3 bullet points starting with '- ', each naming a specific missing or weak area. Recommendation: 1-2 sentences on how to position the application. Do not add any text before ## Summary. Do not repeat any section.",
       "Format tailoredResume in markdown: use # for the candidate name, ## for every section heading (e.g. ## EXPERIENCE), ### for each job title / employer / date line, - for every bullet point, and **text** for bold emphasis. Do NOT use ---, <hr>, horizontal rules, extra blank lines between bullets, or any other visual separators. One blank line between sections only. Do NOT use emoji or markdown links — write contact details as plain text only (e.g. 'Phone: 0422 178 121 | Email: user@example.com | LinkedIn: linkedin.com/in/username').",
-      "Format coverLetter in markdown: use # for the candidate name header, then plain paragraphs separated by a single blank line. No bullet points, no section headings, no horizontal rules."
+      "Format coverLetter in markdown: use # for the candidate name header, then immediately a plain-text contact line using the profile data (e.g. 'Phone: ... | Email: ... | LinkedIn: ...') and if present a second line for location — exactly as the resume contact block is formatted. Then plain paragraphs separated by a single blank line. No bullet points, no section headings, no horizontal rules."
     ],
     profile,
     masterResumeText: masterResume.resume_text,

@@ -5,13 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight,
-  BookOpen,
   Bookmark,
   ChevronDown,
   CheckCircle2,
   ExternalLink,
-  HeartHandshake,
-  Lightbulb,
   Loader2,
   MapPin,
   RefreshCw,
@@ -20,7 +17,6 @@ import {
   Target,
 } from "lucide-react";
 import { QuickApplyForm } from "@/components/QuickApplyForm";
-import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import type { GrabResult } from "@/app/api/grab/route";
 import type { ApplicationWithJob, CachedGrabbedJob } from "@/types/database";
 
@@ -29,6 +25,7 @@ type Props = {
   resumeFileName: string | null;
   coverLetterFileName: string | null;
   userName?: string | null;
+  profileLocation?: string | null;
   grabbedMatches: CachedGrabbedJob[];
   grabbedMatchesStale: boolean;
 };
@@ -47,23 +44,6 @@ function matchLabel(score: number | null) {
   return "Needs tailoring";
 }
 
-function profileStrength({
-  resumeFileName,
-  coverLetterFileName,
-  applications,
-}: {
-  resumeFileName: string | null;
-  coverLetterFileName: string | null;
-  applications: ApplicationWithJob[];
-}) {
-  let score = 38;
-  if (resumeFileName) score += 22;
-  if (coverLetterFileName) score += 14;
-  if (applications.length > 0) score += 10;
-  if (applications.some((app) => app.match_score !== null)) score += 8;
-  if (applications.some((app) => app.tailored_resume && app.cover_letter)) score += 8;
-  return Math.min(score, 100);
-}
 
 function cachedMatchToGrabResult(row: CachedGrabbedJob): GrabResult {
   return {
@@ -111,27 +91,7 @@ function matchPillClass(score: number) {
   return "bg-rose-50 text-rose-600";
 }
 
-const dailyTips = [
-  "Customise your cover letter opening to match the company's mission.",
-  "Add measurable outcomes to your resume bullets wherever possible.",
-  "Mirror 3-5 important keywords from the job ad in your resume.",
-  "Keep your resume summary specific to the role you're applying for.",
-  "Send fewer applications, but make each one sharper.",
-  "Check the first 6 seconds of your resume: title, summary, and top skills.",
-  "Use the hiring manager's language, not generic career buzzwords.",
-  "Save a short story for interviews that shows how you solved a real problem.",
-  "Before applying, check whether your top skills match the first half of the job ad.",
-  "Replace vague words like responsible for with action verbs and outcomes.",
-];
 
-function getTipOfTheDay() {
-  const start = new Date("2026-01-01T00:00:00");
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const days = Math.floor((today.getTime() - start.getTime()) / 86_400_000);
-  return dailyTips[Math.abs(days) % dailyTips.length];
-}
 
 function GrabbedMatchCard({
   job,
@@ -302,6 +262,7 @@ export function DashboardTabs({
   resumeFileName,
   coverLetterFileName,
   userName,
+  profileLocation,
   grabbedMatches,
   grabbedMatchesStale,
 }: Props) {
@@ -313,6 +274,10 @@ export function DashboardTabs({
   const [matchNotice, setMatchNotice] = useState("");
   const [lastSearchQuery, setLastSearchQuery] = useState(grabbedMatches[0]?.search_query ?? "");
   const [keywordQuery, setKeywordQuery] = useState(grabbedMatches[0]?.search_query ?? "");
+  const [locationQuery, setLocationQuery] = useState(profileLocation ?? "");
+  const [workType, setWorkType] = useState("");
+  const [salaryMin, setSalaryMin] = useState("");
+  const [remoteOnly, setRemoteOnly] = useState(false);
   const [lastFetchedAt, setLastFetchedAt] = useState<string | undefined>(grabbedMatches[0]?.fetched_at);
   const [importing, setImporting] = useState<Record<string, boolean>>({});
   const [imported, setImported] = useState<Record<string, string>>({});
@@ -325,8 +290,6 @@ export function DashboardTabs({
     const now = new Date();
     return applied.getMonth() === now.getMonth() && applied.getFullYear() === now.getFullYear();
   }).length;
-  const strength = profileStrength({ resumeFileName, coverLetterFileName, applications });
-  const tipOfTheDay = getTipOfTheDay();
   const strongMatches = matches.filter((job) => job.matchScore >= 80).length;
   const importedByUrl = useMemo(() => {
     const map: Record<string, string> = {};
@@ -345,7 +308,11 @@ export function DashboardTabs({
     try {
       const params = new URLSearchParams();
       if (force) params.set("refresh", "true");
-      if (keywordQuery.trim()) params.set("q", keywordQuery.trim());
+      const effectiveKeyword = remoteOnly ? `${keywordQuery.trim()} remote`.trim() : keywordQuery.trim();
+      if (effectiveKeyword) params.set("q", effectiveKeyword);
+      if (locationQuery.trim()) params.set("location", locationQuery.trim());
+      if (workType) params.set("work_type", workType);
+      if (salaryMin) params.set("salary_min", salaryMin);
       const queryString = params.toString();
       const response = await fetch(`/api/grab${queryString ? `?${queryString}` : ""}`);
       const payload = await response.json();
@@ -434,13 +401,7 @@ export function DashboardTabs({
         </Link>
       </div>
 
-      <div className="grid min-w-0 gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
-        <div className="min-w-0 space-y-6 md:space-y-8">
-          <OnboardingChecklist
-            hasResume={!!resumeFileName}
-            hasApplication={applications.length > 0}
-            hasGeneratedDoc={applications.some((app) => !!(app.tailored_resume && app.cover_letter))}
-          />
+      <div className="min-w-0 space-y-6 md:space-y-8">
           <QuickApplyForm resumeFileName={resumeFileName} coverLetterFileName={coverLetterFileName} />
 
           <section className="hidden overflow-hidden rounded-[2rem] bg-white/78 p-5 shadow-[0_24px_80px_rgba(20,33,61,0.07)] backdrop-blur md:block md:p-8">
@@ -499,20 +460,75 @@ export function DashboardTabs({
                 <p className="mt-1 text-base leading-7 text-slate-600 md:text-sm md:leading-normal">Top matches discovered from live job boards and scored against your resume.</p>
               </div>
               <div className="min-w-0 flex flex-col gap-3 sm:items-end">
-                <label className="w-full sm:w-80">
-                  <span className="mb-1 block text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Search keywords</span>
-                  <input
-                    className="w-full rounded-full bg-white/80 px-4 py-3 text-sm text-[#14213d] shadow-[0_12px_34px_rgba(20,33,61,0.05)] outline-none placeholder:text-slate-400 focus:ring-3 focus:ring-teal-100"
-                    placeholder="e.g. governance risk manager"
-                    value={keywordQuery}
-                    onChange={(event) => setKeywordQuery(event.target.value)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" && !loadingMatches && resumeFileName) {
-                        void refreshMatches(true);
-                      }
-                    }}
-                  />
-                </label>
+                <div className="flex w-full gap-2 sm:w-auto">
+                  <label className="flex-1 sm:w-72">
+                    <span className="mb-1 block text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Search keywords</span>
+                    <input
+                      className="w-full rounded-full bg-white/80 px-4 py-3 text-sm text-[#14213d] shadow-[0_12px_34px_rgba(20,33,61,0.05)] outline-none placeholder:text-slate-400 focus:ring-3 focus:ring-teal-100"
+                      placeholder="e.g. governance risk manager"
+                      value={keywordQuery}
+                      onChange={(event) => setKeywordQuery(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" && !loadingMatches && resumeFileName) {
+                          void refreshMatches(true);
+                        }
+                      }}
+                    />
+                  </label>
+                  <label className="flex-1 sm:w-40">
+                    <span className="mb-1 flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
+                      <MapPin className="h-3 w-3" />
+                      Location
+                    </span>
+                    <input
+                      className="w-full rounded-full bg-white/80 px-4 py-3 text-sm text-[#14213d] shadow-[0_12px_34px_rgba(20,33,61,0.05)] outline-none placeholder:text-slate-400 focus:ring-3 focus:ring-teal-100"
+                      placeholder="e.g. Brisbane"
+                      value={locationQuery}
+                      onChange={(event) => setLocationQuery(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" && !loadingMatches && resumeFileName) {
+                          void refreshMatches(true);
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+                {/* Work type + salary + remote */}
+                <div className="flex w-full flex-wrap items-center gap-1.5 sm:w-auto sm:justify-end">
+                  {(["", "full_time", "part_time", "contract", "permanent"] as const).map((val) => {
+                    const label = val === "" ? "All" : val === "full_time" ? "Full-time" : val === "part_time" ? "Part-time" : val === "contract" ? "Contract" : "Permanent";
+                    return (
+                      <button
+                        key={val}
+                        type="button"
+                        onClick={() => setWorkType(val)}
+                        className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${workType === val ? "bg-[#0f9f92] text-white shadow-sm" : "bg-white/80 text-slate-500 shadow-sm hover:text-[#0f8f83]"}`}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                  <select
+                    value={salaryMin}
+                    onChange={(e) => setSalaryMin(e.target.value)}
+                    className="rounded-full bg-white/80 px-3 py-1.5 text-xs font-semibold text-slate-500 shadow-sm outline-none"
+                  >
+                    <option value="">Any salary</option>
+                    <option value="60000">$60k+</option>
+                    <option value="80000">$80k+</option>
+                    <option value="100000">$100k+</option>
+                    <option value="120000">$120k+</option>
+                    <option value="150000">$150k+</option>
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => setRemoteOnly((v) => !v)}
+                    className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${remoteOnly ? "bg-[#0f9f92] text-white shadow-sm" : "bg-white/80 text-slate-500 shadow-sm hover:text-[#0f8f83]"}`}
+                  >
+                    Remote
+                  </button>
+                </div>
+
                 <button
                   className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-white/75 px-5 py-3 text-sm font-semibold text-[#0f8f83] shadow-[0_16px_42px_rgba(20,33,61,0.07)] transition duration-300 hover:-translate-y-1 hover:bg-white disabled:cursor-not-allowed disabled:opacity-60 sm:w-fit"
                   disabled={loadingMatches || !resumeFileName}
@@ -585,68 +601,6 @@ export function DashboardTabs({
             </div>
           </section>
 
-        </div>
-
-        <aside className="min-w-0 space-y-5">
-          <section className="rounded-[1.75rem] bg-white/78 p-6 shadow-[0_20px_70px_rgba(20,33,61,0.07)]">
-            <h2 className="text-xl font-semibold text-[#14213d]">Your confidence is building 💪</h2>
-            <div className="mt-6 flex items-center gap-5">
-              <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-full bg-[conic-gradient(#0f9f92_0_var(--strength),#d7f4ef_var(--strength)_100%)] p-3" style={{ "--strength": `${strength}%` } as React.CSSProperties}>
-                <div className="flex h-full w-full items-center justify-center rounded-full bg-white text-2xl font-semibold text-[#14213d]">
-                  {strength}%
-                </div>
-              </div>
-              <div>
-                <p className="font-medium text-[#14213d]">Profile strength</p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Nice work. A stronger profile leads to better matches.
-                </p>
-              </div>
-            </div>
-            <Link href="/profile" className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#0f8f83]">
-              Improve profile <ArrowRight className="h-4 w-4" />
-            </Link>
-          </section>
-
-          <section className="rounded-[1.75rem] bg-[#fff8e8] p-6 shadow-[0_18px_60px_rgba(20,33,61,0.05)]">
-            <div className="flex gap-4">
-              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-teal-50 text-[#0f9f92]">
-                <Lightbulb className="h-6 w-6" />
-              </span>
-              <div>
-                <h2 className="text-lg font-semibold text-[#14213d]">Tip of the day</h2>
-                <p className="mt-3 text-sm leading-7 text-slate-600">
-                  {tipOfTheDay}
-                </p>
-              </div>
-            </div>
-          </section>
-
-          <section className="rounded-[1.75rem] bg-gradient-to-br from-white to-amber-50 p-6 shadow-[0_18px_60px_rgba(20,33,61,0.05)]">
-            <p className="text-4xl font-serif text-amber-400">"</p>
-            <p className="mt-2 text-sm leading-7 text-slate-700">
-              Every application is a step closer to the right opportunity.
-            </p>
-            <p className="mt-4 font-semibold text-[#14213d]">You&apos;ve got this! âœ¨</p>
-          </section>
-
-          <section className="rounded-[1.75rem] bg-teal-50/80 p-6 shadow-[0_18px_60px_rgba(20,33,61,0.05)]">
-            <div className="flex gap-4">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-[#0f9f92]">
-                <HeartHandshake className="h-6 w-6" />
-              </span>
-              <div>
-                <h2 className="text-lg font-semibold text-[#14213d]">Need help getting started?</h2>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Explore your profile, documents, and saved applications anytime.
-                </p>
-                <Link href="/more" className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#0f8f83]">
-                  Open More <BookOpen className="h-4 w-4" />
-                </Link>
-              </div>
-            </div>
-          </section>
-        </aside>
       </div>
     </div>
   );

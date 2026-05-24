@@ -68,3 +68,39 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ ok: true });
 }
+
+export async function PATCH(request: Request) {
+  const supabase = await createSupabaseServerClient();
+
+  if (!supabase) {
+    return NextResponse.json({ error: "Supabase is not configured." }, { status: 500 });
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ error: "Sign in before saving your profile." }, { status: 401 });
+  }
+
+  const allowed = ["location", "name", "phone", "linkedin_url", "salary_range"] as const;
+  type AllowedKey = (typeof allowed)[number];
+
+  const body = await request.json().catch(() => ({})) as Record<string, unknown>;
+  const patch: Partial<Record<AllowedKey, string>> & { id: string } = { id: user.id };
+
+  for (const key of allowed) {
+    if (typeof body[key] === "string") {
+      patch[key] = body[key] as string;
+    }
+  }
+
+  const { error } = await supabase.from("profiles").upsert(patch);
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 400 });
+  }
+
+  return NextResponse.json({ ok: true });
+}

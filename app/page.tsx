@@ -1,5 +1,6 @@
 import { DashboardTabs } from "@/components/DashboardTabs";
 import { LandingPage } from "@/components/landing/LandingPage";
+import { OnboardingWizard } from "@/components/OnboardingWizard";
 import { SetupNotice } from "@/components/SetupNotice";
 import { isSupabaseConfigured } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -26,6 +27,7 @@ export default async function DashboardPage() {
   let resumeFileName: string | null = null;
   let coverLetterFileName: string | null = null;
   let profileName: string | null = null;
+  let profileLocation: string | null = null;
   let grabbedMatches: CachedGrabbedJob[] = [];
 
   if (supabase && user) {
@@ -33,13 +35,14 @@ export default async function DashboardPage() {
       supabase.from("applications").select("*, jobs(*)").eq("user_id", user.id).order("created_at", { ascending: false }),
       supabase.from("master_resumes").select("id, file_name").eq("user_id", user.id).limit(1).maybeSingle(),
       supabase.from("master_cover_letters").select("id, file_name").eq("user_id", user.id).limit(1).maybeSingle(),
-      supabase.from("profiles").select("name").eq("id", user.id).maybeSingle(),
+      supabase.from("profiles").select("name, location").eq("id", user.id).maybeSingle(),
       supabase.from("cached_grabbed_jobs").select("*").eq("user_id", user.id).order("match_score", { ascending: false }).limit(15)
     ]);
     applications = (data ?? []) as ApplicationWithJob[];
     resumeFileName = resume?.file_name ?? null;
     coverLetterFileName = coverLetter?.file_name ?? null;
     profileName = profile?.name ?? user.user_metadata?.name ?? user.email ?? null;
+    profileLocation = (profile as { location?: string } | null)?.location ?? null;
     grabbedMatches = (cachedMatches ?? []) as CachedGrabbedJob[];
   }
 
@@ -55,6 +58,14 @@ export default async function DashboardPage() {
     return <LandingPage />;
   }
 
+  if (!resumeFileName) {
+    return (
+      <main className="min-h-screen bg-[#fffaf4] px-4 pb-36 md:px-8 md:pb-10 xl:px-10">
+        <OnboardingWizard />
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-[#fffaf4] px-4 py-5 pb-36 md:px-8 md:py-10 md:pb-10 xl:px-10">
       <DashboardTabs
@@ -62,6 +73,7 @@ export default async function DashboardPage() {
         resumeFileName={resumeFileName}
         coverLetterFileName={coverLetterFileName}
         userName={profileName}
+        profileLocation={profileLocation}
         grabbedMatches={grabbedMatches}
         grabbedMatchesStale={isStaleGrabCache(grabbedMatches)}
       />
