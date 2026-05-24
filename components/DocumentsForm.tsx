@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Download, FileText, Mail } from "lucide-react";
+import { Download, Eye, FileText, Mail, Pencil } from "lucide-react";
+import { CoverLetterRenderer, ResumeRenderer } from "@/components/ResumeRenderer";
 import type { MasterCoverLetter, MasterResume } from "@/types/database";
 
 function FileInputField({
@@ -57,6 +58,31 @@ function FileInputField({
   );
 }
 
+function ModeToggle({ mode, onChange }: { mode: "edit" | "preview"; onChange: (m: "edit" | "preview") => void }) {
+  return (
+    <div className="flex items-center gap-1 rounded-full bg-stone-100 p-1">
+      <button
+        type="button"
+        onClick={() => onChange("edit")}
+        className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition ${
+          mode === "edit" ? "bg-white text-[#14213d] shadow-sm" : "text-slate-400 hover:text-slate-600"
+        }`}
+      >
+        <Pencil className="h-3 w-3" /> Edit
+      </button>
+      <button
+        type="button"
+        onClick={() => onChange("preview")}
+        className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition ${
+          mode === "preview" ? "bg-white text-[#14213d] shadow-sm" : "text-slate-400 hover:text-slate-600"
+        }`}
+      >
+        <Eye className="h-3 w-3" /> Preview
+      </button>
+    </div>
+  );
+}
+
 type Props = {
   masterResume: MasterResume | null;
   masterCoverLetter: MasterCoverLetter | null;
@@ -65,6 +91,10 @@ type Props = {
 export function DocumentsForm({ masterResume, masterCoverLetter }: Props) {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resumeText, setResumeText] = useState(masterResume?.resume_text ?? "");
+  const [coverText, setCoverText] = useState(masterCoverLetter?.cover_letter_text ?? "");
+  const [resumeMode, setResumeMode] = useState<"edit" | "preview">("edit");
+  const [coverMode, setCoverMode] = useState<"edit" | "preview">("edit");
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -82,57 +112,104 @@ export function DocumentsForm({ masterResume, masterCoverLetter }: Props) {
   return (
     <form onSubmit={submit} className="max-w-full space-y-5 overflow-x-clip">
       <div className="grid gap-5 xl:grid-cols-2">
-      <section className="rounded-[1.8rem] bg-white/82 p-5 shadow-[0_18px_60px_rgba(20,33,61,0.06)] md:p-7">
-        <div className="mb-5 flex items-start gap-4">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-teal-50 text-[#0f9f92]">
-            <FileText className="h-5 w-5" />
-          </span>
-          <div>
-            <h2 className="text-xl font-semibold text-[#14213d]">Master resume</h2>
-            <p className="mt-1 text-sm leading-6 text-slate-600">This is the source ApplyHQ uses to tailor each application.</p>
-          </div>
-        </div>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <span className="label">Resume file</span>
-            <FileInputField
-              name="resume_file"
-              savedFileName={masterResume?.file_name ?? null}
-              downloadUrl={masterResume ? "/api/profile/download?type=resume" : null}
-            />
-          </div>
-          <label className="block space-y-2">
-            <span className="label">Resume text</span>
-            <textarea name="resume_text" className="field min-h-72" defaultValue={masterResume?.resume_text ?? ""} />
-          </label>
-        </div>
-      </section>
 
-      <section className="rounded-[1.8rem] bg-white/82 p-5 shadow-[0_18px_60px_rgba(20,33,61,0.06)] md:p-7">
-        <div className="mb-5 flex items-start gap-4">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
-            <Mail className="h-5 w-5" />
-          </span>
-          <div>
-            <h2 className="text-xl font-semibold text-[#14213d]">Master cover letter</h2>
-            <p className="mt-1 text-sm leading-6 text-slate-600">Used as a tone and structure reference for tailored letters.</p>
+        {/* Resume card */}
+        <section className="rounded-[1.8rem] bg-white/82 shadow-[0_18px_60px_rgba(20,33,61,0.06)]">
+          <div className="flex items-start justify-between gap-4 p-5 md:p-7 pb-4">
+            <div className="flex items-start gap-4">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-teal-50 text-[#0f9f92]">
+                <FileText className="h-5 w-5" />
+              </span>
+              <div>
+                <h2 className="text-xl font-semibold text-[#14213d]">Master resume</h2>
+                <p className="mt-1 text-sm leading-6 text-slate-600">This is the source ApplyHQ uses to tailor each application.</p>
+              </div>
+            </div>
+            <ModeToggle mode={resumeMode} onChange={setResumeMode} />
           </div>
-        </div>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <span className="label">Cover letter file</span>
-            <FileInputField
-              name="cover_letter_file"
-              savedFileName={masterCoverLetter?.file_name ?? null}
-              downloadUrl={masterCoverLetter ? "/api/profile/download?type=cover" : null}
-            />
+
+          {resumeMode === "edit" ? (
+            <div className="space-y-4 px-5 pb-5 md:px-7 md:pb-7">
+              <div className="space-y-2">
+                <span className="label">Resume file</span>
+                <FileInputField
+                  name="resume_file"
+                  savedFileName={masterResume?.file_name ?? null}
+                  downloadUrl={masterResume ? "/api/profile/download?type=resume" : null}
+                />
+              </div>
+              <label className="block space-y-2">
+                <span className="label">Resume text</span>
+                <textarea
+                  name="resume_text"
+                  className="field min-h-72"
+                  value={resumeText}
+                  onChange={(e) => setResumeText(e.target.value)}
+                />
+              </label>
+            </div>
+          ) : (
+            <>
+              {/* Hidden input keeps the value in the form when in preview mode */}
+              <input type="hidden" name="resume_text" value={resumeText} />
+              <div className="max-h-[520px] overflow-auto rounded-b-[1.8rem]">
+                {resumeText.trim()
+                  ? <ResumeRenderer content={resumeText} />
+                  : <p className="px-7 py-10 text-sm italic text-slate-400">No resume text yet — switch to Edit to add content.</p>
+                }
+              </div>
+            </>
+          )}
+        </section>
+
+        {/* Cover letter card */}
+        <section className="rounded-[1.8rem] bg-white/82 shadow-[0_18px_60px_rgba(20,33,61,0.06)]">
+          <div className="flex items-start justify-between gap-4 p-5 md:p-7 pb-4">
+            <div className="flex items-start gap-4">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
+                <Mail className="h-5 w-5" />
+              </span>
+              <div>
+                <h2 className="text-xl font-semibold text-[#14213d]">Master cover letter</h2>
+                <p className="mt-1 text-sm leading-6 text-slate-600">Used as a tone and structure reference for tailored letters.</p>
+              </div>
+            </div>
+            <ModeToggle mode={coverMode} onChange={setCoverMode} />
           </div>
-          <label className="block space-y-2">
-            <span className="label">Cover letter text</span>
-            <textarea name="cover_letter_text" className="field min-h-56" defaultValue={masterCoverLetter?.cover_letter_text ?? ""} />
-          </label>
-        </div>
-      </section>
+
+          {coverMode === "edit" ? (
+            <div className="space-y-4 px-5 pb-5 md:px-7 md:pb-7">
+              <div className="space-y-2">
+                <span className="label">Cover letter file</span>
+                <FileInputField
+                  name="cover_letter_file"
+                  savedFileName={masterCoverLetter?.file_name ?? null}
+                  downloadUrl={masterCoverLetter ? "/api/profile/download?type=cover" : null}
+                />
+              </div>
+              <label className="block space-y-2">
+                <span className="label">Cover letter text</span>
+                <textarea
+                  name="cover_letter_text"
+                  className="field min-h-56"
+                  value={coverText}
+                  onChange={(e) => setCoverText(e.target.value)}
+                />
+              </label>
+            </div>
+          ) : (
+            <>
+              <input type="hidden" name="cover_letter_text" value={coverText} />
+              <div className="max-h-[520px] overflow-auto rounded-b-[1.8rem]">
+                {coverText.trim()
+                  ? <CoverLetterRenderer content={coverText} />
+                  : <p className="px-7 py-10 text-sm italic text-slate-400">No cover letter text yet — switch to Edit to add content.</p>
+                }
+              </div>
+            </>
+          )}
+        </section>
+
       </div>
 
       <div className="flex min-w-0 flex-col gap-3 sm:flex-row sm:items-center">
