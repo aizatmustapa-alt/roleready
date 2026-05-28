@@ -149,6 +149,81 @@ function htmlToText(html: string) {
   );
 }
 
+// ─── LinkedIn guest API (no auth required for public job listings) ─────────
+
+function extractLinkedInJobId(url: string): string | null {
+  try {
+    const u = new URL(url);
+    // /jobs/view/1234567890/
+    const viewMatch = u.pathname.match(/\/jobs\/view\/(\d+)/);
+    if (viewMatch) return viewMatch[1];
+    // ?currentJobId=1234567890
+    const qp = u.searchParams.get("currentJobId");
+    if (qp) return qp;
+  } catch {
+    // ignore
+  }
+  return null;
+}
+
+async function fetchLinkedInGuestApi(url: string): Promise<JobAdDetails | null> {
+  const jobId = extractLinkedInJobId(url);
+  if (!jobId) return null;
+
+  try {
+    const res = await fetch(
+      `https://www.linkedin.com/jobs-guest/jobs/api/jobPosting/${jobId}`,
+      {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+          Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          "Accept-Language": "en-AU,en;q=0.8",
+        },
+        signal: AbortSignal.timeout(20000),
+      }
+    );
+
+    if (!res.ok) return null;
+    const html = await res.text();
+    if (!html || html.trim().length < 200) return null;
+
+    // Extract description — LinkedIn guest API returns HTML with nested divs;
+    // slice from the description container to the end and let htmlToText clean it up
+    const descStart = html.search(
+      /class="[^"]*show-more-less-html__markup[^"]*"/i
+    ) !== -1
+      ? html.search(/class="[^"]*show-more-less-html__markup[^"]*"/i)
+      : html.search(/class="[^"]*description__text[^"]*"/i);
+    const descSlice = descStart > 0 ? html.slice(descStart, descStart + 20000) : html;
+    const description = htmlToText(descSlice);
+    if (description.trim().length < 100) return null;
+
+    const titleMatch = html.match(/<h2[^>]*class="[^"]*top-card-layout__title[^"]*"[^>]*>([\s\S]*?)<\/h2>/i);
+    const title = titleMatch ? decodeHtml(titleMatch[1].replace(/<[^>]+>/g, " ").trim()) : "";
+
+    const companyMatch = html.match(/<a[^>]*class="[^"]*topcard__org-name-link[^"]*"[^>]*>([\s\S]*?)<\/a>/i)
+      ?? html.match(/<span[^>]*class="[^"]*topcard__flavor[^"]*"[^>]*>([\s\S]*?)<\/span>/i);
+    const company = companyMatch ? decodeHtml(companyMatch[1].replace(/<[^>]+>/g, " ").trim()) : "";
+
+    const locationMatch = html.match(/<span[^>]*class="[^"]*topcard__flavor--bullet[^"]*"[^>]*>([\s\S]*?)<\/span>/i);
+    const location = locationMatch ? decodeHtml(locationMatch[1].replace(/<[^>]+>/g, " ").trim()) : "";
+
+    console.log(`[job-ad] LinkedIn guest API ok — title: "${title}", desc length: ${description.length}`);
+
+    return {
+      title: title || "Job from LinkedIn",
+      company: company || "Company from job ad",
+      location,
+      salary: "",
+      description: description.slice(0, 30000),
+    };
+  } catch (e) {
+    console.warn("[job-ad] LinkedIn guest API failed:", e);
+    return null;
+  }
+}
+
 // ─── Jina AI Reader fallback (used in serverless / production) ─────────────
 
 async function fetchJobWithJina(url: string): Promise<JobAdDetails | null> {
@@ -401,7 +476,9 @@ export async function fetchJobAdDetails(jobUrl: string): Promise<JobAdDetails> {
 
   if (!response.ok) {
     if (isBlockedJobBoard(effectiveUrl)) {
+      const isLinkedIn = new URL(effectiveUrl).hostname.includes("linkedin.com");
       const fallback =
+        (isLinkedIn ? await fetchLinkedInGuestApi(effectiveUrl) : null) ??
         (await fetchJobWithJina(effectiveUrl)) ??
         (IS_SERVERLESS ? null : await fetchJobWithBrowser(effectiveUrl));
       if (fallback) return fallback;
@@ -475,7 +552,16 @@ export async function fetchJobAdDetails(jobUrl: string): Promise<JobAdDetails> {
 
   // If description is too short and this is a known blocked site, try a scraping fallback
   if (result.description.trim().length < 300 && isBlockedJobBoard(effectiveUrl)) {
-    console.log(`[job-ad] short/empty description for blocked site (${new URL(effectiveUrl).hostname}), trying Jina…`);
+    const hostname = new URL(effectiveUrl).hostname;
+    console.log(`[job-ad] short/empty description for blocked site (${hostname}), trying fallbacks…`);
+
+    // LinkedIn: try the public guest API first (no auth needed)
+    const isLinkedIn = hostname.includes("linkedin.com");
+    if (isLinkedIn) {
+      const linkedinFallback = await fetchLinkedInGuestApi(effectiveUrl);
+      if (linkedinFallback) return linkedinFallback;
+    }
+
     const fallback =
       (await fetchJobWithJina(effectiveUrl)) ??
       (IS_SERVERLESS ? null : await fetchJobWithBrowser(effectiveUrl));
