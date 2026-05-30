@@ -219,8 +219,8 @@ export function ApplicationDetailTabs({
           {/* Hiring Manager + Work Location */}
           <div className="grid gap-4 md:grid-cols-2">
             <div className="flex items-start gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#2200ff] text-white">
-                <User className="h-5 w-5" />
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#ece8ff] text-[#2200ff]">
+                <User className="h-4 w-4" />
               </span>
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-semibold uppercase tracking-[0.13em] text-slate-400">Hiring Manager / Recruiter</p>
@@ -235,8 +235,8 @@ export function ApplicationDetailTabs({
             </div>
 
             <div className="flex items-start gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#2200ff] text-white">
-                <MapPin className="h-5 w-5" />
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#ece8ff] text-[#2200ff]">
+                <MapPin className="h-4 w-4" />
               </span>
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-semibold uppercase tracking-[0.13em] text-slate-400">Work Location</p>
@@ -256,8 +256,8 @@ export function ApplicationDetailTabs({
           {/* Salary + Helpful Info */}
           <div className="grid gap-4 md:grid-cols-2">
             <div className="flex items-start gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#2200ff] text-white">
-                <Banknote className="h-5 w-5" />
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#ece8ff] text-[#2200ff]">
+                <Banknote className="h-4 w-4" />
               </span>
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-semibold uppercase tracking-[0.13em] text-slate-400">Salary Range</p>
@@ -272,8 +272,8 @@ export function ApplicationDetailTabs({
             </div>
 
             <div className="flex items-start gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-amber-400 text-white">
-                <Lightbulb className="h-5 w-5" />
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-500">
+                <Lightbulb className="h-4 w-4" />
               </span>
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-semibold uppercase tracking-[0.13em] text-amber-500">Helpful Information</p>
@@ -290,8 +290,8 @@ export function ApplicationDetailTabs({
 
           {/* Your Notes — full width */}
           <div className="flex items-start gap-3 rounded-2xl border border-slate-100 p-4">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#2200ff] text-white">
-              <BookOpen className="h-5 w-5" />
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#ece8ff] text-[#2200ff]">
+              <BookOpen className="h-4 w-4" />
             </span>
             <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold uppercase tracking-[0.13em] text-slate-400">Your Notes</p>

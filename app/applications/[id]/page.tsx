@@ -189,8 +189,8 @@ export default async function ApplicationDetailPage({ params, searchParams }: Pr
 
             {/* Hero */}
             <section className="overflow-hidden rounded-[1.8rem] border border-slate-100 bg-gradient-to-br from-[#ece8ff]/60 via-white to-[#d4ccff]/40 p-5 shadow-sm md:p-8">
-              {/* Row 1: score + headline */}
-              <div className="flex items-center justify-between gap-4">
+              {/* Row 1: score + headline — stacks on mobile */}
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                 <div className="flex min-w-0 items-center gap-4">
                   <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-[#2200ff] shadow-sm">
                     {hasDocuments ? <CheckCircle2 className="h-5 w-5" /> : <Sparkles className="h-5 w-5" />}
@@ -202,7 +202,7 @@ export default async function ApplicationDetailPage({ params, searchParams }: Pr
                     <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${score.pill}`}>{score.label}</span>
                   </div>
                 </div>
-                <h2 className="shrink-0 text-lg font-bold text-slate-900">
+                <h2 className="text-base font-bold text-slate-900 sm:shrink-0 sm:text-lg">
                   {hasDocuments ? "You're ready to apply!" : "Generate your tailored application"}
                 </h2>
               </div>
@@ -216,19 +216,19 @@ export default async function ApplicationDetailPage({ params, searchParams }: Pr
                   <p className="text-sm text-slate-600">{guidance.body}</p>
                   <p className="mt-0.5 text-xs text-slate-400">Next: {guidance.next}</p>
                 </div>
-                <div className="flex shrink-0 flex-wrap items-center gap-2">
+                <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap sm:items-center">
                   {hasDocuments && (
                     <>
                       <a
                         href={`/api/applications/${application.id}/export?type=resume&format=docx`}
-                        className="inline-flex items-center gap-2 rounded-full bg-[#2200ff] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(34,0,255,0.2)] transition hover:-translate-y-0.5 hover:bg-[#1a00cc]"
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#2200ff] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(34,0,255,0.2)] transition hover:-translate-y-0.5 hover:bg-[#1a00cc] sm:w-auto"
                       >
                         <Download className="h-3.5 w-3.5" />
                         Download resume
                       </a>
                       <a
                         href={`/api/applications/${application.id}/export?type=cover&format=docx`}
-                        className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50"
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50 sm:w-auto"
                       >
                         <Download className="h-3.5 w-3.5" />
                         Download cover letter
