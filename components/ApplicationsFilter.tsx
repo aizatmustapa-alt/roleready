@@ -1,13 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, MapPin, Search, SlidersHorizontal, Sparkles, Trash2 } from "lucide-react";
+import { ArrowRight, ChevronDown, Loader2, MapPin, Search, SlidersHorizontal, Sparkles, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ApplicationStatus, ApplicationWithJob } from "@/types/database";
 
 type Filter = "All" | ApplicationStatus;
+type SummaryState = { summary?: string; loading?: boolean; error?: string };
+type SummaryStateMap = Record<string, SummaryState>;
+
 const STATUSES: ApplicationStatus[] = ["New", "Ready", "Applied", "Interview", "Rejected"];
+const EMPTY = "-";
 
 function scoreStyle(score: number | null) {
   if (score === null) return "bg-slate-100 text-slate-500";
@@ -22,11 +26,89 @@ function companyInitial(company?: string | null) {
 }
 
 function shortDate(value: string | null) {
-  if (!value) return "—";
+  if (!value) return EMPTY;
   return new Intl.DateTimeFormat("en-AU", { day: "numeric", month: "short" }).format(new Date(value));
 }
 
-function MobileCard({ application }: { application: ApplicationWithJob }) {
+function summaryBullets(text?: string | null) {
+  const clean = text?.trim();
+  if (!clean) return [];
+
+  const explicitBullets = clean
+    .split(/\r?\n/)
+    .map((line) => line.replace(/^[-*]\s*/, "").trim())
+    .filter(Boolean);
+
+  if (explicitBullets.length >= 2) return explicitBullets.slice(0, 3);
+
+  return clean
+    .replace(/\s+/g, " ")
+    .split(/(?<=[.!?])\s+/)
+    .map((sentence) => sentence.trim())
+    .filter(Boolean)
+    .slice(0, 3);
+}
+
+function SummaryPanel({ state, fallbackSummary }: { state?: SummaryState; fallbackSummary?: string | null }) {
+  const summary = state?.summary ?? fallbackSummary ?? "";
+  const bullets = summaryBullets(summary);
+
+  if (state?.loading) {
+    return (
+      <div className="flex items-center gap-2 rounded-2xl bg-slate-50 px-4 py-3 text-sm font-medium text-slate-500">
+        <Loader2 className="h-4 w-4 animate-spin text-[#2200ff]" />
+        Summarising job description...
+      </div>
+    );
+  }
+
+  if (state?.error) {
+    return (
+      <div className="rounded-2xl bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-600">
+        {state.error}
+      </div>
+    );
+  }
+
+  if (bullets.length === 0) {
+    return (
+      <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-500">
+        No summary yet. Expand again to generate one from the job description.
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-2xl bg-slate-50 px-4 py-3">
+      <p className="mb-2 text-xs font-semibold uppercase tracking-[0.13em] text-slate-400">Job summary</p>
+      <ul className="space-y-2">
+        {bullets.map((bullet, index) => (
+          <li key={`${bullet}-${index}`} className="flex gap-2.5 text-sm leading-6 text-slate-600">
+            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#2200ff]/50" />
+            <span>{bullet}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+const statusPill: Record<string, string> = {
+  New: "bg-sky-50 text-sky-700",
+  Ready: "bg-emerald-50 text-emerald-700",
+  Applied: "bg-amber-50 text-amber-700",
+  Interview: "bg-orange-50 text-orange-700",
+  Rejected: "bg-rose-50 text-rose-600",
+};
+
+type RowProps = {
+  application: ApplicationWithJob;
+  expanded: boolean;
+  summaryState?: SummaryState;
+  onToggleSummary: (application: ApplicationWithJob) => void;
+};
+
+function MobileCard({ application, expanded, summaryState, onToggleSummary }: RowProps) {
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
   const job = application.jobs;
@@ -54,10 +136,27 @@ function MobileCard({ application }: { application: ApplicationWithJob }) {
           <p className="mt-0.5 truncate text-sm text-slate-500">{job?.company}</p>
         </div>
         <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-bold tabular-nums ${scoreStyle(application.match_score)}`}>
-          {application.match_score === null ? "—" : `${application.match_score}%`}
+          {application.match_score === null ? EMPTY : `${application.match_score}%`}
         </span>
       </div>
+
+      {expanded ? (
+        <div className="mt-3">
+          <SummaryPanel state={summaryState} fallbackSummary={application.role_summary} />
+        </div>
+      ) : null}
+
       <div className="mt-3 flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => onToggleSummary(application)}
+          className={`flex h-10 items-center justify-center gap-1.5 rounded-full px-3 text-sm font-semibold transition ${
+            expanded ? "bg-[#ece8ff] text-[#2200ff]" : "bg-slate-50 text-slate-600 hover:text-[#2200ff]"
+          }`}
+        >
+          Summary
+          <ChevronDown className={`h-4 w-4 transition ${expanded ? "rotate-180" : ""}`} />
+        </button>
         <Link href={`/applications/${application.id}`} className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#2200ff] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1a00cc]">
           View <ArrowRight className="h-4 w-4" />
         </Link>
@@ -69,15 +168,7 @@ function MobileCard({ application }: { application: ApplicationWithJob }) {
   );
 }
 
-const statusPill: Record<string, string> = {
-  New:       "bg-sky-50 text-sky-700",
-  Ready:     "bg-emerald-50 text-emerald-700",
-  Applied:   "bg-amber-50 text-amber-700",
-  Interview: "bg-orange-50 text-orange-700",
-  Rejected:  "bg-rose-50 text-rose-600",
-};
-
-function DesktopRow({ application }: { application: ApplicationWithJob }) {
+function DesktopRow({ application, expanded, summaryState, onToggleSummary }: RowProps) {
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
   const job = application.jobs;
@@ -99,80 +190,148 @@ function DesktopRow({ application }: { application: ApplicationWithJob }) {
   }
 
   return (
-    <tr className="group">
-      {/* Title */}
-      <td className={`${tdBase} rounded-l-[1.2rem] pl-4 pr-3`}>
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#d4ccff] to-violet-50 text-sm font-bold text-[#2200ff]">
-            {companyInitial(job?.company)}
+    <>
+      <tr className="group">
+        <td className={`${tdBase} rounded-l-[1.2rem] pl-4 pr-3`}>
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#d4ccff] to-violet-50 text-sm font-bold text-[#2200ff]">
+              {companyInitial(job?.company)}
+            </div>
+            <div className="min-w-0">
+              <Link href={`/applications/${application.id}`} className="block line-clamp-2 font-semibold text-slate-900 transition group-hover:text-[#2200ff]">
+                {job?.title ?? "Untitled role"}
+              </Link>
+              <p className="flex items-center gap-1.5 truncate text-xs text-slate-500">
+                <span>{job?.company}</span>
+                {job?.location && (
+                  <>
+                    <span className="text-slate-300">-</span>
+                    <span className="inline-flex items-center gap-0.5"><MapPin className="h-3 w-3 text-slate-400" />{job.location}</span>
+                  </>
+                )}
+                {application.location_type && application.location_type !== "Not specified" && (
+                  <><span className="text-slate-300">-</span><span>{application.location_type}</span></>
+                )}
+              </p>
+            </div>
           </div>
-          <div className="min-w-0">
-            <Link href={`/applications/${application.id}`} className="block line-clamp-2 font-semibold text-slate-900 transition group-hover:text-[#2200ff]">
-              {job?.title ?? "Untitled role"}
+        </td>
+
+        <td className={`${tdBase} px-2 text-center`}>
+          <span className={`inline-block rounded-full px-2.5 py-1 text-sm font-bold tabular-nums ${scoreStyle(score)}`}>
+            {score === null ? EMPTY : `${score}%`}
+          </span>
+        </td>
+
+        <td className={`${tdBase} px-2 text-sm text-slate-600`}>
+          {application.hiring_manager || <span className="text-slate-300">{EMPTY}</span>}
+        </td>
+
+        <td className={`${tdBase} px-2 text-sm text-slate-600`}>
+          {job?.salary || <span className="text-slate-300">{EMPTY}</span>}
+        </td>
+
+        <td className={`${tdBase} px-2 text-sm text-slate-600`}>
+          {application.applied_at ? shortDate(application.applied_at) : <span className="text-slate-300">{EMPTY}</span>}
+        </td>
+
+        <td className={`${tdBase} px-2`}>
+          <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-semibold ${statusPill[status] ?? "bg-slate-100 text-slate-600"}`}>
+            {status}
+          </span>
+        </td>
+
+        <td className={`${tdBase} rounded-r-[1.2rem] pl-2 pr-4`}>
+          <div className="flex items-center justify-end gap-1.5">
+            <button
+              type="button"
+              onClick={() => onToggleSummary(application)}
+              className={`flex h-8 w-8 items-center justify-center rounded-full transition ${
+                expanded ? "bg-[#ece8ff] text-[#2200ff]" : "text-slate-300 hover:bg-slate-50 hover:text-[#2200ff]"
+              }`}
+              title={expanded ? "Hide summary" : "Show summary"}
+              aria-label={expanded ? "Hide job summary" : "Show job summary"}
+              aria-expanded={expanded}
+            >
+              <ChevronDown className={`h-4 w-4 transition ${expanded ? "rotate-180" : ""}`} />
+            </button>
+            <Link href={`/applications/${application.id}`} className="inline-flex items-center gap-1.5 rounded-full bg-[#2200ff] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#1a00cc]">
+              View
             </Link>
-            <p className="flex items-center gap-1.5 truncate text-xs text-slate-500">
-              <span>{job?.company}</span>
-              {job?.location && (
-                <>
-                  <span className="text-slate-300">•</span>
-                  <span className="inline-flex items-center gap-0.5"><MapPin className="h-3 w-3 text-slate-400" />{job.location}</span>
-                </>
-              )}
-              {application.location_type && application.location_type !== "Not specified" && (
-                <><span className="text-slate-300">•</span><span>{application.location_type}</span></>
-              )}
-            </p>
+            <button type="button" onClick={del} disabled={deleting} className="flex h-8 w-8 items-center justify-center rounded-full text-slate-300 transition hover:text-rose-500 disabled:opacity-50" title="Delete">
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
           </div>
-        </div>
-      </td>
+        </td>
+      </tr>
 
-      {/* Match */}
-      <td className={`${tdBase} px-2 text-center`}>
-        <span className={`inline-block rounded-full px-2.5 py-1 text-sm font-bold tabular-nums ${scoreStyle(score)}`}>
-          {score === null ? "—" : `${score}%`}
-        </span>
-      </td>
-
-      {/* Recruiter */}
-      <td className={`${tdBase} px-2 text-sm text-slate-600`}>
-        {application.hiring_manager || <span className="text-slate-300">—</span>}
-      </td>
-
-      {/* Salary */}
-      <td className={`${tdBase} px-2 text-sm text-slate-600`}>
-        {job?.salary || <span className="text-slate-300">—</span>}
-      </td>
-
-      {/* Applied */}
-      <td className={`${tdBase} px-2 text-sm text-slate-600`}>
-        {application.applied_at ? shortDate(application.applied_at) : <span className="text-slate-300">—</span>}
-      </td>
-
-      {/* Status */}
-      <td className={`${tdBase} px-2`}>
-        <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-semibold ${statusPill[status] ?? "bg-slate-100 text-slate-600"}`}>
-          {status}
-        </span>
-      </td>
-
-      {/* Actions */}
-      <td className={`${tdBase} rounded-r-[1.2rem] pl-2 pr-4`}>
-        <div className="flex items-center justify-end gap-1.5">
-          <Link href={`/applications/${application.id}`} className="inline-flex items-center gap-1.5 rounded-full bg-[#2200ff] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#1a00cc]">
-            View
-          </Link>
-          <button type="button" onClick={del} disabled={deleting} className="flex h-8 w-8 items-center justify-center rounded-full text-slate-300 transition hover:text-rose-500 disabled:opacity-50" title="Delete">
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
-        </div>
-      </td>
-    </tr>
+      {expanded ? (
+        <tr>
+          <td colSpan={7} className="px-4 pb-2">
+            <SummaryPanel state={summaryState} fallbackSummary={application.role_summary} />
+          </td>
+        </tr>
+      ) : null}
+    </>
   );
 }
 
 export function ApplicationsFilter({ applications }: { applications: ApplicationWithJob[] }) {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("All");
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set());
+  const [summaries, setSummaries] = useState<SummaryStateMap>({});
+
+  async function loadSummary(application: ApplicationWithJob) {
+    if (application.role_summary?.trim() || summaries[application.id]?.summary || summaries[application.id]?.loading) return;
+
+    setSummaries((current) => ({
+      ...current,
+      [application.id]: { ...current[application.id], loading: true, error: undefined },
+    }));
+
+    try {
+      const res = await fetch(`/api/applications/${application.id}/summarise-role`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ format: "bullets", save: true }),
+      });
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        setSummaries((current) => ({
+          ...current,
+          [application.id]: { loading: false, error: data?.error ?? "Could not summarise this job." },
+        }));
+        return;
+      }
+
+      setSummaries((current) => ({
+        ...current,
+        [application.id]: { loading: false, summary: data?.summary ?? "" },
+      }));
+    } catch {
+      setSummaries((current) => ({
+        ...current,
+        [application.id]: { loading: false, error: "Network error. Try again." },
+      }));
+    }
+  }
+
+  function toggleSummary(application: ApplicationWithJob) {
+    const nextExpanded = !expandedIds.has(application.id);
+
+    setExpandedIds((current) => {
+      const next = new Set(current);
+      if (nextExpanded) next.add(application.id);
+      else next.delete(application.id);
+      return next;
+    });
+
+    if (nextExpanded) {
+      void loadSummary(application);
+    }
+  }
 
   const statusCounts = useMemo(() => {
     const counts: Partial<Record<ApplicationStatus, number>> = {};
@@ -208,14 +367,12 @@ export function ApplicationsFilter({ applications }: { applications: Application
 
   return (
     <section className="space-y-3">
-      {/* Search + filter bar */}
       <div className="rounded-[1.6rem] border border-slate-100 bg-white p-3 shadow-sm md:p-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-center">
           <label className="flex min-h-11 flex-1 items-center gap-2 rounded-2xl bg-slate-50 px-4 ring-1 ring-slate-100 focus-within:ring-[#d4ccff]">
             <Search className="h-4 w-4 shrink-0 text-slate-400" />
             <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search roles" className="min-w-0 flex-1 bg-transparent py-2.5 text-[16px] outline-none placeholder:text-slate-400 md:text-sm" type="search" />
           </label>
-          {/* Desktop filter pills */}
           <div className="hidden flex-wrap items-center gap-1.5 md:flex">
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-50 text-slate-400">
               <SlidersHorizontal className="h-3.5 w-3.5" />
@@ -229,7 +386,6 @@ export function ApplicationsFilter({ applications }: { applications: Application
               </button>
             ))}
           </div>
-          {/* Mobile filter select */}
           <select value={filter} onChange={(e) => setFilter(e.target.value as Filter)} className="min-h-11 w-full appearance-none rounded-2xl bg-slate-50 px-4 text-sm font-semibold text-slate-900 outline-none ring-1 ring-slate-100 md:hidden">
             <option value="All">All statuses</option>
             {STATUSES.map((s) => <option key={s} value={s}>{statusCounts[s] ?? 0} {s}</option>)}
@@ -246,12 +402,18 @@ export function ApplicationsFilter({ applications }: { applications: Application
         </div>
       ) : (
         <>
-          {/* Mobile cards */}
           <div className="space-y-2 lg:hidden">
-            {filtered.map((app) => <MobileCard key={app.id} application={app} />)}
+            {filtered.map((app) => (
+              <MobileCard
+                key={app.id}
+                application={app}
+                expanded={expandedIds.has(app.id)}
+                summaryState={summaries[app.id]}
+                onToggleSummary={toggleSummary}
+              />
+            ))}
           </div>
 
-          {/* Desktop table */}
           <table className="hidden w-full border-separate border-spacing-y-2 lg:table">
             <colgroup>
               <col />
@@ -260,7 +422,7 @@ export function ApplicationsFilter({ applications }: { applications: Application
               <col className="w-[120px]" />
               <col className="w-[85px]" />
               <col className="w-[90px]" />
-              <col className="w-[110px]" />
+              <col className="w-[125px]" />
             </colgroup>
             <thead>
               <tr>
@@ -274,7 +436,15 @@ export function ApplicationsFilter({ applications }: { applications: Application
               </tr>
             </thead>
             <tbody>
-              {filtered.map((app) => <DesktopRow key={app.id} application={app} />)}
+              {filtered.map((app) => (
+                <DesktopRow
+                  key={app.id}
+                  application={app}
+                  expanded={expandedIds.has(app.id)}
+                  summaryState={summaries[app.id]}
+                  onToggleSummary={toggleSummary}
+                />
+              ))}
             </tbody>
           </table>
         </>

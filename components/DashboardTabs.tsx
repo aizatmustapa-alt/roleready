@@ -103,26 +103,27 @@ function GrabbedMatchCard({
   const label = matchLabel(job.matchScore);
 
   return (
-    <article className="group flex items-center gap-3 rounded-[1.6rem] border border-slate-100 bg-white p-4 shadow-sm transition duration-200 hover:shadow-[0_8px_30px_rgba(34,0,255,0.08)] md:gap-4 md:p-5">
-      {/* Avatar */}
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#d4ccff] to-violet-50 text-base font-bold text-[#2200ff] md:h-12 md:w-12">
-        {(job.company?.trim()?.[0] ?? "A").toUpperCase()}
-      </div>
+    <article className="group rounded-[1.6rem] border border-slate-100 bg-white p-4 shadow-sm transition duration-200 hover:shadow-[0_8px_30px_rgba(34,0,255,0.08)] sm:flex sm:items-center sm:gap-3 md:gap-4 md:p-5">
+      <div className="flex min-w-0 items-start gap-3 sm:flex-1 sm:items-center">
+        {/* Avatar */}
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#d4ccff] to-violet-50 text-base font-bold text-[#2200ff] md:h-12 md:w-12">
+          {(job.company?.trim()?.[0] ?? "A").toUpperCase()}
+        </div>
 
-      {/* Main content */}
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-1.5">
+        {/* Main content */}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-start gap-1.5">
           <a
             href={job.jobUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="truncate font-semibold text-slate-900 transition hover:text-[#2200ff]"
+            className="line-clamp-2 min-w-0 font-semibold leading-snug text-slate-900 transition hover:text-[#2200ff] sm:truncate sm:leading-normal"
           >
             {job.title}
           </a>
-          <ExternalLink className="h-3.5 w-3.5 shrink-0 text-slate-300" />
+          <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-300" />
         </div>
-        <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm text-slate-500">
+        <p className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm leading-5 text-slate-500 sm:mt-0.5">
           <span>{job.company}</span>
           {job.location && (
             <>
@@ -139,25 +140,27 @@ function GrabbedMatchCard({
           )}
         </p>
         {salary && (
-          <p className="mt-0.5 text-sm font-medium text-slate-700">{salary}</p>
+          <p className="mt-1 text-sm font-medium text-slate-700 sm:mt-0.5">{salary}</p>
         )}
+        </div>
       </div>
 
       {/* Right side */}
-      <div className="flex shrink-0 items-center gap-2 md:gap-3">
+      <div className="mt-4 flex items-center justify-between gap-2 sm:mt-0 sm:shrink-0 sm:justify-end md:gap-3">
         {/* Score */}
-        <div className="hidden text-right sm:block">
-          <span className={`inline-block rounded-full px-3 py-1 text-sm font-bold tabular-nums ${matchPillClass(job.matchScore)}`}>
-            {job.matchScore}% Match
+        <div className="min-w-0 text-left sm:text-right">
+          <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-bold tabular-nums sm:px-3 sm:text-sm ${matchPillClass(job.matchScore)}`}>
+            <span className="sm:hidden">{job.matchScore}%</span>
+            <span className="hidden sm:inline">{job.matchScore}% Match</span>
           </span>
-          <p className="mt-0.5 text-xs text-slate-500">{label}</p>
+          <p className="mt-0.5 hidden text-xs text-slate-500 sm:block">{label}</p>
         </div>
 
         {/* Action button */}
         {importedApplicationId ? (
           <Link
             href={`/applications/${importedApplicationId}`}
-            className="inline-flex items-center gap-1.5 rounded-full bg-[#2200ff] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#1a00cc]"
+            className="inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-full bg-[#2200ff] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#1a00cc] sm:min-h-0 sm:flex-none"
           >
             Open <ArrowRight className="h-3.5 w-3.5" />
           </Link>
@@ -166,7 +169,7 @@ function GrabbedMatchCard({
             type="button"
             disabled={importing}
             onClick={() => onImport(job)}
-            className="inline-flex items-center gap-1.5 rounded-full bg-[#2200ff] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#1a00cc] disabled:opacity-70"
+            className="inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-full bg-[#2200ff] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#1a00cc] disabled:opacity-70 sm:min-h-0 sm:flex-none"
           >
             {importing ? "Starting…" : "Tailor & Apply"} <ArrowRight className="h-3.5 w-3.5" />
           </button>
@@ -209,6 +212,7 @@ export function DashboardTabs({
   const [importing, setImporting] = useState<Record<string, boolean>>({});
   const [imported, setImported] = useState<Record<string, string>>({});
   const [showAllMatches, setShowAllMatches] = useState(false);
+  const [mobilePreferencesOpen, setMobilePreferencesOpen] = useState(false);
 
   const importedByUrl = useMemo(() => {
     const map: Record<string, string> = {};
@@ -401,8 +405,19 @@ export function DashboardTabs({
 
               {/* More preferences + refresh */}
               <div>
-                <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">More preferences</p>
-                <div className="flex flex-col gap-y-1.5">
+                <p className="mb-1.5 hidden text-xs font-semibold uppercase tracking-[0.14em] text-slate-400 lg:block">More preferences</p>
+                <button
+                  type="button"
+                  onClick={() => setMobilePreferencesOpen((open) => !open)}
+                  className="flex min-h-11 w-full items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-left text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-slate-50 lg:hidden"
+                  aria-expanded={mobilePreferencesOpen}
+                >
+                  <span>More preferences</span>
+                  <span className="text-xs font-medium text-slate-400">
+                    {workTypes.size === 0 ? "None selected" : `${workTypes.size} selected`}
+                  </span>
+                </button>
+                <div className={`${mobilePreferencesOpen ? "mt-2 grid" : "hidden"} grid-cols-2 gap-2 rounded-2xl border border-slate-100 bg-white p-3 shadow-sm lg:flex lg:flex-col lg:gap-y-1.5 lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none`}>
                   {WORK_TYPE_OPTIONS.map(({ value, label }) => (
                     <label key={value} className="flex cursor-pointer items-center gap-2 text-sm text-slate-600">
                       <input
