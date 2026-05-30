@@ -35,14 +35,14 @@ export default async function DocumentsPage() {
   ]);
 
   return (
-    <main className="min-h-screen bg-[#fffaf4] px-4 py-5 pb-36 md:px-8 md:py-10 md:pb-10 xl:px-10">
+    <main className="min-h-screen bg-slate-50 px-4 py-5 pb-36 md:px-8 md:py-10 md:pb-10 xl:px-10">
       <div className="mx-auto max-w-[1520px] overflow-x-clip">
         <div className="mb-6 max-w-4xl md:mb-8">
-          <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-teal-50 px-3 py-1.5 text-sm font-semibold text-[#0f8f83] md:text-xs">
+          <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#ece8ff] px-3 py-1.5 text-sm font-semibold text-[#2200ff] md:text-xs">
             <FileText className="h-4 w-4" />
             Documents
           </p>
-          <h1 className="font-serif text-3xl font-semibold tracking-tight text-[#14213d] md:text-5xl">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900 md:text-5xl">
             Keep your master documents ready.
           </h1>
           <p className="mt-2 max-w-2xl text-base leading-7 text-slate-600 md:mt-3 md:text-lg md:leading-8">

@@ -18,9 +18,9 @@ function formatSalary(min?: number, max?: number): string {
 }
 
 function scoreBadgeClass(score: number): string {
-  if (score >= 80) return "bg-teal-100 text-teal-800";
+  if (score >= 80) return "bg-[#d4ccff] text-[#1a00cc]";
   if (score >= 60) return "bg-amber-100 text-amber-800";
-  return "bg-stone-100 text-stone-600";
+  return "bg-slate-100 text-slate-600";
 }
 
 export function GrabPanel({ hasResume }: Props) {
@@ -86,13 +86,13 @@ export function GrabPanel({ hasResume }: Props) {
   }
 
   return (
-    <section className="overflow-hidden rounded-xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5">
+    <section className="overflow-hidden rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-start gap-3">
-          <Zap className="mt-1 h-5 w-5 shrink-0 text-teal-700" />
+          <Zap className="mt-1 h-5 w-5 shrink-0 text-[#2200ff]" />
           <div>
-            <h2 className="text-xl font-bold text-stone-950">Grab Today's Jobs</h2>
-            <p className="mt-0.5 text-sm text-stone-600">
+            <h2 className="text-xl font-bold text-slate-900">Grab Today's Jobs</h2>
+            <p className="mt-0.5 text-sm text-slate-600">
               Search Australian job boards and rank matches against your master resume — then import the ones you want.
             </p>
           </div>
@@ -135,7 +135,7 @@ export function GrabPanel({ hasResume }: Props) {
       )}
 
       {status === "loading" && (
-        <p className="mt-4 animate-pulse text-sm text-stone-500">
+        <p className="mt-4 animate-pulse text-sm text-slate-500">
           Searching Australian job boards and scoring matches with AI…
         </p>
       )}
@@ -145,17 +145,17 @@ export function GrabPanel({ hasResume }: Props) {
       {status === "done" && (
         <div className="mt-4">
           {searchQuery && (
-            <p className="mb-3 text-xs text-stone-400">
-              Searched job boards for: <span className="font-medium text-stone-600">"{searchQuery}"</span>
+            <p className="mb-3 text-xs text-slate-400">
+              Searched job boards for: <span className="font-medium text-slate-600">"{searchQuery}"</span>
             </p>
           )}
 
           {jobs.length === 0 ? (
-            <p className="text-sm text-stone-500">
+            <p className="text-sm text-slate-500">
               No matching jobs found in the last 3 days. Try again tomorrow, or update your master resume with more keywords.
             </p>
           ) : (
-            <ul className="divide-y divide-stone-100">
+            <ul className="divide-y divide-slate-100">
               {jobs.map((job) => {
                 const salary = formatSalary(job.salaryMin, job.salaryMax);
                 const isImporting = importing[job.id];
@@ -176,25 +176,25 @@ export function GrabPanel({ hasResume }: Props) {
                             href={job.jobUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="font-semibold text-stone-950 hover:underline"
+                            className="font-semibold text-slate-900 hover:underline"
                           >
                             {job.title}
                           </a>
-                          <ExternalLink className="h-3 w-3 shrink-0 text-stone-400" />
+                          <ExternalLink className="h-3 w-3 shrink-0 text-slate-400" />
                         </div>
 
-                        <p className="text-sm text-stone-600">
+                        <p className="text-sm text-slate-600">
                           {job.company} · {job.location}
                           {salary ? ` · ${salary}` : ""}
                           {job.salary && !salary ? ` · ${job.salary}` : ""}
                         </p>
-                        {job.matchReason && <p className="mt-1 text-sm text-stone-500">{job.matchReason}</p>}
+                        {job.matchReason && <p className="mt-1 text-sm text-slate-500">{job.matchReason}</p>}
                       </div>
                     </div>
 
                     <div className="shrink-0 pt-0.5">
                       {applicationId ? (
-                        <a href={`/applications/${applicationId}`} className="text-sm font-semibold text-teal-700 hover:underline">
+                        <a href={`/applications/${applicationId}`} className="text-sm font-semibold text-[#2200ff] hover:underline">
                           Imported ✓
                         </a>
                       ) : (

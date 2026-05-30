@@ -60,14 +60,14 @@ export default async function DashboardPage() {
 
   if (!resumeFileName) {
     return (
-      <main className="min-h-screen bg-[#fffaf4] px-4 pb-36 md:px-8 md:pb-10 xl:px-10">
+      <main className="min-h-screen bg-slate-50 px-4 pb-36 md:px-8 md:pb-10 xl:px-10">
         <OnboardingWizard />
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#fffaf4] px-4 py-5 pb-36 md:px-8 md:py-10 md:pb-10 xl:px-10">
+    <main className="min-h-screen bg-slate-50 px-4 py-5 pb-36 md:px-8 md:py-10 md:pb-10 xl:px-10">
       <DashboardTabs
         applications={applications}
         resumeFileName={resumeFileName}

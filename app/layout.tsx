@@ -25,8 +25,8 @@ export const metadata: Metadata = {
   title: "ApplyHQ — Your Career Companion",
   description: "Tailored resumes and cover letters for every job ad, powered by AI.",
   icons: {
-    icon: "/icon.png",
-    apple: "/icon.png"
+    icon: "/icon.svg",
+    apple: "/icon.svg"
   }
 };
 
@@ -56,16 +56,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <div className={`flex min-h-screen flex-col ${authed ? "md:pl-60" : ""}`}>
           {/* Mobile-only top header — authenticated users only */}
           {authed && (
-            <header className="sticky top-0 z-30 border-b border-[#efe6d8] bg-[#fffdf8]/95 backdrop-blur md:hidden">
+            <header className="sticky top-0 z-30 border-b border-slate-100 bg-white/95 backdrop-blur md:hidden">
               <div className="flex items-center justify-between px-4 py-3">
                 <Link href="/" className="flex items-center gap-2.5">
-                  <img src="/brand/applyhq-logo-transparent.png" alt="ApplyHQ" className="h-10 w-auto mix-blend-multiply" />
+                  <img src="/brand/applyhq-logo-indigo.svg" alt="ApplyHQ" className="h-10 w-auto" />
                 </Link>
 
                 <nav className="flex items-center gap-1">
                   <Link
                     href="/more"
-                    className="inline-flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-teal-100 to-amber-100 text-xs font-semibold text-[#0f8f83] shadow-[0_10px_24px_rgba(20,33,61,0.08)] transition hover:bg-white hover:text-[#0f8f83]"
+                    className="inline-flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#ece8ff] to-[#d4ccff] text-xs font-semibold text-[#2200ff] shadow-[0_10px_24px_rgba(34,0,255,0.12)] transition hover:bg-white hover:text-[#2200ff]"
                     aria-label="Open profile menu"
                   >
                     {avatarUrl ? <img src={avatarUrl} alt="" className="h-full w-full object-cover" /> : initials}
@@ -73,7 +73,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                   <SignOutButton />
                   <Link
                     href="/jobs/new"
-                    className="inline-flex items-center gap-1.5 rounded-full bg-[#0f9f92] px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-[#0b8f83]"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-[#2200ff] px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-[#1a00cc]"
                   >
                     <Plus className="h-4 w-4" />
                   </Link>

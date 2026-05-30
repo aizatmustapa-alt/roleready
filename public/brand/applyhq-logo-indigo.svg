@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" width="520" height="120" role="img" aria-label="ApplyHQ">
+  <!-- Paper plane / send icon (matching original shape, scaled 2.7x from 24px grid) -->
+  <polygon points="62,9 44,63 33,39 8,28" fill="#2200ff"/>
+  <!-- Fold crease line -->
+  <line x1="62" y1="9" x2="33" y2="39" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Sparkle dots -->
+  <circle cx="72" cy="3"  r="3.5" fill="#2200ff"/>
+  <circle cx="82" cy="13" r="2.5" fill="#2200ff"/>
+  <circle cx="79" cy="1"  r="2"   fill="#2200ff"/>
+  <!-- "Apply" slate-900, "HQ" indigo -->
+  <text y="88"
+        font-family="Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+        font-size="64"
+        font-weight="800"
+        letter-spacing="-1">
+    <tspan x="102" fill="#0f172a">Apply</tspan><tspan fill="#2200ff">HQ</tspan>
+  </text>
+</svg>

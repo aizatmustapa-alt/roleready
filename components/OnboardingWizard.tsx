@@ -90,7 +90,7 @@ export function OnboardingWizard() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10 md:py-16">
-      <h1 className="mb-10 text-center font-serif text-3xl font-bold text-[#14213d] md:text-4xl">
+      <h1 className="mb-10 text-center text-3xl font-bold text-slate-900 md:text-4xl">
         Customise your first CV and cover letter in seconds
       </h1>
 
@@ -100,7 +100,7 @@ export function OnboardingWizard() {
           {STEP_LABELS.map((_, i) => (
             <div
               key={i}
-              className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${i + 1 <= step ? "bg-[#0f9f92]" : "bg-slate-200"}`}
+              className={`h-1.5 flex-1 rounded-full transition-colors duration-300 ${i + 1 <= step ? "bg-[#2200ff]" : "bg-slate-200"}`}
             />
           ))}
         </div>
@@ -119,9 +119,9 @@ export function OnboardingWizard() {
         {/* Step 1 — Upload CV */}
         {step === 1 && (
           <>
-            <h2 className="text-2xl font-bold text-[#14213d]">First, upload your CV here</h2>
+            <h2 className="text-2xl font-bold text-slate-900">First, upload your CV here</h2>
             {success ? (
-              <p className="mt-10 text-2xl font-semibold text-[#0f9f92]">👍 Nice!</p>
+              <p className="mt-10 text-2xl font-semibold text-[#2200ff]">👍 Nice!</p>
             ) : (
               <>
                 <div className="mt-10">
@@ -129,7 +129,7 @@ export function OnboardingWizard() {
                     type="button"
                     disabled={loading}
                     onClick={() => resumeRef.current?.click()}
-                    className="inline-flex items-center gap-2 rounded-full bg-[#0f9f92] px-8 py-3.5 text-base font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-[#0b8f83] disabled:opacity-60"
+                    className="inline-flex items-center gap-2 rounded-full bg-[#2200ff] px-8 py-3.5 text-base font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-[#1a00cc] disabled:opacity-60"
                   >
                     {loading ? "Uploading..." : "Upload CV"}
                   </button>
@@ -151,10 +151,10 @@ export function OnboardingWizard() {
         {/* Step 2 — Upload cover letter */}
         {step === 2 && (
           <>
-            <h2 className="text-2xl font-bold text-[#14213d]">Now, upload your current cover letter</h2>
+            <h2 className="text-2xl font-bold text-slate-900">Now, upload your current cover letter</h2>
             <p className="mt-2 text-slate-500">We'll fine tune it to match the job you want.</p>
             {success ? (
-              <p className="mt-10 text-2xl font-semibold text-[#0f9f92]">👍 Great work!</p>
+              <p className="mt-10 text-2xl font-semibold text-[#2200ff]">👍 Great work!</p>
             ) : (
               <>
                 <div className="mt-10">
@@ -162,7 +162,7 @@ export function OnboardingWizard() {
                     type="button"
                     disabled={loading}
                     onClick={() => coverRef.current?.click()}
-                    className="inline-flex items-center gap-2 rounded-full bg-[#0f9f92] px-8 py-3.5 text-base font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-[#0b8f83] disabled:opacity-60"
+                    className="inline-flex items-center gap-2 rounded-full bg-[#2200ff] px-8 py-3.5 text-base font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-[#1a00cc] disabled:opacity-60"
                   >
                     {loading ? "Uploading..." : "Upload cover letter"}
                   </button>
@@ -191,7 +191,7 @@ export function OnboardingWizard() {
         {/* Step 3 — Job URL */}
         {step === 3 && (
           <>
-            <h2 className="text-2xl font-bold text-[#14213d]">Which job are you applying for?</h2>
+            <h2 className="text-2xl font-bold text-slate-900">Which job are you applying for?</h2>
             <p className="mt-2 text-slate-500">Paste the URL so we can check it out</p>
             <div className="mt-8">
               <input
@@ -199,7 +199,7 @@ export function OnboardingWizard() {
                 value={jobUrl}
                 onChange={(e) => setJobUrl(e.target.value)}
                 placeholder="https://..."
-                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-base text-[#14213d] outline-none placeholder:text-slate-400 focus:border-[#0f9f92] focus:ring-2 focus:ring-teal-100"
+                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 outline-none placeholder:text-slate-400 focus:border-[#2200ff] focus:ring-2 focus:ring-[#d4ccff]"
               />
             </div>
             {error && <p className="mt-3 text-sm text-rose-600">{error}</p>}
@@ -208,7 +208,7 @@ export function OnboardingWizard() {
                 type="button"
                 disabled={loading}
                 onClick={handleJobUrl}
-                className="inline-flex items-center gap-2 rounded-full bg-[#0f9f92] px-8 py-3.5 text-base font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-[#0b8f83] disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-full bg-[#2200ff] px-8 py-3.5 text-base font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-[#1a00cc] disabled:opacity-60"
               >
                 {loading ? "Checking..." : "Next"}
               </button>
@@ -226,7 +226,7 @@ export function OnboardingWizard() {
         {/* Step 4 — Location */}
         {step === 4 && (
           <>
-            <h2 className="text-2xl font-bold text-[#14213d]">Where is the job located?</h2>
+            <h2 className="text-2xl font-bold text-slate-900">Where is the job located?</h2>
             <p className="mt-2 text-slate-500">So we can show you more local opportunities.</p>
             <div className="mt-8">
               <input
@@ -235,7 +235,7 @@ export function OnboardingWizard() {
                 onChange={(e) => setLocation(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") handleFinish(); }}
                 placeholder="Sydney"
-                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-base text-[#14213d] outline-none placeholder:text-slate-400 focus:border-[#0f9f92] focus:ring-2 focus:ring-teal-100"
+                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 outline-none placeholder:text-slate-400 focus:border-[#2200ff] focus:ring-2 focus:ring-[#d4ccff]"
               />
             </div>
             <div className="mt-6">
@@ -243,7 +243,7 @@ export function OnboardingWizard() {
                 type="button"
                 disabled={loading}
                 onClick={handleFinish}
-                className="inline-flex items-center gap-2 rounded-full bg-[#0f9f92] px-8 py-3.5 text-base font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-[#0b8f83] disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-full bg-[#2200ff] px-8 py-3.5 text-base font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-[#1a00cc] disabled:opacity-60"
               >
                 {loading ? "Saving..." : "Finish ✨"}
               </button>

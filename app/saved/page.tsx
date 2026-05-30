@@ -25,14 +25,14 @@ export default async function SavedPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#fffaf4] px-4 pb-36 pt-6 md:px-8 md:py-10 xl:px-10">
+    <main className="min-h-screen bg-slate-50 px-4 pb-36 pt-6 md:px-8 md:py-10 xl:px-10">
       <div className="mx-auto max-w-[920px] overflow-x-clip">
         <div className="mb-8">
-          <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-teal-50 px-3 py-1.5 text-sm font-semibold text-[#0f8f83]">
+          <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#ece8ff] px-3 py-1.5 text-sm font-semibold text-[#2200ff]">
             <Bookmark className="h-4 w-4" />
             Saved jobs
           </p>
-          <h1 className="font-serif text-4xl font-semibold tracking-tight text-[#14213d] md:text-5xl">
+          <h1 className="text-4xl font-bold tracking-tight text-slate-900 md:text-5xl">
             Keep roles you like close by.
           </h1>
           <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600 md:text-lg md:leading-8">
@@ -40,19 +40,19 @@ export default async function SavedPage() {
           </p>
         </div>
 
-        <section className="max-w-full overflow-hidden rounded-[2rem] bg-white/82 px-5 py-14 text-center shadow-[0_20px_70px_rgba(20,33,61,0.07)] sm:px-6">
-          <span className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-teal-50 to-amber-50 text-[#0f9f92]">
+        <section className="max-w-full overflow-hidden rounded-[2rem] border border-slate-100 bg-white px-5 py-14 text-center shadow-sm sm:px-6">
+          <span className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#ece8ff] to-[#d4ccff] text-[#2200ff]">
             <Sparkles className="h-9 w-9" />
           </span>
-          <h2 className="mt-5 text-2xl font-semibold text-[#14213d]">Your saved list is waiting.</h2>
+          <h2 className="mt-5 text-2xl font-bold text-slate-900">Your saved list is waiting.</h2>
           <p className="mx-auto mt-3 max-w-md text-base leading-7 text-slate-600">
             We will add persistent saved jobs here in a later pass. Today, ApplyHQ keeps discovery and active applications separate.
           </p>
           <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link href="/" className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#0f9f92] px-6 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(15,159,146,0.2)] sm:w-auto">
+            <Link href="/" className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#2200ff] px-6 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(34,0,255,0.2)] hover:bg-[#1a00cc] sm:w-auto">
               Find fresh matches <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link href="/applications" className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#0f8f83] shadow-sm sm:w-auto">
+            <Link href="/applications" className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 sm:w-auto">
               View applications
             </Link>
           </div>

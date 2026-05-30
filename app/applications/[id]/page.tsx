@@ -26,7 +26,7 @@ type Props = {
 
 function scoreTone(score: number | null) {
   if (score === null) return { label: "Match pending", className: "text-slate-500", pill: "bg-slate-100 text-slate-600" };
-  if (score >= 85) return { label: "Strong match", className: "text-[#0f8f83]", pill: "bg-teal-100 text-[#0f8f83]" };
+  if (score >= 85) return { label: "Strong match", className: "text-[#2200ff]", pill: "bg-[#d4ccff] text-[#1a00cc]" };
   if (score >= 70) return { label: "Good match", className: "text-amber-600", pill: "bg-amber-100 text-amber-700" };
   if (score >= 50) return { label: "Worth reviewing", className: "text-violet-600", pill: "bg-violet-100 text-violet-700" };
   return { label: "Needs tailoring", className: "text-rose-600", pill: "bg-rose-50 text-rose-600" };
@@ -138,11 +138,11 @@ export default async function ApplicationDetailPage({ params, searchParams }: Pr
   const guidance = statusGuidance(status, hasDocuments);
 
   return (
-    <main className="min-h-screen bg-[#fffaf4] px-4 py-5 pb-36 md:px-8 md:py-10 md:pb-10 xl:px-10">
+    <main className="min-h-screen bg-slate-50 px-4 py-5 pb-36 md:px-8 md:py-10 md:pb-10 xl:px-10">
       <div className="mx-auto max-w-[1520px] overflow-x-clip">
         {/* Header */}
         <div className="mb-6 md:mb-8">
-          <Link href="/applications" className="inline-flex items-center gap-1.5 text-sm font-medium text-[#0f8f83] transition hover:text-[#0b7d73]">
+          <Link href="/applications" className="inline-flex items-center gap-1.5 text-sm font-medium text-[#2200ff] transition hover:text-[#1a00cc]">
             <ArrowLeft className="h-3.5 w-3.5" />
             Back to applications
           </Link>
@@ -150,7 +150,7 @@ export default async function ApplicationDetailPage({ params, searchParams }: Pr
           <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-8">
             {/* Title + meta */}
             <div className="min-w-0">
-              <h1 className="font-serif text-3xl font-semibold tracking-tight text-[#14213d] md:text-4xl">
+              <h1 className="text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
                 {job.title}
               </h1>
               <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
@@ -169,7 +169,7 @@ export default async function ApplicationDetailPage({ params, searchParams }: Pr
                 {job.job_url ? (
                   <>
                     <span className="text-slate-300">•</span>
-                    <a href={job.job_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold text-[#0f8f83]">
+                    <a href={job.job_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold text-[#2200ff]">
                       View job ad <ExternalLink className="h-3.5 w-3.5" />
                     </a>
                   </>
@@ -188,11 +188,11 @@ export default async function ApplicationDetailPage({ params, searchParams }: Pr
         <div className="min-w-0 space-y-6">
 
             {/* Hero */}
-            <section className="overflow-hidden rounded-[1.8rem] bg-gradient-to-br from-teal-50 via-white to-amber-50 p-5 shadow-[0_24px_80px_rgba(20,33,61,0.075)] md:p-8">
+            <section className="overflow-hidden rounded-[1.8rem] border border-slate-100 bg-gradient-to-br from-[#ece8ff]/60 via-white to-[#d4ccff]/40 p-5 shadow-sm md:p-8">
               {/* Row 1: score + headline */}
               <div className="flex items-center justify-between gap-4">
                 <div className="flex min-w-0 items-center gap-4">
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-[#0f9f92] shadow-sm">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-[#2200ff] shadow-sm">
                     {hasDocuments ? <CheckCircle2 className="h-5 w-5" /> : <Sparkles className="h-5 w-5" />}
                   </span>
                   <div className="flex items-baseline gap-2">
@@ -202,13 +202,13 @@ export default async function ApplicationDetailPage({ params, searchParams }: Pr
                     <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${score.pill}`}>{score.label}</span>
                   </div>
                 </div>
-                <h2 className="shrink-0 text-lg font-semibold text-[#14213d]">
+                <h2 className="shrink-0 text-lg font-bold text-slate-900">
                   {hasDocuments ? "You're ready to apply!" : "Generate your tailored application"}
                 </h2>
               </div>
 
               {/* Divider */}
-              <div className="my-4 border-t border-teal-100/70" />
+              <div className="my-4 border-t border-slate-100" />
 
               {/* Row 2: guidance + actions */}
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -221,14 +221,14 @@ export default async function ApplicationDetailPage({ params, searchParams }: Pr
                     <>
                       <a
                         href={`/api/applications/${application.id}/export?type=resume&format=docx`}
-                        className="inline-flex items-center gap-2 rounded-full bg-[#0f9f92] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(15,159,146,0.2)] transition hover:-translate-y-0.5 hover:bg-[#0b8f83]"
+                        className="inline-flex items-center gap-2 rounded-full bg-[#2200ff] px-4 py-2.5 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(34,0,255,0.2)] transition hover:-translate-y-0.5 hover:bg-[#1a00cc]"
                       >
                         <Download className="h-3.5 w-3.5" />
                         Download resume
                       </a>
                       <a
                         href={`/api/applications/${application.id}/export?type=cover&format=docx`}
-                        className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-[#0f8f83] shadow-sm transition hover:-translate-y-0.5"
+                        className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50"
                       >
                         <Download className="h-3.5 w-3.5" />
                         Download cover letter
@@ -243,18 +243,18 @@ export default async function ApplicationDetailPage({ params, searchParams }: Pr
             {jobDescriptionLooksShort && <JobDescriptionEditor applicationId={application.id} initialDescription={job.description} />}
 
             {/* Opportunities to strengthen */}
-            <section className="rounded-[1.6rem] bg-white/82 p-5 shadow-[0_16px_54px_rgba(20,33,61,0.055)] md:p-6">
+            <section className="rounded-[1.6rem] border border-slate-100 bg-white p-5 shadow-sm md:p-6">
               <div>
-                <h2 className="text-lg font-semibold text-[#14213d]">Opportunities to strengthen</h2>
+                <h2 className="text-lg font-bold text-slate-900">Opportunities to strengthen</h2>
                 <p className="mt-1 text-sm text-slate-600">
                   {missingKeywords.length > 0 ? "These missing keywords may make your application stronger." : "No major keyword gaps were identified yet."}
                 </p>
               </div>
               <div className="mt-5 grid gap-3 md:grid-cols-3">
                 {(missingKeywords.length > 0 ? missingKeywords.slice(0, 3) : ["Review job requirements", "Check resume emphasis", "Personalise your opening"]).map((item) => (
-                  <div key={item} className="rounded-2xl bg-[#fffaf4] px-4 py-4">
+                  <div key={item} className="rounded-2xl bg-slate-50 px-4 py-4">
                     <Lightbulb className="h-5 w-5 text-amber-500" />
-                    <p className="mt-3 text-sm font-semibold text-[#14213d]">{item}</p>
+                    <p className="mt-3 text-sm font-semibold text-slate-900">{item}</p>
                     <p className="mt-1 text-xs leading-5 text-slate-500">
                       {missingKeywords.length > 0 ? "Mention this only if it genuinely appears in your experience." : "Use the generated documents as a starting point, then add context where it is true."}
                     </p>

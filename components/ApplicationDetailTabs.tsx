@@ -40,7 +40,7 @@ function InlineMarkdown({ text }: { text: string }) {
     <>
       {parts.map((part, i) =>
         part.startsWith("**") && part.endsWith("**")
-          ? <strong key={i} className="font-semibold text-[#14213d]">{part.slice(2, -2)}</strong>
+          ? <strong key={i} className="font-semibold text-slate-900">{part.slice(2, -2)}</strong>
           : part
       )}
     </>
@@ -51,7 +51,7 @@ function SectionIcon({ heading }: { heading: string }) {
   const h = heading.toLowerCase();
   if (h.includes("strength")) return <CheckCircle2 className="h-4 w-4 text-emerald-500" />;
   if (h.includes("gap") || h.includes("missing") || h.includes("weak")) return <AlertTriangle className="h-4 w-4 text-amber-500" />;
-  if (h.includes("recommend")) return <Lightbulb className="h-4 w-4 text-[#0f9f92]" />;
+  if (h.includes("recommend")) return <Lightbulb className="h-4 w-4 text-[#2200ff]" />;
   return <TrendingUp className="h-4 w-4 text-slate-400" />;
 }
 
@@ -59,8 +59,8 @@ function sectionColors(heading: string) {
   const h = heading.toLowerCase();
   if (h.includes("strength")) return "bg-emerald-50 border-emerald-100";
   if (h.includes("gap") || h.includes("missing") || h.includes("weak")) return "bg-amber-50 border-amber-100";
-  if (h.includes("recommend")) return "bg-teal-50 border-teal-100";
-  return "bg-slate-50 border-stone-100";
+  if (h.includes("recommend")) return "bg-[#ece8ff] border-[#d4ccff]";
+  return "bg-slate-50 border-slate-100";
 }
 
 type Tab = "notes" | "analysis" | "resume" | "cover" | "jd";
@@ -169,17 +169,17 @@ export function ApplicationDetailTabs({
   }
 
   return (
-    <div className="overflow-hidden rounded-[1.6rem] bg-white/82 shadow-[0_16px_54px_rgba(20,33,61,0.055)]">
+    <div className="overflow-hidden rounded-[1.6rem] border border-slate-100 bg-white shadow-sm">
       {/* Tab bar */}
-      <div className="flex gap-1 overflow-x-auto border-b border-stone-100 bg-white/60 px-4 py-3 scrollbar-none">
+      <div className="flex gap-1 overflow-x-auto border-b border-slate-100 bg-white px-4 py-3 scrollbar-none">
         {TAB_LABELS.map(({ id, label }) => (
           <button
             key={id}
             onClick={() => setActiveTab(id)}
             className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-semibold transition ${
               activeTab === id
-                ? "bg-[#0f9f92] text-white shadow-sm"
-                : "text-slate-500 hover:bg-stone-100 hover:text-[#14213d]"
+                ? "bg-[#2200ff] text-white shadow-sm"
+                : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
             }`}
           >
             {label}
@@ -199,7 +199,7 @@ export function ApplicationDetailTabs({
                 type="button"
                 onClick={summariseRole}
                 disabled={summarising}
-                className="inline-flex items-center gap-1.5 rounded-full bg-teal-50 px-3 py-1 text-xs font-semibold text-[#0f8f83] transition hover:bg-teal-100 disabled:opacity-60"
+                className="inline-flex items-center gap-1.5 rounded-full bg-[#ece8ff] px-3 py-1 text-xs font-semibold text-[#2200ff] transition hover:bg-[#d4ccff] disabled:opacity-60"
               >
                 <Sparkles className="h-3 w-3" />
                 {summarising ? "Summarising…" : "Summarise with AI"}
@@ -219,7 +219,7 @@ export function ApplicationDetailTabs({
           {/* Hiring Manager + Work Location */}
           <div className="grid gap-4 md:grid-cols-2">
             <div className="flex items-start gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0f9f92] text-white">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#2200ff] text-white">
                 <User className="h-5 w-5" />
               </span>
               <div className="min-w-0 flex-1">
@@ -235,7 +235,7 @@ export function ApplicationDetailTabs({
             </div>
 
             <div className="flex items-start gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0f9f92] text-white">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#2200ff] text-white">
                 <MapPin className="h-5 w-5" />
               </span>
               <div className="min-w-0 flex-1">
@@ -256,7 +256,7 @@ export function ApplicationDetailTabs({
           {/* Salary + Helpful Info */}
           <div className="grid gap-4 md:grid-cols-2">
             <div className="flex items-start gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0f9f92] text-white">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#2200ff] text-white">
                 <Banknote className="h-5 w-5" />
               </span>
               <div className="min-w-0 flex-1">
@@ -289,8 +289,8 @@ export function ApplicationDetailTabs({
           </div>
 
           {/* Your Notes — full width */}
-          <div className="flex items-start gap-3 rounded-2xl border border-stone-100 p-4">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#0f9f92] text-white">
+          <div className="flex items-start gap-3 rounded-2xl border border-slate-100 p-4">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#2200ff] text-white">
               <BookOpen className="h-5 w-5" />
             </span>
             <div className="min-w-0 flex-1">
@@ -346,7 +346,7 @@ export function ApplicationDetailTabs({
                   >
                     <div className="flex items-center gap-2">
                       <SectionIcon heading={section.heading} />
-                      <h3 className="text-sm font-semibold text-[#14213d]">{section.heading}</h3>
+                      <h3 className="text-sm font-semibold text-slate-900">{section.heading}</h3>
                     </div>
                     {section.body && (
                       <p className="mt-2 text-sm leading-6 text-slate-600"><InlineMarkdown text={section.body} /></p>
@@ -374,19 +374,19 @@ export function ApplicationDetailTabs({
         <div>
           {tailoredResume ? (
             <>
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-100 px-5 py-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-5 py-3">
                 <span className="text-sm text-slate-500">Tailored resume</span>
                 <div className="flex gap-2">
                   <a
                     href={`/api/applications/${applicationId}/export?type=resume&format=docx`}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-[#0f9f92] px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-[#0b8f83]"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-[#2200ff] px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-[#1a00cc]"
                   >
                     <Download className="h-3.5 w-3.5" />
                     DOCX
                   </a>
                   <a
                     href={`/api/applications/${applicationId}/export?type=resume&format=pdf`}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-1.5 text-sm font-semibold text-[#14213d] transition hover:bg-stone-50"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-50"
                   >
                     <Download className="h-3.5 w-3.5" />
                     PDF
@@ -410,19 +410,19 @@ export function ApplicationDetailTabs({
         <div>
           {coverLetter ? (
             <>
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-100 px-5 py-3">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-5 py-3">
                 <span className="text-sm text-slate-500">Cover letter</span>
                 <div className="flex gap-2">
                   <a
                     href={`/api/applications/${applicationId}/export?type=cover&format=docx`}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-[#0f9f92] px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-[#0b8f83]"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-[#2200ff] px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-[#1a00cc]"
                   >
                     <Download className="h-3.5 w-3.5" />
                     DOCX
                   </a>
                   <a
                     href={`/api/applications/${applicationId}/export?type=cover&format=pdf`}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-4 py-1.5 text-sm font-semibold text-[#14213d] transition hover:bg-stone-50"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 py-1.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-50"
                   >
                     <Download className="h-3.5 w-3.5" />
                     PDF
@@ -443,7 +443,7 @@ export function ApplicationDetailTabs({
 
       {/* Job Description tab */}
       {activeTab === "jd" && (
-        <div className="max-h-[680px] overflow-auto rounded-b-[1.6rem] bg-stone-100 px-4 py-6 md:px-8 md:py-8">
+        <div className="max-h-[680px] overflow-auto rounded-b-[1.6rem] bg-slate-50 px-4 py-6 md:px-8 md:py-8">
           <div className="mx-auto w-full max-w-[794px] bg-white px-10 py-10 shadow-[0_2px_16px_rgba(0,0,0,0.10)] md:px-16 md:py-14">
             <p className="whitespace-pre-wrap text-sm leading-7 text-slate-700">{jobDescription}</p>
           </div>

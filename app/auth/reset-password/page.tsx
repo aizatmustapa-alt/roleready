@@ -98,21 +98,21 @@ export default function ResetPasswordPage() {
 
   return (
     <main className="mx-auto flex max-w-6xl justify-center px-4 py-12">
-      <div className="w-full max-w-sm rounded-md border border-stone-200 bg-white p-6 shadow-sm">
-        <h1 className="text-xl font-bold text-stone-950">Set new password</h1>
-        <p className="mt-1 text-sm text-stone-500">Choose a new password for your account.</p>
+      <div className="w-full max-w-sm rounded-md border border-slate-200 bg-white p-6 shadow-sm">
+        <h1 className="text-xl font-bold text-slate-900">Set new password</h1>
+        <p className="mt-1 text-sm text-slate-500">Choose a new password for your account.</p>
 
         {done ? (
-          <p className="mt-5 text-sm font-semibold text-teal-700">Password updated! Redirecting…</p>
+          <p className="mt-5 text-sm font-semibold text-[#2200ff]">Password updated! Redirecting…</p>
         ) : expired ? (
           <div className="mt-5 space-y-3">
             <p className="text-sm text-red-700">This reset link has expired or is invalid.</p>
-            <a href="/" className="inline-block text-sm font-semibold text-teal-700 hover:underline">
+            <a href="/" className="inline-block text-sm font-semibold text-[#2200ff] hover:underline">
               Request a new reset link →
             </a>
           </div>
         ) : !ready ? (
-          <p className="mt-5 text-sm text-stone-500 animate-pulse">Verifying reset link…</p>
+          <p className="mt-5 text-sm text-slate-500 animate-pulse">Verifying reset link…</p>
         ) : (
           <form onSubmit={updatePassword} className="mt-5 space-y-4">
             <label className="block space-y-1.5">

@@ -40,7 +40,7 @@ export function JobDescriptionEditor({ applicationId, initialDescription }: Prop
 
   return (
     <section className="rounded-md border border-amber-300 bg-amber-50 p-4">
-      <h2 className="font-bold text-stone-950">Job description is too short</h2>
+      <h2 className="font-bold text-slate-900">Job description is too short</h2>
       <p className="mt-1 text-sm leading-6 text-amber-950">
         The job site only returned a snippet. Paste the full job ad below so the AI can tailor your documents properly.
         Next time, use the{" "}
@@ -60,7 +60,7 @@ export function JobDescriptionEditor({ applicationId, initialDescription }: Prop
           {loading ? "Saving..." : "Save Job Ad Text"}
         </button>
         {description.trim().length < 100 ? <p className="text-sm text-amber-950">Paste more of the job ad before saving.</p> : null}
-        {message ? <p className="text-sm text-stone-700">{message}</p> : null}
+        {message ? <p className="text-sm text-slate-700">{message}</p> : null}
       </div>
     </section>
   );

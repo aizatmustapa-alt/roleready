@@ -43,10 +43,10 @@ export function ProfileSettingsForm({ profile, userEmail }: Props) {
   }
 
   return (
-    <form onSubmit={submit} className="max-w-full overflow-x-clip rounded-[1.8rem] bg-white/82 p-5 shadow-[0_18px_60px_rgba(20,33,61,0.06)] md:p-7 xl:p-8">
-      <section className="mb-7 flex min-w-0 flex-col gap-4 rounded-[1.5rem] bg-[#fffaf4] p-4 sm:flex-row sm:items-center sm:justify-between">
+    <form onSubmit={submit} className="max-w-full overflow-x-clip rounded-[1.8rem] border border-slate-100 bg-white p-5 shadow-sm md:p-7 xl:p-8">
+      <section className="mb-7 flex min-w-0 flex-col gap-4 rounded-[1.5rem] bg-slate-50 p-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex min-w-0 items-center gap-4">
-          <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-teal-100 to-amber-100 text-xl font-semibold text-[#0f8f83] shadow-[0_14px_36px_rgba(20,33,61,0.08)]">
+          <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#d4ccff] to-violet-100 text-xl font-semibold text-[#2200ff] shadow-sm">
             {avatarPreview || profile?.avatar_url ? (
               <img src={avatarPreview ?? profile?.avatar_url} alt="Profile picture preview" className="h-full w-full object-cover" />
             ) : initials ? (
@@ -56,14 +56,14 @@ export function ProfileSettingsForm({ profile, userEmail }: Props) {
             )}
           </div>
           <div className="min-w-0">
-            <h2 className="text-lg font-semibold text-[#14213d]">Profile picture</h2>
+            <h2 className="text-lg font-semibold text-slate-900">Profile picture</h2>
             <p className="mt-1 text-sm leading-6 text-slate-600">
               Add a friendly photo for your ApplyHQ workspace.
             </p>
           </div>
         </div>
 
-        <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#0f8f83] shadow-[0_12px_34px_rgba(20,33,61,0.06)] transition hover:-translate-y-0.5 hover:bg-teal-50">
+        <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-[#2200ff] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#ece8ff]">
           <Camera className="h-4 w-4" />
           Upload photo
           <input

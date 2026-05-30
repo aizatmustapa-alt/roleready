@@ -11,7 +11,7 @@ function hasMarkdown(text: string) {
 
 function PlainTextPreview({ content }: { content: string }) {
   return (
-    <div className="bg-stone-100 px-4 py-6 md:px-8 md:py-8">
+    <div className="bg-slate-50 px-4 py-6 md:px-8 md:py-8">
       <div className="mx-auto w-full max-w-[794px] bg-white px-10 py-10 shadow-[0_2px_16px_rgba(0,0,0,0.10)] md:px-16 md:py-14">
         <pre className="whitespace-pre-wrap font-sans text-sm leading-7 text-slate-700">{content}</pre>
       </div>
@@ -39,13 +39,13 @@ function FileInputField({
         type="button"
         onClick={() => ref.current?.click()}
         className={`min-w-0 flex-1 rounded-2xl border px-4 py-3 text-left transition ${
-          isSaved ? "border-teal-100 bg-teal-50/80 hover:bg-teal-100" : "border-stone-100 bg-[#fffaf4] hover:bg-stone-50"
+          isSaved ? "border-[#d4ccff] bg-[#ece8ff]/80 hover:bg-[#d4ccff]" : "border-slate-100 bg-slate-50 hover:bg-slate-100"
         }`}
       >
-        <p className={`truncate text-sm font-semibold ${display ? "text-[#14213d]" : "text-slate-400"}`}>
+        <p className={`truncate text-sm font-semibold ${display ? "text-slate-900" : "text-slate-400"}`}>
           {display ?? "Tap to select a file..."}
         </p>
-        <p className={`mt-0.5 text-xs ${isSaved ? "text-[#0f8f83]" : "text-slate-400"}`}>
+        <p className={`mt-0.5 text-xs ${isSaved ? "text-[#2200ff]" : "text-slate-400"}`}>
           {isSaved ? "Saved - tap to change" : chosen ? "Ready to upload" : "PDF, DOCX, TXT or MD"}
         </p>
       </button>
@@ -54,7 +54,7 @@ function FileInputField({
         <a
           href={downloadUrl}
           title="Download current file"
-          className="flex min-h-12 items-center justify-center rounded-2xl border border-stone-100 bg-white px-3 text-slate-500 transition hover:border-teal-200 hover:bg-teal-50 hover:text-[#0f8f83]"
+          className="flex min-h-12 items-center justify-center rounded-2xl border border-slate-100 bg-white px-3 text-slate-500 transition hover:border-[#d4ccff] hover:bg-[#ece8ff] hover:text-[#2200ff]"
         >
           <Download className="h-4 w-4" />
         </a>
@@ -74,12 +74,12 @@ function FileInputField({
 
 function ModeToggle({ mode, onChange }: { mode: "edit" | "preview"; onChange: (m: "edit" | "preview") => void }) {
   return (
-    <div className="flex items-center gap-1 rounded-full bg-stone-100 p-1">
+    <div className="flex items-center gap-1 rounded-full bg-slate-100 p-1">
       <button
         type="button"
         onClick={() => onChange("edit")}
         className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition ${
-          mode === "edit" ? "bg-white text-[#14213d] shadow-sm" : "text-slate-400 hover:text-slate-600"
+          mode === "edit" ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600"
         }`}
       >
         <Pencil className="h-3 w-3" /> Edit
@@ -88,7 +88,7 @@ function ModeToggle({ mode, onChange }: { mode: "edit" | "preview"; onChange: (m
         type="button"
         onClick={() => onChange("preview")}
         className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition ${
-          mode === "preview" ? "bg-white text-[#14213d] shadow-sm" : "text-slate-400 hover:text-slate-600"
+          mode === "preview" ? "bg-white text-slate-900 shadow-sm" : "text-slate-400 hover:text-slate-600"
         }`}
       >
         <Eye className="h-3 w-3" /> Preview
@@ -128,14 +128,14 @@ export function DocumentsForm({ masterResume, masterCoverLetter }: Props) {
       <div className="grid gap-5 xl:grid-cols-2">
 
         {/* Resume card */}
-        <section className="rounded-[1.8rem] bg-white/82 shadow-[0_18px_60px_rgba(20,33,61,0.06)]">
+        <section className="rounded-[1.8rem] border border-slate-100 bg-white shadow-sm">
           <div className="flex items-start justify-between gap-4 p-5 md:p-7 pb-4">
             <div className="flex items-start gap-4">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-teal-50 text-[#0f9f92]">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#ece8ff] text-[#2200ff]">
                 <FileText className="h-5 w-5" />
               </span>
               <div>
-                <h2 className="text-xl font-semibold text-[#14213d]">Master resume</h2>
+                <h2 className="text-xl font-bold text-slate-900">Master resume</h2>
                 <p className="mt-1 text-sm leading-6 text-slate-600">This is the source ApplyHQ uses to tailor each application.</p>
               </div>
             </div>
@@ -179,14 +179,14 @@ export function DocumentsForm({ masterResume, masterCoverLetter }: Props) {
         </section>
 
         {/* Cover letter card */}
-        <section className="rounded-[1.8rem] bg-white/82 shadow-[0_18px_60px_rgba(20,33,61,0.06)]">
+        <section className="rounded-[1.8rem] border border-slate-100 bg-white shadow-sm">
           <div className="flex items-start justify-between gap-4 p-5 md:p-7 pb-4">
             <div className="flex items-start gap-4">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-50 text-violet-600">
                 <Mail className="h-5 w-5" />
               </span>
               <div>
-                <h2 className="text-xl font-semibold text-[#14213d]">Master cover letter</h2>
+                <h2 className="text-xl font-bold text-slate-900">Master cover letter</h2>
                 <p className="mt-1 text-sm leading-6 text-slate-600">Used as a tone and structure reference for tailored letters.</p>
               </div>
             </div>

@@ -100,7 +100,7 @@ export function ResumeRenderer({ content }: { content: string }) {
   flushBullets();
 
   return (
-    <div className="bg-stone-100 px-4 py-6 md:px-8 md:py-8">
+    <div className="bg-slate-100 px-4 py-6 md:px-8 md:py-8">
       <div className="mx-auto w-full max-w-[794px] bg-white px-10 py-10 shadow-[0_2px_16px_rgba(0,0,0,0.10)] md:px-16 md:py-14">
         {nodes}
       </div>
@@ -164,7 +164,7 @@ export function CoverLetterRenderer({ content }: { content: string }) {
   }
 
   return (
-    <div className="bg-stone-100 px-4 py-6 md:px-8 md:py-8">
+    <div className="bg-slate-100 px-4 py-6 md:px-8 md:py-8">
       <div className="mx-auto w-full max-w-[794px] bg-white px-10 py-10 shadow-[0_2px_16px_rgba(0,0,0,0.10)] md:px-16 md:py-14">
         {nodes}
       </div>

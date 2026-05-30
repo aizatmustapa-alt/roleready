@@ -75,7 +75,7 @@ function formatSalary(min?: number, max?: number) {
 }
 
 function matchPillClass(score: number) {
-  if (score >= 85) return "bg-teal-100 text-[#0f8f83]";
+  if (score >= 85) return "bg-[#d4ccff] text-[#1a00cc]";
   if (score >= 70) return "bg-amber-100 text-amber-700";
   if (score >= 50) return "bg-violet-100 text-violet-700";
   return "bg-rose-50 text-rose-600";
@@ -103,9 +103,9 @@ function GrabbedMatchCard({
   const label = matchLabel(job.matchScore);
 
   return (
-    <article className="group flex items-center gap-3 rounded-[1.6rem] bg-white/82 p-4 shadow-[0_8px_30px_rgba(20,33,61,0.055)] transition duration-200 hover:bg-white hover:shadow-[0_16px_48px_rgba(20,33,61,0.08)] md:gap-4 md:p-5">
+    <article className="group flex items-center gap-3 rounded-[1.6rem] border border-slate-100 bg-white p-4 shadow-sm transition duration-200 hover:shadow-[0_8px_30px_rgba(34,0,255,0.08)] md:gap-4 md:p-5">
       {/* Avatar */}
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-100 to-amber-50 text-base font-bold text-[#0f8f83] md:h-12 md:w-12">
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#d4ccff] to-violet-50 text-base font-bold text-[#2200ff] md:h-12 md:w-12">
         {(job.company?.trim()?.[0] ?? "A").toUpperCase()}
       </div>
 
@@ -116,7 +116,7 @@ function GrabbedMatchCard({
             href={job.jobUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="truncate font-semibold text-[#14213d] transition hover:text-[#0f8f83]"
+            className="truncate font-semibold text-slate-900 transition hover:text-[#2200ff]"
           >
             {job.title}
           </a>
@@ -157,7 +157,7 @@ function GrabbedMatchCard({
         {importedApplicationId ? (
           <Link
             href={`/applications/${importedApplicationId}`}
-            className="inline-flex items-center gap-1.5 rounded-full bg-[#0f9f92] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#0b8f83]"
+            className="inline-flex items-center gap-1.5 rounded-full bg-[#2200ff] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#1a00cc]"
           >
             Open <ArrowRight className="h-3.5 w-3.5" />
           </Link>
@@ -166,7 +166,7 @@ function GrabbedMatchCard({
             type="button"
             disabled={importing}
             onClick={() => onImport(job)}
-            className="inline-flex items-center gap-1.5 rounded-full bg-[#0f9f92] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#0b8f83] disabled:opacity-70"
+            className="inline-flex items-center gap-1.5 rounded-full bg-[#2200ff] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#1a00cc] disabled:opacity-70"
           >
             {importing ? "Starting…" : "Tailor & Apply"} <ArrowRight className="h-3.5 w-3.5" />
           </button>
@@ -178,7 +178,7 @@ function GrabbedMatchCard({
           target="_blank"
           rel="noopener noreferrer"
           title="View original job"
-          className="hidden h-9 w-9 items-center justify-center rounded-full bg-white text-slate-400 shadow-sm transition hover:text-[#0f8f83] sm:inline-flex"
+          className="hidden h-9 w-9 items-center justify-center rounded-full bg-white text-slate-400 shadow-sm transition hover:text-[#2200ff] sm:inline-flex"
         >
           <Bookmark className="h-4 w-4" />
         </a>
@@ -325,7 +325,7 @@ export function DashboardTabs({
     <div className="mx-auto max-w-[1520px] overflow-x-clip">
       {/* Greeting */}
       <div className="mb-6 md:mb-10">
-        <h1 className="font-serif text-3xl font-semibold tracking-tight text-[#14213d] md:text-5xl">
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 md:text-5xl">
           {getGreeting()}{name ? `, ${name}` : ""} 👋
         </h1>
       </div>
@@ -337,7 +337,7 @@ export function DashboardTabs({
         <section>
           {/* Section header */}
           <div className="mb-4 px-1">
-            <h2 className="text-2xl font-semibold tracking-tight text-[#14213d]">
+            <h2 className="text-2xl font-bold tracking-tight text-slate-900">
               Find jobs that match your resume ✨
             </h2>
             <p className="mt-1 text-sm leading-6 text-slate-500">
@@ -350,7 +350,7 @@ export function DashboardTabs({
               <div>
                 <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Search keywords</p>
                 <input
-                  className="w-full rounded-2xl bg-white/90 px-4 py-2.5 text-sm text-[#14213d] shadow-sm outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-teal-100"
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-[#d4ccff]"
                   placeholder="e.g. Communications Manager"
                   value={keywordQuery}
                   onChange={(e) => setKeywordQuery(e.target.value)}
@@ -363,7 +363,7 @@ export function DashboardTabs({
                 <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Job location</p>
                 <input
                   list="au-locations"
-                  className="w-full rounded-2xl bg-white/90 px-4 py-2.5 text-sm text-[#14213d] shadow-sm outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-teal-100"
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-900 shadow-sm outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-[#d4ccff]"
                   placeholder="e.g. Sydney"
                   value={locationQuery}
                   onChange={(e) => setLocationQuery(e.target.value)}
@@ -385,11 +385,11 @@ export function DashboardTabs({
               {/* Salary */}
               <div>
                 <p className="mb-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Min. salary expectation per annum</p>
-                <div className="flex items-center gap-0 overflow-hidden rounded-2xl bg-white/90 shadow-sm focus-within:ring-2 focus-within:ring-teal-100">
+                <div className="flex items-center gap-0 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm focus-within:ring-2 focus-within:ring-[#d4ccff]">
                   <span className="pl-4 text-sm font-medium text-slate-400">$</span>
                   <input
                     type="number"
-                    className="min-w-0 flex-1 bg-transparent px-2 py-2.5 text-sm text-[#14213d] outline-none placeholder:text-slate-400"
+                    className="min-w-0 flex-1 bg-transparent px-2 py-2.5 text-sm text-slate-900 outline-none placeholder:text-slate-400"
                     placeholder="e.g. 100000"
                     value={salaryMin}
                     onChange={(e) => setSalaryMin(e.target.value)}
@@ -409,7 +409,7 @@ export function DashboardTabs({
                         type="checkbox"
                         checked={workTypes.has(value)}
                         onChange={() => toggleWorkType(value)}
-                        className="h-4 w-4 rounded accent-[#0f9f92]"
+                        className="h-4 w-4 rounded accent-[#2200ff]"
                       />
                       {label}
                     </label>
@@ -424,7 +424,7 @@ export function DashboardTabs({
                 type="button"
                 disabled={loadingMatches || !resumeFileName}
                 onClick={() => refreshMatches(true)}
-                className="inline-flex items-center gap-2 rounded-full bg-[#0f9f92] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#0b8f83] disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-full bg-[#2200ff] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#1a00cc] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loadingMatches ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
                 {loadingMatches ? "Searching…" : "Refresh matches"}
@@ -437,30 +437,30 @@ export function DashboardTabs({
             <p className="mb-4 rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-800">{matchError}</p>
           )}
           {!matchError && matchNotice && (
-            <p className="mb-4 rounded-2xl bg-teal-50 px-4 py-3 text-sm font-medium text-[#0f8f83]">{matchNotice}</p>
+            <p className="mb-4 rounded-2xl bg-[#ece8ff] px-4 py-3 text-sm font-medium text-[#1a00cc]">{matchNotice}</p>
           )}
 
           {/* Job cards */}
           <div className="space-y-2.5">
             {!resumeFileName ? (
-              <div className="rounded-[1.75rem] bg-white/78 px-6 py-12 text-center shadow-[0_18px_60px_rgba(20,33,61,0.06)]">
-                <h3 className="mt-4 text-xl font-semibold text-[#14213d]">Add your resume to unlock matches.</h3>
+              <div className="rounded-[1.75rem] border border-slate-100 bg-white px-6 py-12 text-center shadow-sm">
+                <h3 className="mt-4 text-xl font-bold text-slate-900">Add your resume to unlock matches.</h3>
                 <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600">
                   Once your master resume is saved, ApplyHQ can refresh your best job matches automatically.
                 </p>
-                <Link href="/documents" className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#0f9f92] px-5 py-3 text-sm font-semibold text-white">
+                <Link href="/documents" className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#2200ff] px-5 py-3 text-sm font-semibold text-white hover:bg-[#1a00cc]">
                   Add documents <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
             ) : loadingMatches && matches.length === 0 ? (
               <>
                 {[0, 1, 2].map((i) => (
-                  <div key={i} className="h-20 animate-pulse rounded-[1.6rem] bg-white/70" />
+                  <div key={i} className="h-20 animate-pulse rounded-[1.6rem] bg-slate-100" />
                 ))}
               </>
             ) : matches.length === 0 ? (
-              <div className="rounded-[1.75rem] bg-white/78 px-6 py-12 text-center shadow-[0_18px_60px_rgba(20,33,61,0.06)]">
-                <h3 className="mt-4 text-xl font-semibold text-[#14213d]">No fresh matches just yet.</h3>
+              <div className="rounded-[1.75rem] border border-slate-100 bg-white px-6 py-12 text-center shadow-sm">
+                <h3 className="mt-4 text-xl font-bold text-slate-900">No fresh matches just yet.</h3>
                 <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600">
                   Try refreshing, or update your keywords to give the search a clearer signal.
                 </p>
@@ -480,7 +480,7 @@ export function DashboardTabs({
                   <button
                     type="button"
                     onClick={() => setShowAllMatches((v) => !v)}
-                    className="mx-auto flex items-center gap-2 rounded-full bg-white/75 px-5 py-3 text-sm font-semibold text-[#0f8f83] shadow-sm transition hover:-translate-y-0.5 hover:bg-white"
+                    className="mx-auto flex items-center gap-2 rounded-full border border-slate-100 bg-white px-5 py-3 text-sm font-semibold text-[#2200ff] shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50"
                   >
                     {showAllMatches ? "Show fewer" : `Show ${matches.length - 5} more matches`}
                   </button>

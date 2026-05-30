@@ -35,15 +35,15 @@ export default async function ApplicationsPage() {
   const applications = (data ?? []) as ApplicationWithJob[];
 
   return (
-    <main className="min-h-screen bg-[#fffaf4] px-4 py-5 pb-36 md:px-8 md:py-10 md:pb-10 xl:px-10">
+    <main className="min-h-screen bg-slate-50 px-4 py-5 pb-36 md:px-8 md:py-10 md:pb-10 xl:px-10">
       <div className="mx-auto max-w-[1520px] overflow-x-clip">
         <div className="mb-6 flex items-end justify-between gap-4 md:mb-8">
           <div>
-            <p className="mb-2 inline-flex items-center gap-2 rounded-full bg-teal-50 px-3 py-1.5 text-xs font-semibold text-[#0f8f83]">
+            <p className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#ece8ff] px-3 py-1.5 text-xs font-semibold text-[#2200ff]">
               <Briefcase className="h-3.5 w-3.5" />
               Applications
             </p>
-            <h1 className="font-serif text-3xl font-semibold tracking-tight text-[#14213d] md:text-4xl">
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
               Your applications
             </h1>
             <p className="mt-1.5 text-sm leading-6 text-slate-500">
@@ -52,7 +52,7 @@ export default async function ApplicationsPage() {
           </div>
           <Link
             href="/"
-            className="hidden shrink-0 items-center gap-2 rounded-full bg-[#0f9f92] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(15,159,146,0.18)] transition duration-300 hover:-translate-y-1 hover:bg-[#0b8f83] md:inline-flex"
+            className="hidden shrink-0 items-center gap-2 rounded-full bg-[#2200ff] px-5 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(34,0,255,0.18)] transition duration-300 hover:-translate-y-1 hover:bg-[#1a00cc] md:inline-flex"
           >
             Find fresh matches <ArrowRight className="h-4 w-4" />
           </Link>

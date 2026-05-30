@@ -42,24 +42,24 @@ export function Sidebar({ userName, userEmail, avatarUrl }: SidebarProps) {
   }
 
   return (
-    <aside className="hidden md:fixed md:inset-y-0 md:left-0 md:z-30 md:flex md:w-60 md:flex-col md:border-r md:border-[#efe6d8] md:bg-[#fffdf8]/95 md:backdrop-blur">
+    <aside className="hidden md:fixed md:inset-y-0 md:left-0 md:z-30 md:flex md:w-60 md:flex-col md:border-r md:border-slate-100 md:bg-white">
       {/* Logo */}
       <div className="flex h-20 items-center px-7">
-        <img src="/brand/applyhq-logo-transparent.png" alt="ApplyHQ" className="h-12 w-auto mix-blend-multiply" />
+        <img src="/brand/applyhq-logo-indigo.svg" alt="ApplyHQ" className="h-12 w-auto" />
       </div>
 
       {/* Nav items */}
-      <nav className="flex-1 space-y-2 px-4 py-4">
+      <nav className="flex-1 space-y-1 px-4 py-4">
         {navItems.map(({ href, label, icon: Icon }) => {
           const active = href === "/" ? pathname === "/" : pathname.startsWith(href);
           return (
             <Link
               key={`${href}-${label}`}
               href={href}
-              className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition duration-300 ${
+              className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition duration-200 ${
                 active
-                  ? "bg-teal-50 text-[#0f8f83] shadow-[0_16px_42px_rgba(15,159,146,0.08)]"
-                  : "text-[#14213d]/70 hover:-translate-y-0.5 hover:bg-white hover:text-[#0f8f83] hover:shadow-sm"
+                  ? "bg-[#ece8ff] text-[#2200ff] shadow-[0_4px_16px_rgba(34,0,255,0.1)]"
+                  : "text-slate-500 hover:bg-slate-50 hover:text-[#2200ff]"
               }`}
             >
               <Icon className="h-4.5 w-4.5 shrink-0" />
@@ -71,7 +71,7 @@ export function Sidebar({ userName, userEmail, avatarUrl }: SidebarProps) {
         <div className="pt-2">
           <Link
             href="/jobs/new"
-            className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-[#14213d]/70 transition duration-300 hover:-translate-y-0.5 hover:bg-white hover:text-[#0f8f83] hover:shadow-sm"
+            className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-500 transition duration-200 hover:bg-slate-50 hover:text-[#2200ff]"
           >
             <Plus className="h-4.5 w-4.5 shrink-0" />
             Add Job
@@ -82,21 +82,21 @@ export function Sidebar({ userName, userEmail, avatarUrl }: SidebarProps) {
       <div className="px-4 py-5">
         <Link
           href="/profile"
-          className="mb-3 flex min-w-0 items-center gap-3 rounded-2xl bg-white/70 px-3 py-3 text-sm transition hover:bg-white"
+          className="mb-3 flex min-w-0 items-center gap-3 rounded-2xl bg-slate-50 px-3 py-3 text-sm transition hover:bg-slate-100"
         >
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-teal-100 to-amber-100 text-sm font-semibold text-[#0f8f83]">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-[#ece8ff] to-[#d4ccff] text-sm font-semibold text-[#2200ff]">
             {avatarUrl ? <img src={avatarUrl} alt="" className="h-full w-full object-cover" /> : initials}
           </span>
           <span className="min-w-0">
-            <span className="block truncate font-semibold text-[#14213d]">{userName || "Profile"}</span>
-            <span className="block truncate text-xs text-slate-500">{userEmail}</span>
+            <span className="block truncate font-semibold text-slate-800">{userName || "Profile"}</span>
+            <span className="block truncate text-xs text-slate-400">{userEmail}</span>
           </span>
         </Link>
 
         <button
           type="button"
           onClick={signOut}
-          className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-[#14213d]/55 transition hover:bg-white hover:text-rose-500"
+          className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-slate-400 transition hover:bg-slate-50 hover:text-rose-500"
         >
           <LogOut className="h-4.5 w-4.5 shrink-0" />
           Sign out

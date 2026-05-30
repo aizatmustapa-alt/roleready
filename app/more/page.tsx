@@ -11,21 +11,21 @@ const moreItems = [
     title: "Documents",
     body: "Manage your master resume and cover letter.",
     icon: FileText,
-    color: "bg-teal-50 text-[#0f9f92]",
+    color: "bg-[#ece8ff] text-[#2200ff]",
   },
   {
     href: "/profile",
     title: "Profile settings",
     body: "Update your details, preferences, and target roles.",
     icon: Settings,
-    color: "bg-amber-50 text-amber-600",
+    color: "bg-violet-50 text-violet-600",
   },
   {
     href: "/saved",
     title: "Saved jobs",
     body: "Keep roles you like close by.",
     icon: Bookmark,
-    color: "bg-violet-50 text-violet-600",
+    color: "bg-sky-50 text-sky-600",
   },
 ];
 
@@ -49,13 +49,13 @@ export default async function MorePage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#fffaf4] px-4 py-5 pb-36 md:px-8 md:py-10 md:pb-10 xl:px-10">
+    <main className="min-h-screen bg-slate-50 px-4 py-5 pb-36 md:px-8 md:py-10 md:pb-10 xl:px-10">
       <div className="mx-auto max-w-[760px] overflow-x-clip">
         <div className="mb-6">
-          <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-teal-50 px-3 py-1.5 text-sm font-semibold text-[#0f8f83]">
+          <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#ece8ff] px-3 py-1.5 text-sm font-semibold text-[#2200ff]">
             More
           </p>
-          <h1 className="font-serif text-3xl font-semibold tracking-tight text-[#14213d] md:text-5xl">
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900 md:text-5xl">
             Your ApplyHQ space.
           </h1>
           <p className="mt-2 text-base leading-7 text-slate-600">Manage the parts that support every application.</p>
@@ -66,16 +66,16 @@ export default async function MorePage() {
             <Link
               key={href}
               href={href}
-              className="flex min-h-24 items-center gap-4 rounded-[1.6rem] bg-white/82 p-4 shadow-[0_16px_54px_rgba(20,33,61,0.055)] transition hover:-translate-y-0.5 hover:bg-white"
+              className="flex min-h-24 items-center gap-4 rounded-[1.6rem] border border-slate-100 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(34,0,255,0.08)]"
             >
               <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${color}`}>
                 <Icon className="h-5 w-5" />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block text-lg font-semibold text-[#14213d]">{title}</span>
+                <span className="block text-lg font-semibold text-slate-900">{title}</span>
                 <span className="mt-1 block text-sm leading-6 text-slate-600">{body}</span>
               </span>
-              <ArrowRight className="h-4 w-4 shrink-0 text-[#0f8f83]" />
+              <ArrowRight className="h-4 w-4 shrink-0 text-[#2200ff]/60" />
             </Link>
           ))}
         </section>
