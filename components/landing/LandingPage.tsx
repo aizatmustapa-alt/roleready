@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { blogArticles } from "@/lib/blog";
 import {
   ArrowRight,
   Briefcase,
@@ -62,6 +63,8 @@ const stats = [
   { icon: Star,       value: "1",   label: "Offer",         period: "This month", iconCls: "bg-amber-50 text-amber-500"     },
   { icon: TrendingUp, value: "28%", label: "Response Rate", period: "This month", iconCls: "bg-violet-50 text-violet-600"   },
 ];
+
+const landingArticles = blogArticles.slice(0, 3);
 
 function ImageFallback({ className }: { className?: string }) {
   return (
@@ -269,6 +272,54 @@ export function LandingPage() {
         </section>
 
         {/* ── Electric blue CTA band ── */}
+        <section id="blog" className="applyhq-fade-up bg-slate-50 px-5 py-20 sm:px-8 lg:px-10 lg:py-28">
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-9 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#ece8ff] px-3 py-1.5 text-sm font-semibold text-[#2200ff]">
+                  Career resources
+                </p>
+                <h2 className="text-4xl font-black leading-tight tracking-tight text-slate-900 sm:text-5xl">
+                  Career advice & insights
+                </h2>
+                <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
+                  Practical guidance for resumes, interviews, applications and career moves.
+                </p>
+              </div>
+              <Link
+                href="/blog"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#2200ff] px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_32px_rgba(34,0,255,0.18)] transition hover:-translate-y-0.5 hover:bg-[#1a00cc] sm:w-auto"
+              >
+                View all articles <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+
+            <div className="grid gap-5 md:grid-cols-3">
+              {landingArticles.map((article) => (
+                <Link
+                  key={article.slug}
+                  href={`/blog/${article.slug}`}
+                  className="group overflow-hidden rounded-[1.6rem] border border-slate-100 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-[0_18px_45px_rgba(34,0,255,0.08)]"
+                >
+                  <div className="aspect-[16/10] bg-slate-50">
+                    <img src={article.image} alt="" className="h-full w-full object-contain" />
+                  </div>
+                  <div className="p-5">
+                    <div className="flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-400">
+                      <span className="rounded-full bg-[#ece8ff] px-2.5 py-1 text-[#2200ff]">{article.category}</span>
+                      <span>{article.readingTime}</span>
+                    </div>
+                    <h3 className="mt-4 line-clamp-2 text-xl font-black leading-snug text-slate-900 transition group-hover:text-[#2200ff]">
+                      {article.title}
+                    </h3>
+                    <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-600">{article.excerpt}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section className="applyhq-fade-up bg-[#2200ff] px-5 py-20 sm:px-8 lg:px-10">
           <div className="mx-auto max-w-4xl text-center">
             {/* Emoji decorations — brand brief style */}
@@ -328,7 +379,6 @@ export function LandingPage() {
           </div>
         </section>
 
-        <div id="blog" className="sr-only" />
       </main>
     </div>
   );
