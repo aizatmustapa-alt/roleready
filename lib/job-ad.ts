@@ -21,6 +21,18 @@ export function isBlockedJobBoard(url: string): boolean {
   }
 }
 
+export function blockedJobBoardMessage(url: string, status?: number): string {
+  const host = (() => {
+    try {
+      return new URL(url).hostname;
+    } catch {
+      return "This site";
+    }
+  })();
+  const statusText = status ? ` (HTTP ${status})` : "";
+  return `${host} blocked our request${statusText}. Use the Chrome extension on the job page, or paste the full job description in the box below.`;
+}
+
 export function detectJobSource(url: string): "SEEK" | "LinkedIn" | "Adzuna" | "Other" {
   try {
     const host = new URL(url).hostname.toLowerCase();
@@ -43,6 +55,20 @@ function decodeHtml(value: string) {
     .replace(/&#39;/g, "'")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function looksLikeBlockedPage(text: string): boolean {
+  const normalized = text.toLowerCase();
+  return [
+    "403 forbidden",
+    "access denied",
+    "request blocked",
+    "enable javascript",
+    "captcha",
+    "unusual traffic",
+    "verify you are human",
+    "blocked our request"
+  ].some((phrase) => normalized.includes(phrase));
 }
 
 function meta(html: string, selectors: string[]) {
@@ -237,6 +263,7 @@ async function fetchJobWithJina(url: string): Promise<JobAdDetails | null> {
 
     const text = await res.text();
     if (!text || text.trim().length < 300) return null;
+    if (looksLikeBlockedPage(text)) return null;
 
     // Jina returns "Title: ...\nURL Source: ...\n\nMarkdown Content:\n{body}"
     const titleMatch = text.match(/^Title:\s*(.+)$/m);
@@ -409,6 +436,7 @@ async function fetchJobWithBrowser(url: string): Promise<JobAdDetails | null> {
     console.log(`[job-ad] browser fetch got description length: ${data.description.length}`);
 
     if (!data.description || data.description.trim().length < 100) return null;
+    if (looksLikeBlockedPage(htmlToText(data.description))) return null;
 
     return {
       title: data.title || "Job from link",
@@ -485,7 +513,7 @@ export async function fetchJobAdDetails(jobUrl: string): Promise<JobAdDetails> {
     }
     throw new Error(
       isBlockedJobBoard(effectiveUrl)
-        ? `${new URL(effectiveUrl).hostname} blocked our request (HTTP ${response.status}). Use the Chrome extension on the job page, or paste the job description in the box below.`
+        ? blockedJobBoardMessage(effectiveUrl, response.status)
         : `Could not read this job link. The site returned HTTP ${response.status}.`
     );
   }
@@ -566,6 +594,8 @@ export async function fetchJobAdDetails(jobUrl: string): Promise<JobAdDetails> {
       (await fetchJobWithJina(effectiveUrl)) ??
       (IS_SERVERLESS ? null : await fetchJobWithBrowser(effectiveUrl));
     if (fallback) return fallback;
+
+    throw new Error(blockedJobBoardMessage(effectiveUrl));
   }
 
   return result;
