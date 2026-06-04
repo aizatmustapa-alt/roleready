@@ -31,15 +31,17 @@ export default async function DashboardPage() {
   let profileName: string | null = null;
   let profileLocation: string | null = null;
   let grabbedMatches: CachedGrabbedJob[] = [];
+  let savedByUrl: Record<string, string> = {};
   let accessState: AccessState | null = null;
 
   if (supabase && user) {
-    const [{ data }, { data: resume }, { data: coverLetter }, { data: profile }, { data: cachedMatches }, access] = await Promise.all([
+    const [{ data }, { data: resume }, { data: coverLetter }, { data: profile }, { data: cachedMatches }, { data: savedApps }, access] = await Promise.all([
       supabase.from("applications").select("*, jobs(*)").eq("user_id", user.id).neq("status", "Saved").order("created_at", { ascending: false }),
       supabase.from("master_resumes").select("id, file_name").eq("user_id", user.id).limit(1).maybeSingle(),
       supabase.from("master_cover_letters").select("id, file_name").eq("user_id", user.id).limit(1).maybeSingle(),
       supabase.from("profiles").select("name, location").eq("id", user.id).maybeSingle(),
       supabase.from("cached_grabbed_jobs").select("*").eq("user_id", user.id).order("match_score", { ascending: false }).limit(15),
+      supabase.from("applications").select("id, jobs(job_url)").eq("user_id", user.id).eq("status", "Saved"),
       getAccessState(supabase, user.id)
     ]);
     applications = (data ?? []) as ApplicationWithJob[];
@@ -48,6 +50,11 @@ export default async function DashboardPage() {
     profileName = profile?.name ?? user.user_metadata?.name ?? user.email ?? null;
     profileLocation = (profile as { location?: string } | null)?.location ?? null;
     grabbedMatches = (cachedMatches ?? []) as CachedGrabbedJob[];
+    savedByUrl = Object.fromEntries(
+      (savedApps ?? [])
+        .map((a) => [(a.jobs as { job_url?: string } | null)?.job_url, a.id])
+        .filter((e): e is [string, string] => Boolean(e[0]))
+    );
     accessState = access;
   }
 
@@ -83,6 +90,7 @@ export default async function DashboardPage() {
         profileLocation={profileLocation}
         grabbedMatches={grabbedMatches}
         grabbedMatchesStale={isStaleGrabCache(grabbedMatches)}
+        savedByUrl={savedByUrl}
         accessState={accessState}
       />
     </main>

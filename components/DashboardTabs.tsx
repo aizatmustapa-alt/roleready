@@ -24,6 +24,7 @@ type Props = {
   profileLocation?: string | null;
   grabbedMatches: CachedGrabbedJob[];
   grabbedMatchesStale: boolean;
+  savedByUrl?: Record<string, string>;
   accessState?: {
     planLabel: string;
     planType: string;
@@ -226,6 +227,7 @@ export function DashboardTabs({
   profileLocation,
   grabbedMatches,
   grabbedMatchesStale,
+  savedByUrl = {},
   accessState,
 }: Props) {
   const router = useRouter();
@@ -241,7 +243,7 @@ export function DashboardTabs({
   const [importing, setImporting] = useState<Record<string, boolean>>({});
   const [imported, setImported] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState<Record<string, boolean>>({});
-  const [saved, setSaved] = useState<Record<string, string>>({}); // jobUrl → applicationId
+  const [saved, setSaved] = useState<Record<string, string>>(savedByUrl); // jobUrl → applicationId
   const [showAllMatches, setShowAllMatches] = useState(false);
   const [mobilePreferencesOpen, setMobilePreferencesOpen] = useState(false);
 
@@ -346,7 +348,8 @@ export function DashboardTabs({
   }
 
   async function saveJob(job: GrabResult) {
-    setSaving((prev) => ({ ...prev, [job.id]: true }));
+    if (saved[job.jobUrl]) return; // already saved
+    setSaving((prev) => ({ ...prev, [job.jobUrl]: true }));
     try {
       const response = await fetch("/api/saved", {
         method: "POST",
@@ -363,12 +366,12 @@ export function DashboardTabs({
       });
       const payload = await response.json();
       if (response.ok && payload.applicationId) {
-        setSaved((prev) => ({ ...prev, [job.id]: payload.applicationId }));
+        setSaved((prev) => ({ ...prev, [job.jobUrl]: payload.applicationId }));
       }
     } catch {
       // silently fail — user can retry
     } finally {
-      setSaving((prev) => ({ ...prev, [job.id]: false }));
+      setSaving((prev) => ({ ...prev, [job.jobUrl]: false }));
     }
   }
 
@@ -579,8 +582,8 @@ export function DashboardTabs({
                     job={job}
                     importedApplicationId={imported[job.id] ?? importedByUrl[job.jobUrl]}
                     importing={Boolean(importing[job.id])}
-                    savedApplicationId={saved[job.id]}
-                    saving={Boolean(saving[job.id])}
+                    savedApplicationId={saved[job.jobUrl]}
+                    saving={Boolean(saving[job.jobUrl])}
                     onImport={importJob}
                     onSave={saveJob}
                   />

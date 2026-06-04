@@ -57,6 +57,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "title and company are required." }, { status: 400 });
   }
 
+  // Dedup: if this URL is already saved, return the existing application
+  if (jobUrl) {
+    const { data: existing } = await supabase
+      .from("applications")
+      .select("id, jobs!inner(job_url)")
+      .eq("user_id", user.id)
+      .eq("status", "Saved")
+      .eq("jobs.job_url", String(jobUrl))
+      .maybeSingle();
+    if (existing) {
+      return NextResponse.json({ applicationId: existing.id });
+    }
+  }
+
   const { data: job, error: jobError } = await supabase
     .from("jobs")
     .insert({
