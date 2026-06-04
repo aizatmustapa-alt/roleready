@@ -1,15 +1,20 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { blogArticles } from "@/lib/blog";
 import {
+  HOMEPAGE_ONBOARDING_DRAFT_KEY,
+  HomepageOnboardingModal,
+  type StoredDraft,
+} from "@/components/landing/HomepageOnboardingModal";
+import {
   ArrowRight,
   Briefcase,
-  CheckCircle2,
   Download,
   FileText,
-  Play,
   Search,
+  ShieldCheck,
   Sparkles,
   Star,
   TrendingUp,
@@ -84,6 +89,49 @@ function LimeSwoop({ className }: { className?: string }) {
 }
 
 export function LandingPage() {
+  const resumeInputRef = useRef<HTMLInputElement>(null);
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
+  const [heroResumeFile, setHeroResumeFile] = useState<File | null>(null);
+  const [storedDraft, setStoredDraft] = useState<StoredDraft | null>(null);
+  const [onboardingMessage, setOnboardingMessage] = useState("");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const errorCode = params.get("error_code");
+    const errorDescription = params.get("error_description");
+    if (!errorCode && !errorDescription) return;
+
+    if (errorCode === "otp_expired" || errorDescription?.toLowerCase().includes("expired")) {
+      const rawDraft = window.localStorage.getItem(HOMEPAGE_ONBOARDING_DRAFT_KEY);
+      if (rawDraft) {
+        try {
+          setStoredDraft(JSON.parse(rawDraft) as StoredDraft);
+        } catch {
+          window.localStorage.removeItem(HOMEPAGE_ONBOARDING_DRAFT_KEY);
+        }
+      }
+      setOnboardingMessage("That confirmation link expired or was already used. Re-upload your resume and continue to send a fresh confirmation email.");
+      setOnboardingOpen(true);
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
+  }, []);
+
+  function startOnboarding(file?: File | null) {
+    if (file) setHeroResumeFile(file);
+    if (file) setStoredDraft(null);
+    setOnboardingMessage("");
+    setOnboardingOpen(true);
+  }
+
+  function handleHeroFile(file?: File | null) {
+    if (!file) return;
+    if (file.size > 4 * 1024 * 1024) {
+      alert("File is too large. Please upload a PDF or DOCX under 4 MB.");
+      return;
+    }
+    startOnboarding(file);
+  }
+
   return (
     <div className="min-h-screen overflow-x-hidden bg-white text-slate-900">
       <style jsx global>{`
@@ -97,16 +145,31 @@ export function LandingPage() {
           from { opacity: 0; transform: translateY(18px); }
           to   { opacity: 1; transform: translateY(0); }
         }
+        @keyframes applyhq-pop-in {
+          0% { opacity: 0; transform: translateY(16px) scale(0.94); }
+          70% { opacity: 1; transform: translateY(-3px) scale(1.015); }
+          100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
         .applyhq-fade-up  { animation: applyhq-fade-up 760ms ease-out both; }
         .applyhq-float    { animation: applyhq-float 5.5s ease-in-out infinite; }
         .applyhq-float-2  { animation: applyhq-float 6.5s ease-in-out infinite 0.8s; }
         .applyhq-float-3  { animation: applyhq-float 7s ease-in-out infinite 1.6s; }
+        .applyhq-pop-in   { animation: applyhq-pop-in 620ms cubic-bezier(.2,.9,.2,1) 260ms both; }
+        @media (prefers-reduced-motion: reduce) {
+          .applyhq-fade-up,
+          .applyhq-float,
+          .applyhq-float-2,
+          .applyhq-float-3,
+          .applyhq-pop-in {
+            animation: none !important;
+          }
+        }
       `}</style>
 
       <main>
 
         {/* ── Hero (header lives inside so nav overlays the image) ── */}
-        <section className="applyhq-fade-up relative overflow-hidden md:min-h-[720px]" style={{ background: "#f5f3f0" }}>
+        <section className="applyhq-fade-up relative overflow-hidden" style={{ background: "#f5f3f0" }}>
 
           {/* Nav overlay — sits on top of the photo background */}
           <header className="absolute inset-x-0 top-0 z-20">
@@ -125,85 +188,76 @@ export function LandingPage() {
               <div className="flex items-center gap-2 sm:gap-3">
                 <Link
                   href="/login"
-                  className="inline-flex min-h-10 items-center justify-center rounded-full px-4 text-sm font-semibold text-slate-700 transition hover:text-[#2200ff]"
-                >
-                  Log in
-                </Link>
-                <Link
-                  href="/login"
                   className="inline-flex min-h-10 items-center justify-center rounded-full bg-[#2200ff] px-4 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(34,0,255,0.3)] transition hover:-translate-y-0.5 hover:bg-[#1a00cc] sm:min-h-11 sm:px-6"
                 >
-                  <span className="sm:hidden">Start free</span>
-                  <span className="hidden sm:inline">Get started free</span>
+                  Login
                 </Link>
               </div>
             </div>
           </header>
 
-          {/* Photo — right 63%, narrow blend so lady's arm is close to the text */}
-          <div className="pointer-events-none absolute bottom-0 right-0 top-0 hidden w-[63%] md:block">
-            <img
-              src="/landing/hero-job-seeker.png"
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover object-top"
-              onError={(e) => { e.currentTarget.style.display = "none"; }}
-            />
-            {/* Narrow left blend — keeps the lady close to the callout */}
-            <div className="absolute inset-y-0 left-0 w-[18%] bg-gradient-to-r from-[#f5f3f0] to-transparent" />
-            {/* Bottom fade */}
-            <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#f5f3f0] to-transparent" />
-          </div>
+          {/* Full-width content — top padding clears the overlaid nav */}
+          <div className="relative z-10 px-8 pb-16 pt-32 sm:px-12 lg:px-16 lg:pt-36 lg:pb-24">
 
-          {/* Left content — top padding clears the overlaid nav */}
-          <div className="relative z-10 px-8 pb-24 pt-32 sm:px-12 lg:px-16 lg:pt-36 lg:pb-32">
-            <div className="max-w-[460px]">
+            {/* Headline — spans full width */}
+            <h1 className="text-center text-4xl font-black leading-[1.1] tracking-tight text-slate-900 sm:text-5xl lg:text-6xl xl:text-7xl">
+              You don't have to suffer. <span className="text-[#2200ff]">Tailor your CV and cover letter to any job.</span>
+            </h1>
 
-              {/* Headline */}
-              <h1 className="text-6xl font-black leading-[1.0] tracking-tight text-slate-900 sm:text-7xl lg:text-8xl">
-                Land your<br />next role
-                <span className="block text-[#2200ff]">faster.</span>
-              </h1>
+            {/* Subheading */}
+            <p className="mt-5 text-center text-2xl font-semibold leading-snug text-slate-600 sm:text-3xl">
+              Turn one CV into a tailored application for every job. Take seconds, not hours.
+            </p>
 
-              {/* Mobile hero photo — shown below headline, hidden on desktop */}
-              <div className="mt-6 block overflow-hidden rounded-3xl shadow-lg md:hidden">
+            {/* Two-column: photo left, resume card right */}
+            <div className="mt-10 grid grid-cols-1 gap-6 pb-4 lg:grid-cols-2 lg:gap-10">
+
+              {/* Left: lady photo */}
+              <div className="hidden overflow-hidden rounded-3xl shadow-lg lg:block">
                 <img
                   src="/landing/hero-job-seeker.png"
                   alt=""
-                  className="h-72 w-full object-cover object-top"
+                  className="h-full w-full object-cover object-top"
+                  style={{ minHeight: "420px" }}
                   onError={(e) => { e.currentTarget.style.display = "none"; }}
                 />
               </div>
 
-              {/* Subheading */}
-              <p className="mt-6 max-w-sm text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
-                Stop the spray-and-pray. ApplyHQ tailors every application to the role — more interviews, less chaos.
-              </p>
-
-              {/* CTA buttons */}
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Link
-                  href="/login"
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-[#2200ff] px-7 py-3.5 text-base font-semibold text-white shadow-[0_8px_28px_rgba(34,0,255,0.35)] transition hover:-translate-y-0.5 hover:bg-[#1a00cc]"
+              {/* Right: big resume upload card */}
+              <div
+                onDragOver={(event) => event.preventDefault()}
+                onDrop={(event) => {
+                  event.preventDefault();
+                  handleHeroFile(event.dataTransfer.files?.[0]);
+                }}
+                className="applyhq-pop-in flex flex-col items-center justify-center rounded-[2.25rem] border-2 border-dashed border-[#b9adff] bg-white/95 p-10 text-center shadow-[0_28px_90px_rgba(34,0,255,0.16)] backdrop-blur transition hover:-translate-y-0.5 hover:border-[#2200ff] sm:p-12"
+              >
+                <input
+                  ref={resumeInputRef}
+                  type="file"
+                  accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                  className="hidden"
+                  onChange={(event) => handleHeroFile(event.target.files?.[0])}
+                />
+                <span className="inline-flex h-24 w-24 items-center justify-center rounded-[1.7rem] bg-[#ece8ff] text-[#2200ff] shadow-sm">
+                  <UploadCloud className="h-14 w-14" />
+                </span>
+                <p className="mt-6 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">Drop your resume here. See what it could look like.</p>
+                <p className="mt-3 text-base font-semibold text-slate-500">PDF or DOCX · Max 4 MB</p>
+                <button
+                  type="button"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    resumeInputRef.current?.click();
+                  }}
+                  className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#2200ff] px-7 py-4 text-lg font-bold text-white shadow-[0_16px_44px_rgba(34,0,255,0.34)] transition hover:bg-[#1a00cc]"
                 >
-                  Start Free <ArrowRight className="h-4 w-4" />
-                </Link>
-                <a
-                  href="#how-it-works"
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-300 bg-white px-7 py-3.5 text-base font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:bg-slate-50"
-                >
-                  <Play className="h-4 w-4 fill-slate-600 text-slate-600" />
-                  Watch Demo
-                </a>
-              </div>
-
-              {/* Trust indicators */}
-              <div className="mt-6 flex flex-wrap gap-5 text-sm text-slate-500">
-                {["Free forever", "No credit card", "Cancel anytime"].map((t) => (
-                  <span key={t} className="flex items-center gap-1.5">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                    {t}
-                  </span>
-                ))}
+                  Tailor My Resume for FREE
+                </button>
+                <p className="mt-3 inline-flex items-center gap-1.5 text-sm text-slate-400">
+                  <ShieldCheck className="h-4 w-4" />
+                  No credit card required
+                </p>
               </div>
 
             </div>
@@ -380,6 +434,13 @@ export function LandingPage() {
         </section>
 
       </main>
+      <HomepageOnboardingModal
+        open={onboardingOpen}
+        initialResumeFile={heroResumeFile}
+        initialDraft={storedDraft}
+        initialMessage={onboardingMessage}
+        onClose={() => setOnboardingOpen(false)}
+      />
     </div>
   );
 }
