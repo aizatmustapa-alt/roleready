@@ -24,10 +24,23 @@ export default function InviteSetupPage() {
       const queryParams = new URLSearchParams(window.location.search);
       const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
       const code = queryParams.get("code") ?? hashParams.get("code");
+      const tokenHash = queryParams.get("token_hash") ?? hashParams.get("token_hash");
       const accessToken = queryParams.get("access_token") ?? hashParams.get("access_token");
       const refreshToken = queryParams.get("refresh_token") ?? hashParams.get("refresh_token");
 
-      if (code) {
+      if (tokenHash) {
+        window.history.replaceState({}, "", window.location.pathname);
+        const { error } = await activeSupabase.auth.verifyOtp({
+          token_hash: tokenHash,
+          type: "invite",
+        });
+
+        if (error) {
+          setMessage(error.message);
+          setExpired(true);
+          return;
+        }
+      } else if (code) {
         window.history.replaceState({}, "", window.location.pathname);
         const { error } = await activeSupabase.auth.exchangeCodeForSession(code);
 
