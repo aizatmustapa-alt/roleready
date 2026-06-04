@@ -80,6 +80,39 @@ function statusGuidance(status: ApplicationStatus, hasDocuments: boolean) {
   };
 }
 
+function jobDisplayCopy(job: NonNullable<ApplicationWithJob["jobs"]>) {
+  const title = String(job.title ?? "").trim();
+  const company = String(job.company ?? "").trim();
+  const description = String(job.description ?? "").trim();
+  const combined = `${title}\n${company}\n${description}`.toLowerCase();
+  const looksBlocked =
+    description.length < 300 ||
+    [
+      "just a moment",
+      "403 forbidden",
+      "access denied",
+      "request blocked",
+      "captcha",
+      "verify you are human",
+      "job description unavailable",
+      "company from job ad"
+    ].some((phrase) => combined.includes(phrase));
+
+  if (!looksBlocked) {
+    return {
+      title: title || "Untitled role",
+      company: company || "Company from job ad",
+      note: null as string | null
+    };
+  }
+
+  return {
+    title: "Oops, we need the job description",
+    company: "This job board blocked the full ad",
+    note: "Paste the full job description below, then generate again."
+  };
+}
+
 export default async function ApplicationDetailPage({ params, searchParams }: Props) {
   const { id } = await params;
   const { generate } = await searchParams;
@@ -136,6 +169,7 @@ export default async function ApplicationDetailPage({ params, searchParams }: Pr
   const status = (application.status ?? "New") as ApplicationStatus;
   const score = scoreTone(application.match_score);
   const guidance = statusGuidance(status, hasDocuments);
+  const displayJob = jobDisplayCopy(job);
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-5 pb-36 md:px-8 md:py-10 md:pb-10 xl:px-10">
@@ -151,10 +185,10 @@ export default async function ApplicationDetailPage({ params, searchParams }: Pr
             {/* Title + meta */}
             <div className="min-w-0">
               <h1 className="text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
-                {job.title}
+                {displayJob.title}
               </h1>
               <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-500">
-                <span>{job.company}</span>
+                <span>{displayJob.company}</span>
                 {job.location ? (
                   <>
                     <span className="text-slate-300">•</span>
@@ -175,6 +209,9 @@ export default async function ApplicationDetailPage({ params, searchParams }: Pr
                   </>
                 ) : null}
               </p>
+              {displayJob.note ? (
+                <p className="mt-2 max-w-xl text-sm font-medium text-[#2200ff]">{displayJob.note}</p>
+              ) : null}
             </div>
 
             {/* Status — slotted next to title */}
