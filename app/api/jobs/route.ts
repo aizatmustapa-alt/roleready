@@ -31,7 +31,7 @@ export async function POST(request: Request) {
       const cleanUrl = jobUrl.split("#")[0];
       const scraped = await Promise.race([
         fetchJobAdDetails(cleanUrl),
-        new Promise<null>((resolve) => setTimeout(() => resolve(null), 32000)),
+        new Promise<null>((resolve) => setTimeout(() => resolve(null), 45000)),
       ]);
       if (scraped && scraped.description.trim().length > description.trim().length) {
         description = scraped.description;

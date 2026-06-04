@@ -20,11 +20,11 @@ function extractJobAd() {
       .replace(/\s+/g, " ")
       .trim();
 
-  const pickText = (selectors) => {
+  const pickText = (selectors, minLength = 0) => {
     for (const selector of selectors) {
       const element = document.querySelector(selector);
       const text = clean(element?.innerText || element?.textContent || "");
-      if (text) {
+      if (text.length > minLength) {
         return text;
       }
     }
@@ -35,6 +35,7 @@ function extractJobAd() {
     "h1",
     '[data-automation="job-detail-title"]',
     '[data-testid="job-title"]',
+    '[data-testid="jobsearch-JobInfoHeader-title"]', // Indeed
     ".job-title"
   ]) || document.title;
 
@@ -42,6 +43,8 @@ function extractJobAd() {
     '[data-automation="advertiser-name"]',
     '[data-automation="job-detail-company-name"]',
     '[data-testid="company-name"]',
+    '[data-testid="inlineHeader-companyName"]', // Indeed
+    '[data-company-name="true"]',               // Indeed alt
     'a[href*="/companies/"]'
   ]);
 
@@ -53,16 +56,21 @@ function extractJobAd() {
 
   const salary = pickText([
     '[data-automation="job-detail-salary"]',
-    '[data-testid="job-salary"]'
+    '[data-testid="job-salary"]',
+    '#salaryInfoAndJobType',                          // Indeed
+    '[data-testid="jobsearch-JobInfoHeader-salary"]'  // Indeed
   ]);
 
   const description = pickText([
     '[data-automation="jobAdDetails"]',
     '[data-automation="job-detail-description"]',
     '[data-testid="job-description"]',
+    '#jobDescriptionText',                             // Indeed
+    '[data-testid="jobDescriptionText"]',              // Indeed
+    '[data-testid="jobsearch-jobDescriptionText"]',    // Indeed
     "article",
     "main"
-  ]) || clean(document.body.innerText);
+  ], 200) || clean(document.body.innerText);
 
   return {
     title: clean(title),

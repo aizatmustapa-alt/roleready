@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
+import { consumeGenerationCredit, generationLimitMessage, getAccessState } from "@/lib/entitlements";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const maxDuration = 120;
@@ -198,6 +199,26 @@ function normalizeProvider(value: unknown) {
   return value === "anthropic" || value === "openai" ? value : null;
 }
 
+function hasUsableJobDescription(job: NonNullable<ApplicationWithJob["jobs"]>) {
+  const description = String(job.description ?? "").trim();
+  const title = String(job.title ?? "").trim().toLowerCase();
+  const combined = `${title}\n${description}`.toLowerCase();
+
+  if (description.length < 80) return false;
+
+  return ![
+    "403 forbidden",
+    "access denied",
+    "request blocked",
+    "enable javascript",
+    "captcha",
+    "verify you are human",
+    "blocked our request",
+    "job description unavailable",
+    "just a moment"
+  ].some((phrase) => combined.includes(phrase));
+}
+
 export async function POST(request: Request, { params }: Props) {
   const { id } = await params;
   const supabase = await createSupabaseServerClient();
@@ -238,6 +259,23 @@ export async function POST(request: Request, { params }: Props) {
 
   if (!masterResume || !(masterResume as MasterResume).resume_text.trim()) {
     return NextResponse.json({ error: "Add your master resume text before preparing an application." }, { status: 400 });
+  }
+
+  if (!hasUsableJobDescription(app.jobs)) {
+    return NextResponse.json(
+      {
+        error:
+          "The job description could not be read from this link. Open the job page in your browser, use the Chrome extension to capture it, or paste the full job description into the Job Description tab."
+      },
+      { status: 400 }
+    );
+  }
+
+  const shouldConsumeCredit = !app.generated_at;
+  const access = await getAccessState(supabase, user.id);
+
+  if (shouldConsumeCredit && !access.canGenerate) {
+    return NextResponse.json({ error: generationLimitMessage(access) }, { status: 402 });
   }
 
   const prompt = buildPrompt({
@@ -292,6 +330,13 @@ export async function POST(request: Request, { params }: Props) {
         content: generated.coverLetter
       }
     ]);
+
+    if (shouldConsumeCredit) {
+      const credit = await consumeGenerationCredit(supabase, access);
+      if (!credit.ok) {
+        return NextResponse.json({ error: credit.error ?? "Unable to record application credit usage." }, { status: 400 });
+      }
+    }
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "AI generation failed." }, { status: 500 });
   }

@@ -73,7 +73,7 @@ export async function POST(request: Request) {
         salary: payload.salary?.trim().slice(0, 300) || "",
         job_url: payload.url?.trim().slice(0, 1200) || "",
         description: description.slice(0, 30000),
-        source: payload.url?.includes("seek.com") ? "SEEK" : "Other"
+        source: payload.url?.includes("seek.com") ? "SEEK" : payload.url?.includes("linkedin.com") ? "LinkedIn" : "Other"
       })
       .select("id")
       .single();
