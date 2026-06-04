@@ -12,6 +12,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { QuickApplyForm } from "@/components/QuickApplyForm";
+import { GRAB_PREFILL_STORAGE_KEY } from "@/components/landing/HomepageOnboardingModal";
 import type { GrabResult } from "@/app/api/grab/route";
 import type { ApplicationWithJob, CachedGrabbedJob } from "@/types/database";
 
@@ -103,12 +104,18 @@ function GrabbedMatchCard({
   job,
   importedApplicationId,
   importing,
+  savedApplicationId,
+  saving,
   onImport,
+  onSave,
 }: {
   job: GrabResult;
   importedApplicationId?: string;
   importing: boolean;
+  savedApplicationId?: string;
+  saving: boolean;
   onImport: (job: GrabResult) => void;
+  onSave: (job: GrabResult) => void;
 }) {
   const salary = job.salary || formatSalary(job.salaryMin, job.salaryMax);
   const label = matchLabel(job.matchScore);
@@ -186,16 +193,26 @@ function GrabbedMatchCard({
           </button>
         )}
 
-        {/* Bookmark */}
-        <a
-          href={job.jobUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          title="View original job"
-          className="hidden h-9 w-9 items-center justify-center rounded-full bg-white text-slate-400 shadow-sm transition hover:text-[#2200ff] sm:inline-flex"
-        >
-          <Bookmark className="h-4 w-4" />
-        </a>
+        {/* Bookmark / Save */}
+        {savedApplicationId ? (
+          <Link
+            href="/saved"
+            title="View saved jobs"
+            className="hidden h-9 w-9 items-center justify-center rounded-full bg-[#ece8ff] text-[#2200ff] shadow-sm transition hover:bg-[#d4ccff] sm:inline-flex"
+          >
+            <Bookmark className="h-4 w-4 fill-current" />
+          </Link>
+        ) : (
+          <button
+            type="button"
+            disabled={saving}
+            onClick={() => onSave(job)}
+            title="Save job for later"
+            className="hidden h-9 w-9 items-center justify-center rounded-full bg-white text-slate-400 shadow-sm transition hover:text-[#2200ff] disabled:opacity-50 sm:inline-flex"
+          >
+            <Bookmark className="h-4 w-4" />
+          </button>
+        )}
       </div>
     </article>
   );
@@ -223,6 +240,8 @@ export function DashboardTabs({
   const [salaryMin, setSalaryMin] = useState("");
   const [importing, setImporting] = useState<Record<string, boolean>>({});
   const [imported, setImported] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState<Record<string, boolean>>({});
+  const [saved, setSaved] = useState<Record<string, string>>({}); // jobUrl → applicationId
   const [showAllMatches, setShowAllMatches] = useState(false);
   const [mobilePreferencesOpen, setMobilePreferencesOpen] = useState(false);
 
@@ -325,6 +344,55 @@ export function DashboardTabs({
       setImporting((prev) => ({ ...prev, [job.id]: false }));
     }
   }
+
+  async function saveJob(job: GrabResult) {
+    setSaving((prev) => ({ ...prev, [job.id]: true }));
+    try {
+      const response = await fetch("/api/saved", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: job.title,
+          company: job.company,
+          location: job.location,
+          salary: job.salary || formatSalary(job.salaryMin, job.salaryMax),
+          jobUrl: job.jobUrl,
+          description: job.description,
+          source: job.source,
+        }),
+      });
+      const payload = await response.json();
+      if (response.ok && payload.applicationId) {
+        setSaved((prev) => ({ ...prev, [job.id]: payload.applicationId }));
+      }
+    } catch {
+      // silently fail — user can retry
+    } finally {
+      setSaving((prev) => ({ ...prev, [job.id]: false }));
+    }
+  }
+
+  useEffect(() => {
+    const raw = window.localStorage.getItem(GRAB_PREFILL_STORAGE_KEY);
+    if (!raw) return;
+    try {
+      const prefill = JSON.parse(raw) as {
+        keywords?: string;
+        location?: string;
+        workType?: string;
+        salaryMin?: string;
+      };
+      if (prefill.keywords) setKeywordQuery(prefill.keywords);
+      if (prefill.location) setLocationQuery(prefill.location);
+      if (prefill.salaryMin) setSalaryMin(prefill.salaryMin);
+      if (prefill.workType) setWorkTypes(new Set([prefill.workType]));
+      setMatchNotice("Your saved job search is ready. Hit Refresh matches when you want ApplyHQ to scan roles.");
+    } catch {
+      // Ignore malformed browser-only draft data.
+    } finally {
+      window.localStorage.removeItem(GRAB_PREFILL_STORAGE_KEY);
+    }
+  }, []);
 
   useEffect(() => {
     if (resumeFileName && grabbedMatchesStale) {
@@ -511,7 +579,10 @@ export function DashboardTabs({
                     job={job}
                     importedApplicationId={imported[job.id] ?? importedByUrl[job.jobUrl]}
                     importing={Boolean(importing[job.id])}
+                    savedApplicationId={saved[job.id]}
+                    saving={Boolean(saving[job.id])}
                     onImport={importJob}
+                    onSave={saveJob}
                   />
                 ))}
                 {matches.length > 5 && (

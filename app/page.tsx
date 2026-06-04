@@ -1,5 +1,6 @@
 import { DashboardTabs } from "@/components/DashboardTabs";
 import { LandingPage } from "@/components/landing/LandingPage";
+import { DeferredOnboardingResume } from "@/components/landing/HomepageOnboardingModal";
 import { OnboardingWizard } from "@/components/OnboardingWizard";
 import { SetupNotice } from "@/components/SetupNotice";
 import { getAccessState, type AccessState } from "@/lib/entitlements";
@@ -34,7 +35,7 @@ export default async function DashboardPage() {
 
   if (supabase && user) {
     const [{ data }, { data: resume }, { data: coverLetter }, { data: profile }, { data: cachedMatches }, access] = await Promise.all([
-      supabase.from("applications").select("*, jobs(*)").eq("user_id", user.id).order("created_at", { ascending: false }),
+      supabase.from("applications").select("*, jobs(*)").eq("user_id", user.id).neq("status", "Saved").order("created_at", { ascending: false }),
       supabase.from("master_resumes").select("id, file_name").eq("user_id", user.id).limit(1).maybeSingle(),
       supabase.from("master_cover_letters").select("id, file_name").eq("user_id", user.id).limit(1).maybeSingle(),
       supabase.from("profiles").select("name, location").eq("id", user.id).maybeSingle(),
@@ -65,6 +66,7 @@ export default async function DashboardPage() {
   if (!resumeFileName) {
     return (
       <main className="min-h-screen bg-slate-50 px-4 pb-36 md:px-8 md:pb-10 xl:px-10">
+        <DeferredOnboardingResume />
         <OnboardingWizard />
       </main>
     );
@@ -72,6 +74,7 @@ export default async function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-5 pb-36 md:px-8 md:py-10 md:pb-10 xl:px-10">
+      <DeferredOnboardingResume />
       <DashboardTabs
         applications={applications}
         resumeFileName={resumeFileName}

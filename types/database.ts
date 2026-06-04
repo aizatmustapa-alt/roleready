@@ -1,4 +1,4 @@
-export type ApplicationStatus = "New" | "Ready" | "Applied" | "Interview" | "Rejected";
+export type ApplicationStatus = "New" | "Ready" | "Applied" | "Interview" | "Rejected" | "Saved";
 export type JobSource = "Manual" | "SEEK" | "LinkedIn" | "Adzuna" | "Other";
 export type GeneratedDocumentType = "tailored_resume" | "cover_letter";
 export type GeneratedDocumentFormat = "markdown" | "docx" | "pdf";

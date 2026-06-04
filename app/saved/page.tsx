@@ -1,16 +1,17 @@
-import Link from "next/link";
-import { ArrowRight, Bookmark, Sparkles } from "lucide-react";
+import { Bookmark } from "lucide-react";
 import { LandingPage } from "@/components/landing/LandingPage";
 import { SetupNotice } from "@/components/SetupNotice";
+import { SavedJobList } from "@/components/SavedJobList";
 import { isSupabaseConfigured } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { ApplicationWithJob } from "@/types/database";
 
 export default async function SavedPage() {
   const configured = isSupabaseConfigured();
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
+  const { data: { user } } = supabase
+    ? await supabase.auth.getUser()
+    : { data: { user: null } };
 
   if (!configured) {
     return (
@@ -20,9 +21,18 @@ export default async function SavedPage() {
     );
   }
 
-  if (!user) {
+  if (!user || !supabase) {
     return <LandingPage />;
   }
+
+  const { data } = await supabase
+    .from("applications")
+    .select("*, jobs(*)")
+    .eq("user_id", user.id)
+    .eq("status", "Saved")
+    .order("created_at", { ascending: false });
+
+  const saved = (data ?? []) as ApplicationWithJob[];
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 pb-36 pt-6 md:px-8 md:py-10 xl:px-10">
@@ -36,27 +46,11 @@ export default async function SavedPage() {
             Keep roles you like close by.
           </h1>
           <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600 md:text-lg md:leading-8">
-            Saved jobs are coming soon. For now, start from fresh matches or keep active roles in Applications.
+            Bookmark jobs from your matches. When you&apos;re ready, hit Prepare application to start tailoring.
           </p>
         </div>
 
-        <section className="max-w-full overflow-hidden rounded-[2rem] border border-slate-100 bg-white px-5 py-14 text-center shadow-sm sm:px-6">
-          <span className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#ece8ff] to-[#d4ccff] text-[#2200ff]">
-            <Sparkles className="h-9 w-9" />
-          </span>
-          <h2 className="mt-5 text-2xl font-bold text-slate-900">Your saved list is waiting.</h2>
-          <p className="mx-auto mt-3 max-w-md text-base leading-7 text-slate-600">
-            We will add persistent saved jobs here in a later pass. Today, ApplyHQ keeps discovery and active applications separate.
-          </p>
-          <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link href="/" className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-[#2200ff] px-6 py-3 text-sm font-semibold text-white shadow-[0_16px_42px_rgba(34,0,255,0.2)] hover:bg-[#1a00cc] sm:w-auto">
-              Find fresh matches <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link href="/applications" className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 sm:w-auto">
-              View applications
-            </Link>
-          </div>
-        </section>
+        <SavedJobList initial={saved} />
       </div>
     </main>
   );

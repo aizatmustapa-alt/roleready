@@ -13,6 +13,7 @@ const statusStyle: Record<ApplicationStatus, { select: string; dot: string; labe
   Applied:   { select: "bg-amber-50    text-amber-800    ring-amber-200",    dot: "bg-amber-400",    label: "Keep it here while you wait for a response" },
   Interview: { select: "bg-orange-50   text-orange-800   ring-orange-200",   dot: "bg-orange-400",   label: "Review the role and prepare your talking points" },
   Rejected:  { select: "bg-rose-50     text-rose-700     ring-rose-200",     dot: "bg-rose-400",     label: "Keep as a reference for future applications" },
+  Saved:     { select: "bg-violet-50   text-violet-800   ring-violet-200",   dot: "bg-violet-400",   label: "Bookmark — prepare your application when ready" },
 };
 
 type Props = {

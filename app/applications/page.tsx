@@ -30,6 +30,7 @@ export default async function ApplicationsPage() {
     .from("applications")
     .select("*, jobs(*)")
     .eq("user_id", user.id)
+    .neq("status", "Saved")
     .order("created_at", { ascending: false });
 
   const applications = (data ?? []) as ApplicationWithJob[];
