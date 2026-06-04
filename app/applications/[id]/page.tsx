@@ -84,9 +84,9 @@ function jobDisplayCopy(job: NonNullable<ApplicationWithJob["jobs"]>) {
   const title = String(job.title ?? "").trim();
   const company = String(job.company ?? "").trim();
   const description = String(job.description ?? "").trim();
-  const combined = `${title}\n${company}\n${description}`.toLowerCase();
+  const combined = `${title}\n${description}`.toLowerCase();
   const looksBlocked =
-    description.length < 300 ||
+    description.length < 80 ||
     [
       "just a moment",
       "403 forbidden",
@@ -94,8 +94,7 @@ function jobDisplayCopy(job: NonNullable<ApplicationWithJob["jobs"]>) {
       "request blocked",
       "captcha",
       "verify you are human",
-      "job description unavailable",
-      "company from job ad"
+      "job description unavailable"
     ].some((phrase) => combined.includes(phrase));
 
   if (!looksBlocked) {

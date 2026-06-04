@@ -474,8 +474,7 @@ async function fetchJobWithBrowser(url: string): Promise<JobAdDetails | null> {
 // ─── Parallel scraping fallback (Jina + Puppeteer race) ─────────────────────
 
 async function fetchWithScrapingFallbacks(url: string): Promise<JobAdDetails | null> {
-  const fetchers: Array<Promise<JobAdDetails | null>> = [fetchJobWithJina(url)];
-  if (!IS_SERVERLESS) fetchers.push(fetchJobWithBrowser(url));
+  const fetchers: Array<Promise<JobAdDetails | null>> = [fetchJobWithJina(url), fetchJobWithBrowser(url)];
   return Promise.any(
     fetchers.map((p) =>
       p.then((r) => {

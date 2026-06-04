@@ -202,10 +202,9 @@ function normalizeProvider(value: unknown) {
 function hasUsableJobDescription(job: NonNullable<ApplicationWithJob["jobs"]>) {
   const description = String(job.description ?? "").trim();
   const title = String(job.title ?? "").trim().toLowerCase();
-  const company = String(job.company ?? "").trim().toLowerCase();
-  const combined = `${title}\n${company}\n${description}`.toLowerCase();
+  const combined = `${title}\n${description}`.toLowerCase();
 
-  if (description.length < 300) return false;
+  if (description.length < 80) return false;
 
   return ![
     "403 forbidden",
@@ -216,8 +215,7 @@ function hasUsableJobDescription(job: NonNullable<ApplicationWithJob["jobs"]>) {
     "verify you are human",
     "blocked our request",
     "job description unavailable",
-    "just a moment",
-    "company from job ad"
+    "just a moment"
   ].some((phrase) => combined.includes(phrase));
 }
 
