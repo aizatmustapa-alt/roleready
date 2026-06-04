@@ -10,7 +10,7 @@ type JobAdDetails = {
 
 // Job boards that commonly block server-side requests.
 // "seek.com" catches both au.seek.com (new domain) and any other seek.com subdomains.
-const BLOCKED_DOMAINS = ["seek.com.au", "seek.co.nz", "seek.com", "linkedin.com", "indeed.com", "adzuna.com.au", "adzuna.co.nz"];
+const BLOCKED_DOMAINS = ["seek.com.au", "seek.co.nz", "seek.com", "linkedin.com", "indeed.com", "jora.com", "jora.com.au", "adzuna.com.au", "adzuna.co.nz"];
 
 export function isBlockedJobBoard(url: string): boolean {
   try {
@@ -39,6 +39,7 @@ export function detectJobSource(url: string): "SEEK" | "LinkedIn" | "Adzuna" | "
     if (host.includes("seek.") || host.includes(".seek.")) return "SEEK";
     if (host.includes("linkedin.com")) return "LinkedIn";
     if (host.includes("adzuna.")) return "Adzuna";
+    // Indeed and Jora map to "Other" — not in the JobSource enum
   } catch {
     // fall through
   }
@@ -269,7 +270,7 @@ async function fetchJobWithJina(url: string): Promise<JobAdDetails | null> {
     const titleMatch = text.match(/^Title:\s*(.+)$/m);
     const rawTitle = titleMatch?.[1]?.trim() ?? "";
     const title = rawTitle
-      .replace(/\s*[|–—-]\s*(SEEK|LinkedIn|Indeed|Adzuna)[^]*$/i, "")
+      .replace(/\s*[|–—\-]\s*(SEEK|LinkedIn|Indeed|Jora|Adzuna)[\s\S]*$/i, "")
       .trim() || "Job from link";
 
     // Try to extract company — often appears after "Company:" or as first bold line
@@ -387,10 +388,13 @@ async function fetchJobWithBrowser(url: string): Promise<JobAdDetails | null> {
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
     );
 
-    // Use 'load' so scripts run and any client-side rendering finishes
-    await page.goto(url, { waitUntil: "load", timeout: 35000 });
+    // domcontentloaded fires in ~1-2s (HTML parsed, scripts not yet done).
+    // We then wait separately for the job element — this lets CSR sites like SEEK
+    // load and render without also waiting for all images/fonts/etc.
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 15000 });
 
-    // Wait for SEEK job detail content — up to 15 s
+    // Wait for SEEK/Indeed job detail content — up to 25 s to allow SEEK's React
+    // app to fetch job data from the SEEK API and render it into the DOM.
     const descSelector =
       [
         '[data-automation="jobAdDetails"]',
@@ -400,13 +404,11 @@ async function fetchJobWithBrowser(url: string): Promise<JobAdDetails | null> {
         '[data-testid="jobDescriptionText"]',
         '[data-testid="jobsearch-jobDescriptionText"]'
       ].join(", ");
-    await page.waitForSelector(descSelector, { timeout: 15000 }).catch(() => {});
+    await page.waitForSelector(descSelector, { timeout: 25000 }).catch(() => {});
 
+    // No helper functions inside evaluate — esbuild wraps named functions with __name()
+    // which is not defined in the browser context and causes a ReferenceError.
     const data = await page.evaluate(() => {
-      function txt(el: Element | null): string {
-        return el ? (el.textContent ?? "").replace(/\s+/g, " ").trim() : "";
-      }
-
       const descEl =
         document.querySelector('[data-automation="jobAdDetails"]') ??
         document.querySelector('[data-automation="job-detail-description"]') ??
@@ -441,10 +443,10 @@ async function fetchJobWithBrowser(url: string): Promise<JobAdDetails | null> {
         document.querySelector('[data-testid="jobsearch-JobInfoHeader-salary"]');
 
       return {
-        title: txt(titleEl),
-        company: txt(companyEl),
-        location: txt(locationEl),
-        salary: txt(salaryEl),
+        title: titleEl ? (titleEl.textContent ?? "").replace(/\s+/g, " ").trim() : "",
+        company: companyEl ? (companyEl.textContent ?? "").replace(/\s+/g, " ").trim() : "",
+        location: locationEl ? (locationEl.textContent ?? "").replace(/\s+/g, " ").trim() : "",
+        salary: salaryEl ? (salaryEl.textContent ?? "").replace(/\s+/g, " ").trim() : "",
         description
       };
     });
@@ -467,6 +469,21 @@ async function fetchJobWithBrowser(url: string): Promise<JobAdDetails | null> {
   } finally {
     await browser.close();
   }
+}
+
+// ─── Parallel scraping fallback (Jina + Puppeteer race) ─────────────────────
+
+async function fetchWithScrapingFallbacks(url: string): Promise<JobAdDetails | null> {
+  const fetchers: Array<Promise<JobAdDetails | null>> = [fetchJobWithJina(url)];
+  if (!IS_SERVERLESS) fetchers.push(fetchJobWithBrowser(url));
+  return Promise.any(
+    fetchers.map((p) =>
+      p.then((r) => {
+        if (r === null) throw new Error("no result");
+        return r;
+      })
+    )
+  ).catch(() => null);
 }
 
 // ─── Main export ────────────────────────────────────────────────────────────
@@ -521,10 +538,8 @@ export async function fetchJobAdDetails(jobUrl: string): Promise<JobAdDetails> {
   if (!response.ok) {
     if (isBlockedJobBoard(effectiveUrl)) {
       const isLinkedIn = new URL(effectiveUrl).hostname.includes("linkedin.com");
-      const fallback =
-        (isLinkedIn ? await fetchLinkedInGuestApi(effectiveUrl) : null) ??
-        (await fetchJobWithJina(effectiveUrl)) ??
-        (IS_SERVERLESS ? null : await fetchJobWithBrowser(effectiveUrl));
+      const linkedInResult = isLinkedIn ? await fetchLinkedInGuestApi(effectiveUrl) : null;
+      const fallback = linkedInResult ?? (await fetchWithScrapingFallbacks(effectiveUrl));
       if (fallback) return fallback;
     }
     throw new Error(
@@ -563,7 +578,7 @@ export async function fetchJobAdDetails(jobUrl: string): Promise<JobAdDetails> {
 
   // Strip trailing site names like "- SEEK", "| LinkedIn", "– Indeed"
   const title = rawTitle
-    .replace(/\s*[|–—-]\s*(SEEK|LinkedIn|Indeed|Adzuna)[^]*$/i, "")
+    .replace(/\s*[|–—\-]\s*(SEEK|LinkedIn|Indeed|Jora|Adzuna)[\s\S]*$/i, "")
     .trim() || "Job from link";
 
   const company =
@@ -606,9 +621,7 @@ export async function fetchJobAdDetails(jobUrl: string): Promise<JobAdDetails> {
       if (linkedinFallback) return linkedinFallback;
     }
 
-    const fallback =
-      (await fetchJobWithJina(effectiveUrl)) ??
-      (IS_SERVERLESS ? null : await fetchJobWithBrowser(effectiveUrl));
+    const fallback = await fetchWithScrapingFallbacks(effectiveUrl);
     if (fallback) return fallback;
 
     throw new Error(blockedJobBoardMessage(effectiveUrl));

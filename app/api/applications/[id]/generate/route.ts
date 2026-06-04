@@ -267,7 +267,7 @@ export async function POST(request: Request, { params }: Props) {
     return NextResponse.json(
       {
         error:
-          "The job description could not be read from this link. Paste the full job description into the Job Description tab, then generate again."
+          "The job description could not be read from this link. Open the job page in your browser, use the Chrome extension to capture it, or paste the full job description into the Job Description tab."
       },
       { status: 400 }
     );
