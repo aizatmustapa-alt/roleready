@@ -199,6 +199,28 @@ function normalizeProvider(value: unknown) {
   return value === "anthropic" || value === "openai" ? value : null;
 }
 
+function hasUsableJobDescription(job: NonNullable<ApplicationWithJob["jobs"]>) {
+  const description = String(job.description ?? "").trim();
+  const title = String(job.title ?? "").trim().toLowerCase();
+  const company = String(job.company ?? "").trim().toLowerCase();
+  const combined = `${title}\n${company}\n${description}`.toLowerCase();
+
+  if (description.length < 300) return false;
+
+  return ![
+    "403 forbidden",
+    "access denied",
+    "request blocked",
+    "enable javascript",
+    "captcha",
+    "verify you are human",
+    "blocked our request",
+    "job description unavailable",
+    "just a moment",
+    "company from job ad"
+  ].some((phrase) => combined.includes(phrase));
+}
+
 export async function POST(request: Request, { params }: Props) {
   const { id } = await params;
   const supabase = await createSupabaseServerClient();
@@ -239,6 +261,16 @@ export async function POST(request: Request, { params }: Props) {
 
   if (!masterResume || !(masterResume as MasterResume).resume_text.trim()) {
     return NextResponse.json({ error: "Add your master resume text before preparing an application." }, { status: 400 });
+  }
+
+  if (!hasUsableJobDescription(app.jobs)) {
+    return NextResponse.json(
+      {
+        error:
+          "The job description could not be read from this link. Paste the full job description into the Job Description tab, then generate again."
+      },
+      { status: 400 }
+    );
   }
 
   const shouldConsumeCredit = !app.generated_at;

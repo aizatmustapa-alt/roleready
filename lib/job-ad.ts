@@ -392,7 +392,14 @@ async function fetchJobWithBrowser(url: string): Promise<JobAdDetails | null> {
 
     // Wait for SEEK job detail content — up to 15 s
     const descSelector =
-      '[data-automation="jobAdDetails"], [data-automation="job-detail-description"], [data-automation="jobDescription"]';
+      [
+        '[data-automation="jobAdDetails"]',
+        '[data-automation="job-detail-description"]',
+        '[data-automation="jobDescription"]',
+        "#jobDescriptionText",
+        '[data-testid="jobDescriptionText"]',
+        '[data-testid="jobsearch-jobDescriptionText"]'
+      ].join(", ");
     await page.waitForSelector(descSelector, { timeout: 15000 }).catch(() => {});
 
     const data = await page.evaluate(() => {
@@ -403,26 +410,35 @@ async function fetchJobWithBrowser(url: string): Promise<JobAdDetails | null> {
       const descEl =
         document.querySelector('[data-automation="jobAdDetails"]') ??
         document.querySelector('[data-automation="job-detail-description"]') ??
-        document.querySelector('[data-automation="jobDescription"]');
+        document.querySelector('[data-automation="jobDescription"]') ??
+        document.querySelector("#jobDescriptionText") ??
+        document.querySelector('[data-testid="jobDescriptionText"]') ??
+        document.querySelector('[data-testid="jobsearch-jobDescriptionText"]');
 
       const description = descEl ? (descEl.innerHTML || descEl.textContent || "") : "";
 
       const titleEl =
         document.querySelector('[data-automation="job-detail-title"]') ??
+        document.querySelector('[data-testid="jobsearch-JobInfoHeader-title"]') ??
         document.querySelector("h1[data-automation]") ??
         document.querySelector("h1");
 
       const companyEl =
         document.querySelector('[data-automation="advertiser-name"]') ??
-        document.querySelector('[data-automation="job-detail-company"]');
+        document.querySelector('[data-automation="job-detail-company"]') ??
+        document.querySelector('[data-testid="inlineHeader-companyName"]') ??
+        document.querySelector('[data-company-name="true"]');
 
       const locationEl =
         document.querySelector('[data-automation="job-detail-location"]') ??
-        document.querySelector('[data-automation="job-location"]');
+        document.querySelector('[data-automation="job-location"]') ??
+        document.querySelector('[data-testid="job-location"]');
 
       const salaryEl =
         document.querySelector('[data-automation="job-detail-salary"]') ??
-        document.querySelector('[data-automation="job-salary"]');
+        document.querySelector('[data-automation="job-salary"]') ??
+        document.querySelector("#salaryInfoAndJobType") ??
+        document.querySelector('[data-testid="jobsearch-JobInfoHeader-salary"]');
 
       return {
         title: txt(titleEl),
