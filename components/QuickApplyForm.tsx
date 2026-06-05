@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, LinkIcon, Sparkles } from "lucide-react";
+import { AlertTriangle, ArrowRight, LinkIcon, Sparkles } from "lucide-react";
+
+const BLOCKED_HOSTS = ["jora.com", "indeed.com", "au.indeed.com", "www.indeed.com", "www.jora.com"];
 
 type Props = {
   resumeFileName: string | null;
@@ -16,6 +18,27 @@ export function QuickApplyForm({ resumeFileName: _resumeFileName, coverLetterFil
   const [jobUrl, setJobUrl] = useState("");
   const [previewTitle, setPreviewTitle] = useState<string | null>(null);
   const [descText, setDescText] = useState("");
+  const [urlWarning, setUrlWarning] = useState("");
+  const [descOpen, setDescOpen] = useState(false);
+
+  function isBlockedHost(url: string) {
+    try {
+      const host = new URL(url).hostname.replace(/^www\./, "");
+      return BLOCKED_HOSTS.some((b) => b.replace(/^www\./, "") === host);
+    } catch {
+      return false;
+    }
+  }
+
+  function handleUrlChange(value: string) {
+    setJobUrl(value);
+    if (value && isBlockedHost(value)) {
+      setUrlWarning("Indeed and Jora block link imports. Paste the job description below instead.");
+      setDescOpen(true);
+    } else {
+      setUrlWarning("");
+    }
+  }
 
   useEffect(() => {
     if (!jobUrl) {
@@ -73,6 +96,9 @@ export function QuickApplyForm({ resumeFileName: _resumeFileName, coverLetterFil
           <p className="mt-3 text-sm leading-6 text-slate-500">
             Paste a job link and we&apos;ll tailor your resume and cover letter in seconds.
           </p>
+          <p className="mt-2 text-xs text-slate-400">
+            Works best with <span className="font-semibold text-slate-500">SEEK</span> and <span className="font-semibold text-slate-500">LinkedIn</span>. For Indeed or Jora, paste the job description.
+          </p>
         </div>
 
         {/* Right: inputs */}
@@ -89,7 +115,7 @@ export function QuickApplyForm({ resumeFileName: _resumeFileName, coverLetterFil
                 placeholder="Paste job link"
                 required
                 value={jobUrl}
-                onChange={(e) => setJobUrl(e.target.value)}
+                onChange={(e) => handleUrlChange(e.target.value)}
               />
               <button
                 className="hidden shrink-0 rounded-xl bg-[#2200ff] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(34,0,255,0.22)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#1a00cc] disabled:opacity-70 sm:block"
@@ -101,13 +127,20 @@ export function QuickApplyForm({ resumeFileName: _resumeFileName, coverLetterFil
             </div>
           </div>
 
-          {previewTitle && (
+          {urlWarning && (
+            <div className="flex items-start gap-2 rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+              <span>{urlWarning}</span>
+            </div>
+          )}
+
+          {!urlWarning && previewTitle && (
             <p className="px-2 text-sm text-slate-600">
               Found: <span className="font-medium text-[#2200ff]">{previewTitle}</span>
             </p>
           )}
 
-          <details className="group rounded-2xl border border-slate-100 bg-white px-4 py-3">
+          <details open={descOpen} onToggle={(e) => setDescOpen((e.currentTarget as HTMLDetailsElement).open)} className="group rounded-2xl border border-slate-100 bg-white px-4 py-3">
             <summary className="cursor-pointer list-none text-sm font-medium text-slate-500 transition group-open:text-[#2200ff]">
               Or paste job description
             </summary>
