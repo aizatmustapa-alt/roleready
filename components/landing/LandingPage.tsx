@@ -214,7 +214,7 @@ export function LandingPage() {
           </header>
 
           {/* Full-width content — top padding clears the overlaid nav */}
-          <div className="relative z-10 px-8 pb-16 pt-32 sm:px-12 lg:px-16 lg:pt-36 lg:pb-24">
+          <div className="relative z-10 px-8 pb-10 pt-24 sm:px-12 sm:pb-16 sm:pt-32 lg:px-16 lg:pt-36 lg:pb-24">
 
             {/* Headline — spans full width */}
             <h1 className="text-center text-4xl font-black leading-[1.1] tracking-tight text-slate-900 sm:text-5xl lg:text-6xl xl:text-7xl">
@@ -227,7 +227,7 @@ export function LandingPage() {
             </p>
 
             {/* Two-column: photo left, resume card right */}
-            <div className="mt-10 grid grid-cols-1 gap-6 pb-4 lg:grid-cols-2 lg:gap-10">
+            <div className="mt-7 grid grid-cols-1 gap-6 pb-4 sm:mt-10 lg:grid-cols-2 lg:gap-10">
 
               {/* Left: slideshow */}
               <div className="relative hidden overflow-hidden rounded-3xl shadow-lg lg:block" style={{ minHeight: "420px" }}>
@@ -267,7 +267,7 @@ export function LandingPage() {
                   event.preventDefault();
                   handleHeroFile(event.dataTransfer.files?.[0]);
                 }}
-                className="applyhq-pop-in flex flex-col items-center justify-center rounded-[2.25rem] border-2 border-dashed border-[#b9adff] bg-white/95 p-10 text-center shadow-[0_28px_90px_rgba(34,0,255,0.16)] backdrop-blur transition hover:-translate-y-0.5 hover:border-[#2200ff] sm:p-12"
+                className="applyhq-pop-in flex flex-col items-center justify-center rounded-[1.5rem] border-2 border-dashed border-[#b9adff] bg-white/95 p-6 text-center shadow-[0_28px_90px_rgba(34,0,255,0.16)] backdrop-blur transition hover:-translate-y-0.5 hover:border-[#2200ff] sm:rounded-[2.25rem] sm:p-12"
               >
                 <input
                   ref={resumeInputRef}
@@ -276,10 +276,10 @@ export function LandingPage() {
                   className="hidden"
                   onChange={(event) => handleHeroFile(event.target.files?.[0])}
                 />
-                <span className="inline-flex h-24 w-24 items-center justify-center rounded-[1.7rem] bg-[#ece8ff] text-[#2200ff] shadow-sm">
-                  <UploadCloud className="h-14 w-14" />
+                <span className="inline-flex h-16 w-16 items-center justify-center rounded-[1.2rem] bg-[#ece8ff] text-[#2200ff] shadow-sm sm:h-24 sm:w-24 sm:rounded-[1.7rem]">
+                  <UploadCloud className="h-9 w-9 sm:h-14 sm:w-14" />
                 </span>
-                <p className="mt-6 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl">Drop your resume here. See what it could look like.</p>
+                <p className="mt-4 text-2xl font-black tracking-tight text-slate-900 sm:mt-6 sm:text-4xl">Drop your resume here. See what it could look like.</p>
                 <p className="mt-3 text-base font-semibold text-slate-500">PDF or DOCX · Max 4 MB</p>
                 <button
                   type="button"
@@ -287,11 +287,11 @@ export function LandingPage() {
                     event.stopPropagation();
                     resumeInputRef.current?.click();
                   }}
-                  className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#2200ff] px-7 py-4 text-lg font-bold text-white shadow-[0_16px_44px_rgba(34,0,255,0.34)] transition hover:bg-[#1a00cc]"
+                  className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#2200ff] px-6 py-3 text-base font-bold text-white shadow-[0_16px_44px_rgba(34,0,255,0.34)] transition hover:bg-[#1a00cc] sm:mt-8 sm:px-7 sm:py-4 sm:text-lg"
                 >
                   Tailor My Resume for FREE
                 </button>
-                <p className="mt-3 inline-flex items-center gap-1.5 text-sm text-slate-400">
+                <p className="mt-2 inline-flex items-center gap-1.5 text-xs text-slate-400 sm:mt-3 sm:text-sm">
                   <ShieldCheck className="h-4 w-4" />
                   No credit card required
                 </p>
