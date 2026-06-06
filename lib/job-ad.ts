@@ -607,8 +607,6 @@ export async function fetchJobAdDetails(jobUrl: string): Promise<JobAdDetails> {
     } else if (u.hostname.includes("linkedin.com") && u.searchParams.has("currentJobId")) {
       jobUrl = `https://www.linkedin.com/jobs/view/${u.searchParams.get("currentJobId")}/`;
     } else if (u.hostname.includes("indeed.com")) {
-      // Search-panel URL: ?vjk=XXXXX  →  /viewjob?jk=XXXXX
-      // Tracking redirect: /rc/clk?jk=XXXXX  →  /viewjob?jk=XXXXX
       const jk = u.searchParams.get("vjk") ?? u.searchParams.get("jk");
       if (jk) jobUrl = `https://${u.hostname}/viewjob?jk=${jk}`;
     }
@@ -616,9 +614,30 @@ export async function fetchJobAdDetails(jobUrl: string): Promise<JobAdDetails> {
     // malformed URL — fall through
   }
 
+  // For known blocked job boards, skip the slow direct fetch entirely and
+  // fire all available extractors in parallel — takes whichever succeeds first.
+  if (isBlockedJobBoard(jobUrl)) {
+    const hostname = new URL(jobUrl).hostname;
+    const isSeek = hostname.includes("seek.");
+    const isLinkedIn = hostname.includes("linkedin.com");
+
+    const fetchers: Promise<JobAdDetails | null>[] = [
+      fetchJobWithJina(jobUrl),
+      fetchJobWithBrowser(jobUrl),
+    ];
+    if (isSeek) fetchers.unshift(fetchSeekJobApi(jobUrl));
+    if (isLinkedIn) fetchers.unshift(fetchLinkedInGuestApi(jobUrl));
+
+    const result = await Promise.any(
+      fetchers.map((p) => p.then((r) => { if (!r) throw new Error("no result"); return r; }))
+    ).catch(() => null);
+
+    if (result) return result;
+    throw new Error(blockedJobBoardMessage(jobUrl));
+  }
+
   const response = await fetch(jobUrl, {
     headers: {
-      // Realistic Chrome browser headers — many job boards block obvious bot User-Agents.
       "User-Agent":
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
       Accept:
@@ -633,7 +652,8 @@ export async function fetchJobAdDetails(jobUrl: string): Promise<JobAdDetails> {
       "Upgrade-Insecure-Requests": "1"
     },
     redirect: "follow",
-    cache: "no-store"
+    cache: "no-store",
+    signal: AbortSignal.timeout(15000),
   });
 
   // After following redirects, use the final URL for blocked-domain detection
@@ -642,16 +662,6 @@ export async function fetchJobAdDetails(jobUrl: string): Promise<JobAdDetails> {
   const effectiveUrl = isBlockedJobBoard(finalUrl) ? finalUrl : jobUrl;
 
   if (!response.ok) {
-    if (isBlockedJobBoard(effectiveUrl)) {
-      const hostname = new URL(effectiveUrl).hostname;
-      const isLinkedIn = hostname.includes("linkedin.com");
-      const isSeek = hostname.includes("seek.");
-      const seekResult = isSeek ? await fetchSeekJobApi(effectiveUrl) : null;
-      if (seekResult) return seekResult;
-      const linkedInResult = isLinkedIn ? await fetchLinkedInGuestApi(effectiveUrl) : null;
-      const fallback = linkedInResult ?? (await fetchWithScrapingFallbacks(effectiveUrl));
-      if (fallback) return fallback;
-    }
     throw new Error(
       isBlockedJobBoard(effectiveUrl)
         ? blockedJobBoardMessage(effectiveUrl, response.status)
@@ -719,29 +729,19 @@ export async function fetchJobAdDetails(jobUrl: string): Promise<JobAdDetails> {
     description: description.slice(0, 30000)
   };
 
-  // If description is too short and this is a known blocked site, try a scraping fallback
+  // Redirect landed on a blocked domain and returned a challenge page with short/no content
   if (result.description.trim().length < 300 && isBlockedJobBoard(effectiveUrl)) {
     const hostname = new URL(effectiveUrl).hostname;
-    console.log(`[job-ad] short/empty description for blocked site (${hostname}), trying fallbacks…`);
-
+    console.log(`[job-ad] redirect hit blocked site (${hostname}), trying parallel fallbacks…`);
     const isSeek = hostname.includes("seek.");
     const isLinkedIn = hostname.includes("linkedin.com");
-
-    // Seek: try internal Chalice API first (bypasses Cloudflare)
-    if (isSeek) {
-      const seekFallback = await fetchSeekJobApi(effectiveUrl);
-      if (seekFallback) return seekFallback;
-    }
-
-    // LinkedIn: try the public guest API first (no auth needed)
-    if (isLinkedIn) {
-      const linkedinFallback = await fetchLinkedInGuestApi(effectiveUrl);
-      if (linkedinFallback) return linkedinFallback;
-    }
-
-    const fallback = await fetchWithScrapingFallbacks(effectiveUrl);
+    const fetchers: Promise<JobAdDetails | null>[] = [fetchJobWithJina(effectiveUrl), fetchJobWithBrowser(effectiveUrl)];
+    if (isSeek) fetchers.unshift(fetchSeekJobApi(effectiveUrl));
+    if (isLinkedIn) fetchers.unshift(fetchLinkedInGuestApi(effectiveUrl));
+    const fallback = await Promise.any(
+      fetchers.map((p) => p.then((r) => { if (!r) throw new Error("no result"); return r; }))
+    ).catch(() => null);
     if (fallback) return fallback;
-
     throw new Error(blockedJobBoardMessage(effectiveUrl));
   }
 
