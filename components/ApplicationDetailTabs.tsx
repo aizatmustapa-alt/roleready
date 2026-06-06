@@ -63,7 +63,7 @@ function sectionColors(heading: string) {
   return "bg-slate-50 border-slate-100";
 }
 
-type Tab = "notes" | "analysis" | "resume" | "cover" | "jd";
+export type Tab = "notes" | "analysis" | "resume" | "cover" | "jd";
 
 type Props = {
   applicationId: string;
@@ -78,6 +78,10 @@ type Props = {
   initialLocationType: string | null;
   initialOtherNotes: string | null;
   initialNotes: string | null;
+  activeTab: Tab;
+  onTabChange: (tab: Tab) => void;
+  openAccordion: Tab | null;
+  onAccordionChange: (tab: Tab | null) => void;
 };
 
 const LOCATION_TYPES = ["Not specified", "Remote", "Hybrid", "On-site"];
@@ -103,9 +107,11 @@ export function ApplicationDetailTabs({
   initialLocationType,
   initialOtherNotes,
   initialNotes,
+  activeTab,
+  onTabChange,
+  openAccordion,
+  onAccordionChange,
 }: Props) {
-  const [activeTab, setActiveTab] = useState<Tab>("notes");
-  const [openAccordion, setOpenAccordion] = useState<Tab | null>("notes");
 
   const [roleSummary, setRoleSummary] = useState(initialRoleSummary ?? "");
   const [hiringManager, setHiringManager] = useState(initialHiringManager ?? "");
@@ -303,13 +309,24 @@ export function ApplicationDetailTabs({
                   </div>
                   {section.body && <p className="mt-2 text-sm leading-6 text-slate-600"><InlineMarkdown text={section.body} /></p>}
                   {section.bullets.length > 0 && (
-                    <ul className="mt-3 space-y-2">
-                      {section.bullets.map((b, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm leading-6 text-slate-600">
-                          <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-current opacity-40" />
-                          <InlineMarkdown text={b} />
-                        </li>
-                      ))}
+                    <ul className="mt-3 space-y-3">
+                      {section.bullets.map((b, i) => {
+                        const match = b.match(/^\*\*(.+?)\*\*:?\s*([\s\S]+)$/);
+                        if (match) {
+                          return (
+                            <li key={i}>
+                              <p className="text-sm font-semibold text-slate-900">{match[1]}</p>
+                              <p className="mt-0.5 text-sm leading-6 text-slate-600">{match[2]}</p>
+                            </li>
+                          );
+                        }
+                        return (
+                          <li key={i} className="flex items-start gap-2 text-sm leading-6 text-slate-600">
+                            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-current opacity-40" />
+                            <InlineMarkdown text={b} />
+                          </li>
+                        );
+                      })}
                     </ul>
                   )}
                 </div>
@@ -392,7 +409,7 @@ export function ApplicationDetailTabs({
             <div key={id}>
               <button
                 className={`flex w-full items-center justify-between px-5 py-4 text-left transition ${isOpen ? "bg-[#ece8ff]" : "hover:bg-slate-50"}`}
-                onClick={() => setOpenAccordion(isOpen ? null : id)}
+                onClick={() => onAccordionChange(isOpen ? null : id)}
               >
                 <span className={`text-sm font-semibold ${isOpen ? "text-[#2200ff]" : "text-slate-900"}`}>{label}</span>
                 <ChevronDown className={`h-4 w-4 shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180 text-[#2200ff]" : "text-slate-400"}`} />
@@ -413,7 +430,7 @@ export function ApplicationDetailTabs({
           {TAB_LABELS.map(({ id, label }) => (
             <button
               key={id}
-              onClick={() => setActiveTab(id)}
+              onClick={() => onTabChange(id)}
               className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-semibold transition ${
                 activeTab === id ? "bg-[#2200ff] text-white shadow-sm" : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
               }`}

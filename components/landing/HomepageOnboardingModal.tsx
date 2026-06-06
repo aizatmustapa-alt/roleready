@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight, CheckCircle2, FileText, Loader2, UploadCloud, X } from "lucide-react";
+import { ArrowRight, CheckCircle2, Eye, FileText, Loader2, UploadCloud, X } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 export const HOMEPAGE_ONBOARDING_DRAFT_KEY = "applyhq_home_onboarding_draft";
@@ -131,6 +131,7 @@ export function HomepageOnboardingModal({ open, initialResumeFile, initialDraft,
   const [loadingStep, setLoadingStep] = useState("");
   const [extracting, setExtracting] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -299,6 +300,11 @@ export function HomepageOnboardingModal({ open, initialResumeFile, initialDraft,
     if (jobMode === "description") formData.append("job_description_fallback", jobDescription.trim());
 
     setLoadingStep("Saving your resume…");
+    if (jobMode === "url") {
+      window.setTimeout(() => {
+        setLoadingStep("Reading the job ad...");
+      }, 500);
+    }
     const response = await fetch("/api/quick-start", {
       method: "POST",
       body: formData,
@@ -324,6 +330,7 @@ export function HomepageOnboardingModal({ open, initialResumeFile, initialDraft,
     clearDraft();
     void deleteDraftFile(resumeFileKey);
     void deleteDraftFile(coverLetterFileKey);
+    setLoadingStep("Opening your application...");
     window.location.href = `/applications/${payload.applicationId}?generate=true`;
   }
 
@@ -524,6 +531,11 @@ export function HomepageOnboardingModal({ open, initialResumeFile, initialDraft,
                 {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <ArrowRight className="h-5 w-5" />}
                 {loading && loadingStep ? loadingStep : "Verify and continue"}
               </button>
+              {loading && (
+                <p className="text-center text-xs leading-5 text-slate-500">
+                  After verification, we save your resume, read the job ad, then open your application while documents generate.
+                </p>
+              )}
               <button
                 type="button"
                 disabled={loading}
@@ -579,7 +591,7 @@ export function HomepageOnboardingModal({ open, initialResumeFile, initialDraft,
                   <button
                     type="button"
                     disabled={!resumeFile || extracting}
-                    onClick={() => setStep(2)}
+                    onClick={() => { setMessage(""); setStep(2); }}
                     className="inline-flex items-center gap-2 rounded-full bg-[#2200ff] px-6 py-3 text-sm font-bold text-white shadow-[0_12px_32px_rgba(34,0,255,0.22)] disabled:opacity-50"
                   >
                     Continue <ArrowRight className="h-4 w-4" />
@@ -734,7 +746,12 @@ export function HomepageOnboardingModal({ open, initialResumeFile, initialDraft,
                   </label>
                   <label className="block">
                     <span className="mb-2 block text-sm font-semibold text-slate-600">Password</span>
-                    <input type="password" required minLength={6} className="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-[#d4ccff]" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Create a password" />
+                    <span className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 focus-within:ring-2 focus-within:ring-[#d4ccff]">
+                      <input type={showPassword ? "text" : "password"} required minLength={6} className="min-w-0 flex-1 bg-transparent text-base text-slate-900 outline-none placeholder:text-slate-400" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Create a password" autoComplete="new-password" />
+                      <button type="button" onClick={() => setShowPassword((v) => !v)} className="text-slate-400 transition hover:text-[#2200ff]" aria-label={showPassword ? "Hide password" : "Show password"}>
+                        <Eye className="h-5 w-5" />
+                      </button>
+                    </span>
                   </label>
                   <button
                     type="submit"
@@ -750,7 +767,7 @@ export function HomepageOnboardingModal({ open, initialResumeFile, initialDraft,
           </>
         )}
 
-        {message && <p className="mt-5 text-center text-sm leading-6 text-slate-500">{message}</p>}
+        {message && <p className="mt-5 rounded-2xl bg-[#ece8ff] px-4 py-3 text-sm leading-6 text-[#1a00cc]">{message}</p>}
       </div>
     </div>
   );
@@ -759,26 +776,42 @@ export function HomepageOnboardingModal({ open, initialResumeFile, initialDraft,
 export function DeferredOnboardingResume() {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState<StoredDraft | null>(null);
+  const [initialMessage, setInitialMessage] = useState("");
 
   useEffect(() => {
     const raw = window.localStorage.getItem(HOMEPAGE_ONBOARDING_DRAFT_KEY);
     if (!raw) return;
     try {
       const parsed = JSON.parse(raw) as StoredDraft;
-      if (parsed.jobMode) {
+      if (!parsed.jobMode) return;
+
+      const supabase = createSupabaseBrowserClient();
+      if (!supabase) {
         setDraft(parsed);
+        setInitialMessage("That confirmation link expired or was already used. Re-upload your resume and continue to send a fresh confirmation email.");
         setOpen(true);
+        return;
       }
+
+      supabase.auth.getSession().then(({ data }) => {
+        if (data.session) {
+          window.localStorage.removeItem(HOMEPAGE_ONBOARDING_DRAFT_KEY);
+        } else {
+          setDraft(parsed);
+          setInitialMessage("That confirmation link expired or was already used. Re-upload your resume and continue to send a fresh confirmation email.");
+          setOpen(true);
+        }
+      });
     } catch {
       window.localStorage.removeItem(HOMEPAGE_ONBOARDING_DRAFT_KEY);
     }
   }, []);
 
   return (
-      <HomepageOnboardingModal
+    <HomepageOnboardingModal
       open={open}
       initialDraft={draft}
-      initialMessage="That confirmation link expired or was already used. Re-upload your resume and continue to send a fresh confirmation email."
+      initialMessage={initialMessage}
       onClose={() => setOpen(false)}
     />
   );

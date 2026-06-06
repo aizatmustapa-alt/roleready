@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Eye, Mail, MousePointer2 } from "lucide-react";
+import { ArrowRight, Eye, MousePointer2 } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type Mode = "signin" | "signup" | "forgot";
@@ -121,25 +121,22 @@ export function AuthPanel() {
 
       <form onSubmit={isSignin ? signIn : isSignup ? createAccount : sendResetLink} className="mt-9 space-y-5">
         <label className="block">
-          <span className="mb-2 block text-sm font-medium text-slate-600">Email</span>
-          <span className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3.5 shadow-sm focus-within:border-[#2200ff]/60 focus-within:ring-3 focus-within:ring-[#d4ccff]">
-            <Mail className="h-5 w-5 text-slate-400" />
-            <input
-              className="min-w-0 flex-1 bg-transparent text-base text-slate-900 outline-none placeholder:text-slate-400"
-              type="email"
-              autoComplete="email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </span>
+          <span className="mb-2 block text-sm font-semibold text-slate-600">Email</span>
+          <input
+            className="w-full rounded-2xl border border-slate-200 px-4 py-3 text-base text-slate-900 outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-[#d4ccff]"
+            type="email"
+            autoComplete="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
         </label>
 
         {mode !== "forgot" && (
           <label className="block">
-            <span className="mb-2 block text-sm font-medium text-slate-600">Password</span>
-            <span className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3.5 shadow-sm focus-within:border-[#2200ff]/60 focus-within:ring-3 focus-within:ring-[#d4ccff]">
+            <span className="mb-2 block text-sm font-semibold text-slate-600">Password</span>
+            <span className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 focus-within:ring-2 focus-within:ring-[#d4ccff]">
               <input
                 className="min-w-0 flex-1 bg-transparent text-base text-slate-900 outline-none placeholder:text-slate-400"
                 type={showPassword ? "text" : "password"}
@@ -175,7 +172,7 @@ export function AuthPanel() {
         )}
 
         <button
-          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#2200ff] px-6 py-4 text-base font-semibold text-white shadow-[0_18px_48px_rgba(34,0,255,0.22)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#1a00cc] disabled:cursor-not-allowed disabled:opacity-70"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#2200ff] px-6 py-4 text-base font-semibold text-white shadow-[0_18px_48px_rgba(34,0,255,0.22)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#1a00cc] disabled:cursor-not-allowed disabled:opacity-70"
           disabled={loading}
           type="submit"
         >
@@ -194,7 +191,7 @@ export function AuthPanel() {
           type="button"
           onClick={signInWithGoogle}
           disabled={loading}
-          className="inline-flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-600 shadow-sm transition hover:-translate-y-0.5 hover:border-[#d4ccff] hover:text-[#2200ff] disabled:opacity-70"
+          className="inline-flex w-full items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-600 shadow-sm transition hover:-translate-y-0.5 hover:border-[#d4ccff] hover:text-[#2200ff] disabled:opacity-70"
         >
           <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>

@@ -159,6 +159,7 @@ export type Application = {
   location_type: string | null;
   role_summary: string | null;
   other_notes: string | null;
+  strengthen_count: number;
   created_at: string;
   updated_at: string;
 };

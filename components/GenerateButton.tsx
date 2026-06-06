@@ -141,6 +141,9 @@ export function GenerateButton({ applicationId, hasDocuments, autoGenerate, gene
               style={{ width: `${progress}%` }}
             />
           </div>
+          <p className="mt-2 text-xs leading-5 text-slate-500">
+            This can take up to two minutes while the AI writes both documents.
+          </p>
         </div>
       )}
 

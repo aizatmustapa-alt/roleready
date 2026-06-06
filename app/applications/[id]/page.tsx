@@ -5,12 +5,11 @@ import {
   CheckCircle2,
   Download,
   ExternalLink,
-  Lightbulb,
   MapPin,
   Sparkles,
 } from "lucide-react";
 import { AuthPanel } from "@/components/AuthPanel";
-import { ApplicationDetailTabs } from "@/components/ApplicationDetailTabs";
+import { ApplicationDetailClient } from "@/components/ApplicationDetailClient";
 import { GenerateButton } from "@/components/GenerateButton";
 import { JobDescriptionEditor } from "@/components/JobDescriptionEditor";
 import { PostGenerationGuide } from "@/components/PostGenerationGuide";
@@ -282,36 +281,16 @@ export default async function ApplicationDetailPage({ params, searchParams }: Pr
 
             <PostGenerationGuide applicationId={application.id} show={showWelcomeGuide} />
 
-            {/* Opportunities to strengthen */}
-            <section className="rounded-[1.6rem] border border-slate-100 bg-white p-5 shadow-sm md:p-6">
-              <div>
-                <h2 className="text-lg font-bold text-slate-900">Opportunities to strengthen</h2>
-                <p className="mt-1 text-sm text-slate-600">
-                  {missingKeywords.length > 0 ? "These missing keywords may make your application stronger." : "No major keyword gaps were identified yet."}
-                </p>
-              </div>
-              <div className="mt-5 grid gap-3 md:grid-cols-3">
-                {(missingKeywords.length > 0 ? missingKeywords.slice(0, 3) : ["Review job requirements", "Check resume emphasis", "Personalise your opening"]).map((item) => (
-                  <div key={item} className="rounded-2xl bg-slate-50 px-4 py-4">
-                    <Lightbulb className="h-5 w-5 text-amber-500" />
-                    <p className="mt-3 text-sm font-semibold text-slate-900">{item}</p>
-                    <p className="mt-1 text-xs leading-5 text-slate-500">
-                      {missingKeywords.length > 0 ? "Mention this only if it genuinely appears in your experience." : "Use the generated documents as a starting point, then add context where it is true."}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* Tabs: Key Notes / Match Analysis / Tailored Resume / Cover Letter / Job Description */}
-            <ApplicationDetailTabs
+            {/* Opportunities to strengthen + Tabs */}
+            <ApplicationDetailClient
               applicationId={application.id}
+              missingKeywords={application.missing_keywords ?? []}
+              matchScore={application.match_score}
+              tailoredResume={application.tailored_resume}
+              coverLetter={application.cover_letter}
               jobDescription={job.description}
               initialSalary={job.salary}
               matchExplanation={application.match_explanation}
-              missingKeywords={application.missing_keywords ?? []}
-              tailoredResume={application.tailored_resume}
-              coverLetter={application.cover_letter}
               initialRoleSummary={application.role_summary}
               initialHiringManager={application.hiring_manager}
               initialLocationType={application.location_type}
