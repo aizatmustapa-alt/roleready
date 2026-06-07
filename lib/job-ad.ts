@@ -10,7 +10,7 @@ type JobAdDetails = {
 
 // Job boards that commonly block server-side requests.
 // "seek.com" catches both au.seek.com (new domain) and any other seek.com subdomains.
-const BLOCKED_DOMAINS = ["seek.com.au", "seek.co.nz", "seek.com", "linkedin.com", "indeed.com", "jora.com", "jora.com.au", "adzuna.com.au", "adzuna.co.nz"];
+const BLOCKED_DOMAINS = ["seek.com.au", "seek.co.nz", "seek.com", "linkedin.com", "indeed.com", "jora.com", "jora.com.au"];
 
 export function isBlockedJobBoard(url: string): boolean {
   try {
