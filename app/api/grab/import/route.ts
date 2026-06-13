@@ -3,6 +3,7 @@ import { fetchJobAdDetails, detectJobSource } from "@/lib/job-ad";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const maxDuration = 60;
+export const preferredRegion = ["syd1"];
 
 export async function POST(request: Request) {
   const supabase = await createSupabaseServerClient();
