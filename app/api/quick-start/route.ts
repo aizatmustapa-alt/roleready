@@ -4,6 +4,7 @@ import { fetchJobAdDetails, detectJobSource, isBlockedJobBoard } from "@/lib/job
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const maxDuration = 60;
+export const preferredRegion = ["syd1"];
 
 const JOB_TEXT_UNAVAILABLE = "JOB_TEXT_UNAVAILABLE";
 
@@ -119,20 +120,20 @@ export async function POST(request: Request) {
     try {
       jobDetails = await fetchJobAdDetails(jobUrl);
     } catch (error) {
-          if (isBlockedJobBoard(jobUrl)) {
-            return NextResponse.json(
-              {
-                errorCode: JOB_TEXT_UNAVAILABLE,
-                source: detectJobSource(jobUrl),
-                jobUrl,
-                error: "We could not read that job link. Try the direct job ad URL instead of a search results page."
-              },
-              { status: 422 }
-            );
-          }
+      if (isBlockedJobBoard(jobUrl)) {
+        return NextResponse.json(
+          {
+            errorCode: JOB_TEXT_UNAVAILABLE,
+            source: detectJobSource(jobUrl),
+            jobUrl,
+            error: "We could not read that job link. Try the direct job ad URL instead of a search results page."
+          },
+          { status: 422 }
+        );
+      }
 
-          throw new Error(error instanceof Error ? error.message : "Could not read this job link.");
-        }
+      throw new Error(error instanceof Error ? error.message : "Could not read this job link.");
+    }
 
     if (!jobDetails.description.trim()) {
       return NextResponse.json({ error: "I could not find readable job ad text at that link. Try the direct job ad URL." }, { status: 400 });

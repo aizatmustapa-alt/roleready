@@ -378,9 +378,13 @@ async function fetchSeekJobApi(url: string): Promise<JobAdDetails | null> {
 
 async function fetchJobWithJina(url: string): Promise<JobAdDetails | null> {
   try {
+    const headers: Record<string, string> = { Accept: "text/plain", "X-Timeout": "30" };
+    const jinaKey = process.env.JINA_API_KEY;
+    if (jinaKey) headers["Authorization"] = `Bearer ${jinaKey}`;
+
     const res = await fetch(`https://r.jina.ai/${url}`, {
-      headers: { Accept: "text/plain", "X-Timeout": "25" },
-      signal: AbortSignal.timeout(28000),
+      headers,
+      signal: AbortSignal.timeout(35000),
     });
 
     if (!res.ok) return null;
@@ -451,7 +455,13 @@ async function getBrowserLaunchOptions(): Promise<{
       const chromium = (await import("@sparticuz/chromium")).default;
       return {
         executablePath: await chromium.executablePath(),
-        args: chromium.args as string[],
+        args: [
+          ...(chromium.args as string[]),
+          "--disable-blink-features=AutomationControlled",
+          "--disable-dev-shm-usage",
+          "--disable-infobars",
+          "--window-size=1366,768",
+        ],
         headless: true,
       };
     } catch (e) {
@@ -511,11 +521,15 @@ async function fetchJobWithBrowser(url: string): Promise<JobAdDetails | null> {
     await page.setUserAgent(
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
     );
+    await page.setExtraHTTPHeaders({
+      "Accept-Language": "en-AU,en;q=0.9",
+      "Upgrade-Insecure-Requests": "1",
+    });
 
     // domcontentloaded fires in ~1-2s (HTML parsed, scripts not yet done).
     // We then wait separately for the job element — this lets CSR sites like SEEK
     // load and render without also waiting for all images/fonts/etc.
-    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 15000 });
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 20000 });
 
     // Wait for SEEK/Indeed job detail content — up to 25 s to allow SEEK's React
     // app to fetch job data from the SEEK API and render it into the DOM.
@@ -524,11 +538,45 @@ async function fetchJobWithBrowser(url: string): Promise<JobAdDetails | null> {
         '[data-automation="jobAdDetails"]',
         '[data-automation="job-detail-description"]',
         '[data-automation="jobDescription"]',
+        '[data-testid="job-ad-details"]',
+        '[data-testid="job-detail-description"]',
         "#jobDescriptionText",
         '[data-testid="jobDescriptionText"]',
         '[data-testid="jobsearch-jobDescriptionText"]'
       ].join(", ");
-    await page.waitForSelector(descSelector, { timeout: 25000 }).catch(() => {});
+    await page.waitForSelector(descSelector, { timeout: 30000 }).catch(() => {});
+
+    const renderedHtml = await page.content();
+    const renderedNextData = nextDataJob(renderedHtml);
+    const renderedStructured = scriptJson(renderedHtml);
+    const renderedDescription =
+      renderedNextData?.description ||
+      (renderedStructured?.description ? htmlToText(String(renderedStructured.description)) : "");
+
+    if (renderedDescription.trim().length >= 100 && !looksLikeBlockedPage(renderedDescription)) {
+      return {
+        title:
+          renderedNextData?.title ||
+          (renderedStructured?.title ? decodeHtml(String(renderedStructured.title)) : "") ||
+          "Job from link",
+        company:
+          renderedNextData?.company ||
+          (renderedStructured?.hiringOrganization?.name
+            ? decodeHtml(String(renderedStructured.hiringOrganization.name))
+            : "") ||
+          "Company from job ad",
+        location:
+          renderedNextData?.location ||
+          (renderedStructured?.jobLocation?.address?.addressLocality
+            ? decodeHtml(String(renderedStructured.jobLocation.address.addressLocality))
+            : renderedStructured?.jobLocation?.address?.addressRegion
+              ? decodeHtml(String(renderedStructured.jobLocation.address.addressRegion))
+              : ""),
+        salary: renderedNextData?.salary || "",
+        description: renderedDescription.slice(0, 30000),
+        expiresAt: toIsoDate(renderedStructured?.validThrough),
+      };
+    }
 
     // No helper functions inside evaluate — esbuild wraps named functions with __name()
     // which is not defined in the browser context and causes a ReferenceError.
@@ -537,6 +585,8 @@ async function fetchJobWithBrowser(url: string): Promise<JobAdDetails | null> {
         document.querySelector('[data-automation="jobAdDetails"]') ??
         document.querySelector('[data-automation="job-detail-description"]') ??
         document.querySelector('[data-automation="jobDescription"]') ??
+        document.querySelector('[data-testid="job-ad-details"]') ??
+        document.querySelector('[data-testid="job-detail-description"]') ??
         document.querySelector("#jobDescriptionText") ??
         document.querySelector('[data-testid="jobDescriptionText"]') ??
         document.querySelector('[data-testid="jobsearch-jobDescriptionText"]');
@@ -639,11 +689,14 @@ export async function fetchJobAdDetails(jobUrl: string): Promise<JobAdDetails> {
     const isSeek = hostname.includes("seek.");
     const isLinkedIn = hostname.includes("linkedin.com");
 
-    const fetchers: Promise<JobAdDetails | null>[] = [
-      fetchJobWithJina(jobUrl),
-      fetchJobWithBrowser(jobUrl),
-    ];
-    if (isSeek) fetchers.unshift(fetchSeekJobApi(jobUrl));
+    if (isSeek) {
+      const browserResult = await fetchJobWithBrowser(jobUrl);
+      if (browserResult) return browserResult;
+    }
+
+    const fetchers: Promise<JobAdDetails | null>[] = [fetchJobWithJina(jobUrl)];
+    if (!isSeek) fetchers.push(fetchJobWithBrowser(jobUrl));
+    if (isSeek) fetchers.push(fetchSeekJobApi(jobUrl));
     if (isLinkedIn) fetchers.unshift(fetchLinkedInGuestApi(jobUrl));
 
     const result = await Promise.any(
@@ -684,8 +737,15 @@ export async function fetchJobAdDetails(jobUrl: string): Promise<JobAdDetails> {
       const hostname = new URL(effectiveUrl).hostname;
       const isSeek = hostname.includes("seek.");
       const isLinkedIn = hostname.includes("linkedin.com");
-      const fetchers: Promise<JobAdDetails | null>[] = [fetchJobWithJina(effectiveUrl), fetchJobWithBrowser(effectiveUrl)];
-      if (isSeek) fetchers.unshift(fetchSeekJobApi(effectiveUrl));
+
+      if (isSeek) {
+        const browserResult = await fetchJobWithBrowser(effectiveUrl);
+        if (browserResult) return browserResult;
+      }
+
+      const fetchers: Promise<JobAdDetails | null>[] = [fetchJobWithJina(effectiveUrl)];
+      if (!isSeek) fetchers.push(fetchJobWithBrowser(effectiveUrl));
+      if (isSeek) fetchers.push(fetchSeekJobApi(effectiveUrl));
       if (isLinkedIn) fetchers.unshift(fetchLinkedInGuestApi(effectiveUrl));
       const result = await Promise.any(
         fetchers.map((p) => p.then((r) => { if (!r) throw new Error("no result"); return r; }))
@@ -766,8 +826,14 @@ export async function fetchJobAdDetails(jobUrl: string): Promise<JobAdDetails> {
     console.log(`[job-ad] redirect hit blocked site (${hostname}), trying parallel fallbacks…`);
     const isSeek = hostname.includes("seek.");
     const isLinkedIn = hostname.includes("linkedin.com");
-    const fetchers: Promise<JobAdDetails | null>[] = [fetchJobWithJina(effectiveUrl), fetchJobWithBrowser(effectiveUrl)];
-    if (isSeek) fetchers.unshift(fetchSeekJobApi(effectiveUrl));
+    if (isSeek) {
+      const browserResult = await fetchJobWithBrowser(effectiveUrl);
+      if (browserResult) return browserResult;
+    }
+
+    const fetchers: Promise<JobAdDetails | null>[] = [fetchJobWithJina(effectiveUrl)];
+    if (!isSeek) fetchers.push(fetchJobWithBrowser(effectiveUrl));
+    if (isSeek) fetchers.push(fetchSeekJobApi(effectiveUrl));
     if (isLinkedIn) fetchers.unshift(fetchLinkedInGuestApi(effectiveUrl));
     const fallback = await Promise.any(
       fetchers.map((p) => p.then((r) => { if (!r) throw new Error("no result"); return r; }))

@@ -3,6 +3,8 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { fetchJobAdDetails } from "@/lib/job-ad";
 import type { JobSource } from "@/types/database";
 
+export const preferredRegion = ["syd1"];
+
 const sources: JobSource[] = ["Manual", "SEEK", "LinkedIn", "Adzuna", "Other"];
 
 export async function POST(request: Request) {
