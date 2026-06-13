@@ -7,6 +7,10 @@ export const maxDuration = 60;
 
 const JOB_TEXT_UNAVAILABLE = "JOB_TEXT_UNAVAILABLE";
 
+function unreadableFileMessage(fileName: string) {
+  return `I could not read text from ${fileName}. Please upload a DOCX file instead, or paste the text into the box below.`;
+}
+
 async function saveMasterDocument({
   bucket,
   table,
@@ -32,11 +36,16 @@ async function saveMasterDocument({
     return;
   }
 
-  const extractedText = await extractTextFromFile(file);
+  let extractedText = "";
+  try {
+    extractedText = await extractTextFromFile(file);
+  } catch {
+    throw new Error(unreadableFileMessage(file.name));
+  }
   const documentText = extractedText || fallbackText;
 
   if (!documentText.trim()) {
-    throw new Error(`I could not read ${file.name}. Try a DOCX, PDF, TXT, or MD file.`);
+    throw new Error(unreadableFileMessage(file.name));
   }
 
   const storagePath = `${userId}/${Date.now()}-${file.name}`;

@@ -13,7 +13,7 @@ export async function extractTextFromFile(file: File) {
   }
 
   if (name.endsWith(".pdf")) {
-    const pdfParse = (await import("pdf-parse")).default;
+    const pdfParse = (await import("pdf-parse/lib/pdf-parse.js")).default;
     const result = await pdfParse(Buffer.from(arrayBuffer));
     return result.text.trim();
   }

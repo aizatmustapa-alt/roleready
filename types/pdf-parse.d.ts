@@ -1,4 +1,4 @@
-declare module "pdf-parse" {
+declare module "pdf-parse/lib/pdf-parse.js" {
   export interface PdfParseResult {
     numpages: number;
     numrender: number;
