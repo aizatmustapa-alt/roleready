@@ -171,7 +171,7 @@ export function DocumentsForm({ masterResume, masterCoverLetter }: Props) {
                   ? hasMarkdown(resumeText)
                     ? <ResumeRenderer content={resumeText} />
                     : <PlainTextPreview content={resumeText} />
-                  : <p className="px-7 py-10 text-sm italic text-slate-400">No resume text yet â€” switch to Edit to add content.</p>
+                  : <p className="px-7 py-10 text-sm italic text-slate-400">No resume text yet — switch to Edit to add content.</p>
                 }
               </div>
             </>
@@ -221,7 +221,7 @@ export function DocumentsForm({ masterResume, masterCoverLetter }: Props) {
                   ? hasMarkdown(coverText)
                     ? <CoverLetterRenderer content={coverText} />
                     : <PlainTextPreview content={coverText} />
-                  : <p className="px-7 py-10 text-sm italic text-slate-400">No cover letter text yet â€” switch to Edit to add content.</p>
+                  : <p className="px-7 py-10 text-sm italic text-slate-400">No cover letter text yet — switch to Edit to add content.</p>
                 }
               </div>
             </>

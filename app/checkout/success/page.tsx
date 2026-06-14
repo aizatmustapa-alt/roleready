@@ -28,7 +28,7 @@ export default async function CheckoutSuccessPage({
               Your access pass has been activated.
             </p>
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              <strong>New here?</strong> Check the email you used at checkout â€” we&apos;ve sent you a link to set your password.
+              <strong>New here?</strong> Check the email you used at checkout — we&apos;ve sent you a link to set your password.
             </p>
             <p className="mt-2 text-sm leading-6 text-slate-600">
               <strong>Already have an account?</strong> Just log in below.

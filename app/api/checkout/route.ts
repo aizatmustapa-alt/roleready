@@ -64,7 +64,7 @@ export async function POST(request: Request) {
             currency: "aud",
             unit_amount: plan.amountAud,
             product_data: {
-              name: `Koalapply â€” ${plan.name}`,
+              name: `Koalapply — ${plan.name}`,
               description: plan.desc,
             },
           },

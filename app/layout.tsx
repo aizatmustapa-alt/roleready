@@ -23,7 +23,7 @@ function initialsFrom(name?: string | null, email?: string | null) {
 }
 
 export const metadata: Metadata = {
-  title: "Koalapply â€” Your Career Companion",
+  title: “Koalapply — Your Career Companion”,
   description: "Tailored resumes and cover letters for every job ad, powered by AI.",
   icons: {
     icon: "/brand/koalapply-favicon.png",
@@ -78,7 +78,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         )}
 
         <div className={`flex min-h-screen flex-col ${authed ? "md:pl-60" : ""}`}>
-          {/* Mobile-only top header â€” authenticated users only */}
+          {/* Mobile-only top header — authenticated users only */}
           {authed && (
             <header className="sticky top-0 z-30 border-b border-slate-100 bg-white/95 backdrop-blur md:hidden">
               <div className="flex items-center justify-between px-4 py-3">

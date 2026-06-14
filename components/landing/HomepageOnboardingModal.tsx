@@ -255,7 +255,7 @@ export function HomepageOnboardingModal({ open, initialResumeFile, initialDraft,
       documentData.append("resume_file", resumeFile);
       if (coverLetterFile) documentData.append("cover_letter_file", coverLetterFile);
 
-      setLoadingStep("Saving your resumeâ€¦");
+      setLoadingStep("Saving your resume…");
       const documentResponse = await fetch("/api/profile/documents", {
         method: "POST",
         body: documentData,
@@ -292,7 +292,7 @@ export function HomepageOnboardingModal({ open, initialResumeFile, initialDraft,
     if (coverLetterFile) formData.append("cover_letter_file", coverLetterFile);
     if (jobMode === "url") formData.append("job_url", jobUrl.trim());
 
-    setLoadingStep("Saving your resumeâ€¦");
+    setLoadingStep("Saving your resume…");
     if (jobMode === "url") {
       window.setTimeout(() => {
         setLoadingStep("Reading the job ad...");
@@ -302,11 +302,11 @@ export function HomepageOnboardingModal({ open, initialResumeFile, initialDraft,
       method: "POST",
       body: formData,
     });
-    setLoadingStep("Creating your applicationâ€¦");
+    setLoadingStep("Creating your application…");
     const payload = await response.json();
 
     if (response.status === 401) {
-      throw new Error("Your session expired â€” please sign in again and retry.");
+      throw new Error("Your session expired — please sign in again and retry.");
     }
     if (payload?.errorCode === JOB_TEXT_UNAVAILABLE) {
       setConfirmEmail(false);
@@ -353,16 +353,16 @@ export function HomepageOnboardingModal({ open, initialResumeFile, initialDraft,
 
       saveDraft(currentDraft);
 
-      // Try signing in first â€” handles returning users without sending an OTP.
+      // Try signing in first — handles returning users without sending an OTP.
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
       if (signInData?.session) {
-        // Returning user successfully signed in â€” skip OTP.
+        // Returning user successfully signed in — skip OTP.
         setIsAuthenticated(true);
         await submitAuthenticated();
         return;
       }
 
-      // New user (or wrong password for returning user) â€” attempt sign-up.
+      // New user (or wrong password for returning user) — attempt sign-up.
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
@@ -413,7 +413,7 @@ export function HomepageOnboardingModal({ open, initialResumeFile, initialDraft,
     }
 
     setLoading(true);
-    setLoadingStep("Verifying your codeâ€¦");
+    setLoadingStep("Verifying your code…");
     try {
       const supabase = createSupabaseBrowserClient();
       if (!supabase) throw new Error("Supabase is not configured.");

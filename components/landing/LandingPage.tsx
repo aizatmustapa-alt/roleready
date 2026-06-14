@@ -41,7 +41,7 @@ const steps = [
   {
     icon: Sparkles,
     title: "AI tailors your documents",
-    body: "Your resume and cover letter, rewritten to match â€” in seconds.",
+    body: "Your resume and cover letter, rewritten to match — in seconds.",
     color: "bg-violet-50 text-violet-600",
     badge: "bg-violet-100 text-violet-800",
   },
@@ -188,7 +188,7 @@ export function LandingPage() {
         {/* â”€â”€ Hero (header lives inside so nav overlays the image) â”€â”€ */}
         <section className="Koalapply-fade-up relative overflow-hidden" style={{ background: "#f5f3f0" }}>
 
-          {/* Nav overlay â€” sits on top of the photo background */}
+          {/* Nav overlay — sits on top of the photo background */}
           <header className="absolute inset-x-0 top-0 z-20">
             <div className="flex items-center justify-between px-8 py-6 sm:px-12 lg:px-16">
               <Link href="/" className="inline-flex items-center">
@@ -213,10 +213,10 @@ export function LandingPage() {
             </div>
           </header>
 
-          {/* Full-width content â€” top padding clears the overlaid nav */}
+          {/* Full-width content — top padding clears the overlaid nav */}
           <div className="relative z-10 px-8 pb-10 pt-24 sm:px-12 sm:pb-16 sm:pt-32 lg:px-16 lg:pt-36 lg:pb-24">
 
-            {/* Headline â€” spans full width */}
+            {/* Headline — spans full width */}
             <h1 className="text-center text-4xl font-black leading-[1.1] tracking-tight text-slate-900 sm:text-5xl lg:text-6xl xl:text-7xl">
               You don't have to suffer. <span className="text-[#2200ff]">Tailor your CV and cover letter to any job.</span>
             </h1>
@@ -413,7 +413,7 @@ export function LandingPage() {
 
         <section className="Koalapply-fade-up bg-[#2200ff] px-5 py-20 sm:px-8 lg:px-10">
           <div className="mx-auto max-w-4xl text-center">
-            {/* Emoji decorations â€” brand brief style */}
+            {/* Emoji decorations — brand brief style */}
             <div className="mb-6 flex items-center justify-center gap-6">
               <span className="inline-block -rotate-12 text-4xl" aria-hidden="true">ðŸ¤ž</span>
               <LimeSwoop />

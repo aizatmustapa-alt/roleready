@@ -119,11 +119,11 @@ export default async function PricingPage() {
               <h1 className="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl">Ready to apply more?</h1>
               {access.planType === "free" ? (
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  You are on the free plan â€” <span className="font-semibold">{access.applicationsRemaining} of {access.applicationLimit} application</span> remaining. Pick a pass to keep going.
+                  You are on the free plan — <span className="font-semibold">{access.applicationsRemaining} of {access.applicationLimit} application</span> remaining. Pick a pass to keep going.
                 </p>
               ) : (
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  You are on the <span className="font-semibold">{access.planLabel}</span> â€” <span className="font-semibold">{access.applicationsRemaining}</span> applications remaining.
+                  You are on the <span className="font-semibold">{access.planLabel}</span> — <span className="font-semibold">{access.applicationsRemaining}</span> applications remaining.
                 </p>
               )}
             </div>
@@ -177,7 +177,7 @@ export default async function PricingPage() {
             </div>
 
             <p className="border-t border-slate-100 px-7 py-5 text-center text-xs text-slate-400 sm:px-10">
-              One-off passes â€” no subscription, no auto-renewal.
+              One-off passes — no subscription, no auto-renewal.
             </p>
           </div>
         </div>

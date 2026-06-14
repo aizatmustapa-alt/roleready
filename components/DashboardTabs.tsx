@@ -78,7 +78,7 @@ function cachedMatchToGrabResult(row: CachedGrabbedJob): GrabResult {
 function formatSalary(min?: number, max?: number) {
   if (!min && !max) return "";
   const fmt = (n: number) => `$${Math.round(n / 1000)}k`;
-  if (min && max) return `${fmt(min)} â€“ ${fmt(max)}`;
+  if (min && max) return `${fmt(min)} – ${fmt(max)}`;
   if (min) return `From ${fmt(min)}`;
   return `Up to ${fmt(max!)}`;
 }
@@ -147,14 +147,14 @@ function GrabbedMatchCard({
           <span>{job.company}</span>
           {job.location && (
             <>
-              <span className="text-slate-300">â€¢</span>
+              <span className="text-slate-300">•</span>
               <MapPin className="h-3 w-3 text-slate-400" />
               <span>{job.location}</span>
             </>
           )}
           {job.source && (
             <>
-              <span className="text-slate-300">â€¢</span>
+              <span className="text-slate-300">•</span>
               <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-400">{job.source}</span>
             </>
           )}
@@ -175,7 +175,7 @@ function GrabbedMatchCard({
           </span>
           <p className="mt-0.5 hidden items-center gap-1 text-xs text-slate-500 sm:flex sm:justify-end">
             {label}
-            <span title="Estimated match â€” full analysis runs when you generate your application." className="cursor-help">
+            <span title="Estimated match — full analysis runs when you generate your application." className="cursor-help">
               <Info className="h-3 w-3 text-slate-400" />
             </span>
           </p>
@@ -196,7 +196,7 @@ function GrabbedMatchCard({
             onClick={() => onImport(job)}
             className="inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-full bg-[#2200ff] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#1a00cc] disabled:opacity-70 sm:min-h-0 sm:flex-none"
           >
-            {importing ? "Startingâ€¦" : "Tailor & Apply"} <ArrowRight className="h-3.5 w-3.5" />
+            {importing ? "Starting…" : "Tailor & Apply"} <ArrowRight className="h-3.5 w-3.5" />
           </button>
         )}
 
@@ -273,7 +273,7 @@ export function DashboardTabs({
     if (!resumeFileName) return;
     setLoadingMatches(true);
     setMatchError("");
-    setMatchNotice(force ? "Searchingâ€¦" : "Checking today's matchesâ€¦");
+    setMatchNotice(force ? "Searching…" : "Checking today's matches…");
 
     try {
       const params = new URLSearchParams();
@@ -375,7 +375,7 @@ export function DashboardTabs({
         setSaved((prev) => ({ ...prev, [job.jobUrl]: payload.applicationId }));
       }
     } catch {
-      // silently fail â€” user can retry
+      // silently fail — user can retry
     } finally {
       setSaving((prev) => ({ ...prev, [job.jobUrl]: false }));
     }
@@ -542,7 +542,7 @@ export function DashboardTabs({
                 className="inline-flex items-center gap-2 rounded-full bg-[#2200ff] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#1a00cc] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loadingMatches ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-                {loadingMatches ? "Searchingâ€¦" : "Refresh matches"}
+                {loadingMatches ? "Searching…" : "Refresh matches"}
               </button>
             </div>
           </div>

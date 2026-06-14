@@ -121,7 +121,7 @@ export async function POST(request: Request) {
   const userExists = Boolean(invitation?.user_exists);
 
   if (userExists) {
-    // Don't use generateLink â€” it auto-sends a Supabase email on top of ours.
+    // Don't use generateLink — it auto-sends a Supabase email on top of ours.
     // Existing users can sign in normally and land on /auth/invite to accept.
     const emailResult = await sendExistingUserInviteEmail({
       email,

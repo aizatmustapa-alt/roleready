@@ -86,7 +86,7 @@ export default function InviteSetupPage() {
       if (isNew) {
         setReady(true);
       } else {
-        // Existing user â€” no password setup needed, just redirect to dashboard
+        // Existing user — no password setup needed, just redirect to dashboard
         setDone(true);
         setTimeout(() => { window.location.href = "/"; }, 1800);
       }
