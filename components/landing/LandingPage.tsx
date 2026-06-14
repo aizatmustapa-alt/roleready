@@ -185,7 +185,7 @@ export function LandingPage() {
 
       <main>
 
-        {/* â”€â”€ Hero (header lives inside so nav overlays the image) â”€â”€ */}
+        {/* â"€â"€ Hero (header lives inside so nav overlays the image) â"€â"€ */}
         <section className="Koalapply-fade-up relative overflow-hidden" style={{ background: "#f5f3f0" }}>
 
           {/* Nav overlay — sits on top of the photo background */}
@@ -303,7 +303,7 @@ export function LandingPage() {
 
         </section>
 
-        {/* â”€â”€ Trusted by â”€â”€ */}
+        {/* â"€â"€ Trusted by â"€â"€ */}
         <section className="Koalapply-fade-up mx-auto mt-20 max-w-5xl px-5 pb-4 sm:px-8 lg:px-10">
           <p className="text-center text-sm font-semibold text-slate-400 uppercase tracking-[0.18em]">
             Trusted by job seekers at
@@ -317,7 +317,7 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* â”€â”€ Stats â”€â”€ */}
+        {/* â"€â"€ Stats â"€â"€ */}
         <section className="Koalapply-fade-up mx-auto mt-12 max-w-4xl px-5 pb-20 sm:px-8 lg:px-10">
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             {stats.map(({ icon: Icon, value, label, period, iconCls }) => (
@@ -333,7 +333,7 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* â”€â”€ How it works â”€â”€ */}
+        {/* â"€â"€ How it works â"€â"€ */}
         <section id="how-it-works" className="Koalapply-fade-up bg-white px-5 py-28 sm:px-8 lg:px-10 lg:py-36">
           <div className="mx-auto max-w-6xl">
             <div className="mb-5 flex justify-center">
@@ -362,7 +362,7 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* â”€â”€ Electric blue CTA band â”€â”€ */}
+        {/* â"€â"€ Electric blue CTA band â"€â"€ */}
         <section id="blog" className="Koalapply-fade-up bg-slate-50 px-5 py-20 sm:px-8 lg:px-10 lg:py-28">
           <div className="mx-auto max-w-7xl">
             <div className="mb-9 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -437,7 +437,7 @@ export function LandingPage() {
           </div>
         </section>
 
-        {/* â”€â”€ Pricing / CTA â”€â”€ */}
+        {/* â"€â"€ Pricing / CTA â"€â"€ */}
         <section id="pricing" className="Koalapply-fade-up bg-slate-50 px-5 py-24 sm:px-8 lg:px-10 lg:py-32">
           <div className="mx-auto grid max-w-7xl items-center gap-10 overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-[#ece8ff]/80 via-white to-[#d4ccff]/40 shadow-[0_30px_100px_rgba(34,0,255,0.08)] md:grid-cols-[0.95fr_1.05fr]">
             <div className="p-8 sm:p-12 lg:p-16">

@@ -249,7 +249,7 @@ export function DashboardTabs({
   const [importing, setImporting] = useState<Record<string, boolean>>({});
   const [imported, setImported] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState<Record<string, boolean>>({});
-  const [saved, setSaved] = useState<Record<string, string>>(savedByUrl); // jobUrl â†’ applicationId
+  const [saved, setSaved] = useState<Record<string, string>>(savedByUrl); // jobUrl â†' applicationId
   const [showAllMatches, setShowAllMatches] = useState(false);
   const [mobilePreferencesOpen, setMobilePreferencesOpen] = useState(false);
 
@@ -419,7 +419,7 @@ export function DashboardTabs({
       {/* Greeting */}
       <div className="mb-6 md:mb-10">
         <h1 className="text-3xl font-bold tracking-tight text-slate-900 md:text-5xl">
-          {getGreeting()}{name ? `, ${name}` : ""} ðŸ‘‹
+          {getGreeting()}{name ? `, ${name}` : ""} ðŸ'‹
         </h1>
         {accessState ? (
           <div className="mt-4 inline-flex flex-wrap items-center gap-2 rounded-2xl border border-slate-100 bg-white px-4 py-3 text-sm font-semibold text-slate-600 shadow-sm">

@@ -195,7 +195,7 @@ export function AuthPanel({ redirectTo = "/" }: { redirectTo?: string }) {
         </h1>
         <p className="mt-3 text-base leading-7 text-slate-600">
           {mode === "forgot"
-            ? "Enter your email and we’ll send a reset link."
+            ? "Enter your email and we'll send a reset link."
             : isSignup
               ? "Start tailoring stronger applications today."
               : "Sign in to continue your journey"}
