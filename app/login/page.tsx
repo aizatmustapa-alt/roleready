@@ -25,12 +25,12 @@ const benefits = [
   },
 ];
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ plan?: string; redirect?: string }> }) {
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ plan?: string; redirect?: string; message?: string }> }) {
   const supabase = isSupabaseConfigured() ? await createSupabaseServerClient() : null;
   const { data: { user } } = supabase
     ? await supabase.auth.getUser()
     : { data: { user: null } };
-  const { plan, redirect: redirectParam } = await searchParams;
+  const { plan, redirect: redirectParam, message } = await searchParams;
   const redirectTo = plan ? `/checkout/initiate?plan=${plan}` : (redirectParam ?? "/");
   if (user) redirect(redirectTo);
   return (
@@ -41,6 +41,12 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         <header className="flex items-center justify-between py-4">
           <img src="/brand/koalapply-logo.png" alt="Koalapply" className="h-32 w-auto sm:h-40" />
         </header>
+
+        {message && (
+          <div className="relative mb-2 rounded-2xl border border-[#d4ccff] bg-[#ece8ff] px-4 py-3 text-sm font-semibold text-[#2200ff]">
+            {message}
+          </div>
+        )}
 
         <section className="grid flex-1 items-center gap-8 py-4 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16 lg:py-10">
           <div className="mx-auto w-full max-w-[610px] lg:order-2">

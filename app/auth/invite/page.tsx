@@ -70,7 +70,7 @@ export default function InviteSetupPage() {
       const { data: { session } } = await activeSupabase.auth.getSession();
 
       if (!session) {
-        window.location.href = `/login?redirect=/auth/invite`;
+        window.location.href = `/login?redirect=/auth/invite&message=Log+in+to+accept+your+enterprise+invitation.`;
         return;
       }
 
