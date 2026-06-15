@@ -20,11 +20,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const article = getArticleBySlug(slug);
 
   if (!article) {
-    return { title: "Article Not Found | ApplyHQ" };
+    return { title: "Article Not Found | Koalapply" };
   }
 
   return {
-    title: `${article.title} | ApplyHQ`,
+    title: `${article.title} | Koalapply`,
     description: article.excerpt,
   };
 }
