@@ -214,15 +214,15 @@ export function LandingPage() {
           </header>
 
           {/* Full-width content — top padding clears the overlaid nav */}
-          <div className="relative z-10 px-8 pb-10 pt-24 sm:px-12 sm:pb-16 sm:pt-32 lg:px-16 lg:pt-36 lg:pb-24">
+          <div className="relative z-10 px-8 pb-10 pt-32 sm:px-12 sm:pb-16 sm:pt-32 lg:px-16 lg:pt-36 lg:pb-24">
 
             {/* Headline — spans full width */}
-            <h1 className="text-center text-[2rem] font-black leading-[1.1] tracking-tight text-slate-900 sm:text-[2.7rem] lg:text-[3.375rem] xl:text-[4rem]">
+            <h1 className="text-center text-[1.65rem] font-black leading-[1.1] tracking-tight text-slate-900 sm:text-[2.7rem] lg:text-[3.375rem] xl:text-[4rem]">
               You don't have to suffer. <span className="text-[#2200ff]">Tailor your CV and cover letter to any job.</span>
             </h1>
 
             {/* Subheading */}
-            <p className="mt-5 text-center text-2xl font-semibold leading-snug text-slate-600 sm:text-3xl">
+            <p className="mt-4 text-center text-lg font-semibold leading-snug text-slate-600 sm:text-3xl">
               Turn one CV into a tailored application for every job. Take seconds, not hours.
             </p>
 
