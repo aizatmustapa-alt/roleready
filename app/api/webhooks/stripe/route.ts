@@ -159,7 +159,7 @@ async function sendPasswordSetupEmail(to: string, setupLink: string) {
   }
   const resend = new Resend(apiKey);
   await resend.emails.send({
-    from: "Koalapply <noreply@mail.applyhq.com.au>",
+    from: "Koalapply <noreply@send.koalapply.com>",
     to,
     subject: "Your Koalapply account is ready — set your password",
     html: `
