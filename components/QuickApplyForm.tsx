@@ -1,8 +1,41 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertTriangle, ArrowRight, LinkIcon, Sparkles } from "lucide-react";
+
+const FETCH_STAGES = [
+  { after: 0,  label: "Reading job ad..." },
+  { after: 6,  label: "Extracting job details..." },
+  { after: 16, label: "Setting up your application..." },
+  { after: 28, label: "Almost ready, hang tight..." },
+];
+
+function useFetchStage(loading: boolean) {
+  const [stage, setStage] = useState(0);
+  const timerRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  useEffect(() => {
+    if (!loading) {
+      setStage(0);
+      timerRef.current.forEach(clearTimeout);
+      timerRef.current = [];
+      return;
+    }
+    setStage(0);
+    FETCH_STAGES.forEach((s, i) => {
+      if (i === 0) return;
+      const t = setTimeout(() => setStage(i), s.after * 1000);
+      timerRef.current.push(t);
+    });
+    return () => {
+      timerRef.current.forEach(clearTimeout);
+      timerRef.current = [];
+    };
+  }, [loading]);
+
+  return FETCH_STAGES[stage].label;
+}
 
 const BLOCKED_HOSTS = ["jora.com", "indeed.com", "au.indeed.com", "www.indeed.com", "www.jora.com"];
 
@@ -14,6 +47,7 @@ type Props = {
 export function QuickApplyForm({ resumeFileName: _resumeFileName, coverLetterFileName: _coverLetterFileName }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const fetchStageLabel = useFetchStage(loading);
   const [message, setMessage] = useState("");
   const [jobUrl, setJobUrl] = useState("");
   const [previewTitle, setPreviewTitle] = useState<string | null>(null);
@@ -130,7 +164,7 @@ export function QuickApplyForm({ resumeFileName: _resumeFileName, coverLetterFil
                 disabled={loading}
                 type="submit"
               >
-                {loading ? "Generating…" : "Generate ✨"}
+                {loading ? "Working…" : "Generate ✨"}
               </button>
             </div>
           </div>
@@ -168,10 +202,22 @@ export function QuickApplyForm({ resumeFileName: _resumeFileName, coverLetterFil
             disabled={loading}
             type="submit"
           >
-            {loading ? "Generating…" : "Generate ✨"} <ArrowRight className="h-5 w-5" />
+            {loading ? "Working…" : "Generate ✨"} <ArrowRight className="h-5 w-5" />
           </button>
 
-          {message && <p className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{message}</p>}
+          {loading && (
+            <div className="rounded-2xl bg-[#ece8ff]/60 px-4 py-3">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-xs font-medium text-[#2200ff] animate-pulse">{fetchStageLabel}</span>
+              </div>
+              <div className="h-1 w-full overflow-hidden rounded-full bg-[#d4ccff]">
+                <div className="h-full w-1/3 rounded-full bg-[#2200ff] animate-[indeterminate_1.8s_ease-in-out_infinite]" />
+              </div>
+              <p className="mt-2 text-xs text-slate-500">This usually takes 15–30 seconds.</p>
+            </div>
+          )}
+
+          {!loading && message && <p className="rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{message}</p>}
         </div>
       </div>
     </form>
