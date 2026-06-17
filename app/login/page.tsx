@@ -34,14 +34,10 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   const redirectTo = plan ? `/checkout/initiate?plan=${plan}` : (redirectParam ?? "/");
   if (user) redirect(redirectTo);
   return (
-    <main className="relative min-h-screen overflow-hidden bg-slate-50 px-5 py-8 text-slate-900 sm:px-8 lg:px-12">
+    <main className="relative min-h-screen overflow-hidden bg-slate-50 px-5 py-12 text-slate-900 sm:px-8 lg:px-12">
       <div className="pointer-events-none absolute -bottom-24 -left-24 h-96 w-96 rounded-full bg-[#d4ccff]/60 blur-3xl" />
       <div className="pointer-events-none absolute right-0 top-0 h-80 w-80 rounded-full bg-violet-100/40 blur-3xl" />
-      <div className="relative mx-auto flex min-h-[calc(100vh-4rem)] max-w-7xl flex-col">
-        <header className="flex items-center justify-between py-4">
-          <img src="/brand/koalapply-logo.png" alt="Koalapply" className="h-32 w-auto sm:h-40" />
-        </header>
-
+      <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col">
         {message ? (
           <section className="flex flex-1 flex-col items-center justify-center py-8">
             <div className="w-full max-w-md">
