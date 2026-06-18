@@ -41,21 +41,34 @@ function formatDate(value: string | null) {
   }).format(new Date(value));
 }
 
-function statusClass(status: EnterpriseAdminRow["entitlement_status"]) {
-  if (status === "active") return "bg-emerald-50 text-emerald-700";
-  if (status === "revoked") return "bg-rose-50 text-rose-600";
-  if (status === "expired") return "bg-amber-50 text-amber-700";
+function friendlyStatus(row: EnterpriseAdminRow): string {
+  if (row.row_type === "invitation") {
+    switch (row.invitation_status) {
+      case "pending": return "Invited";
+      case "accepted": return "Active";
+      case "revoked": return "Cancelled";
+      case "expired": return "Invite Expired";
+      default: return "Invited";
+    }
+  }
+  switch (row.entitlement_status) {
+    case "active": return "Active";
+    case "revoked": return "Access Removed";
+    case "expired": return "Program Ended";
+    default: return "No Access";
+  }
+}
+
+function friendlyStatusClass(row: EnterpriseAdminRow): string {
+  if (row.row_type === "invitation") {
+    if (row.invitation_status === "pending") return "bg-violet-50 text-[#2200ff]";
+    if (row.invitation_status === "expired") return "bg-amber-50 text-amber-700";
+    return "bg-slate-100 text-slate-500";
+  }
+  if (row.entitlement_status === "active") return "bg-emerald-50 text-emerald-700";
+  if (row.entitlement_status === "revoked") return "bg-rose-50 text-rose-600";
+  if (row.entitlement_status === "expired") return "bg-amber-50 text-amber-700";
   return "bg-slate-100 text-slate-500";
-}
-
-function rowStatus(row: EnterpriseAdminRow) {
-  if (row.row_type === "invitation") return row.invitation_status ?? "pending";
-  return row.entitlement_status ?? "No access";
-}
-
-function rowStatusClass(row: EnterpriseAdminRow) {
-  if (row.row_type === "invitation") return "bg-violet-50 text-[#2200ff]";
-  return statusClass(row.entitlement_status);
 }
 
 export function EnterpriseAdminPanel({ rows, currentUserId }: Props) {
@@ -94,6 +107,7 @@ export function EnterpriseAdminPanel({ rows, currentUserId }: Props) {
   const seatsRemaining = Math.max(0, seatLimit - allocatedSeats);
   const totalApplicationsUsed = activeEmployeeRows.reduce((sum, row) => sum + (row.applications_used ?? 0), 0);
   const totalApplicationLimit = activeEmployeeRows.reduce((sum, row) => sum + (row.application_limit ?? 0), 0);
+  const participationPct = seatLimit > 0 ? Math.round((activeSeats / seatLimit) * 100) : 0;
   const latestActiveExpiry = activeEmployeeRows
     .map((row) => row.valid_until)
     .filter((value): value is string => Boolean(value))
@@ -138,11 +152,11 @@ export function EnterpriseAdminPanel({ rows, currentUserId }: Props) {
     const payload = await response.json().catch(() => null);
 
     if (!response.ok) {
-      setMessage(payload?.error ?? "Unable to revoke access.");
+      setMessage(payload?.error ?? "Unable to remove access.");
       return;
     }
 
-    setMessage("Employee access revoked.");
+    setMessage("Employee access removed.");
     startTransition(() => router.refresh());
   }
 
@@ -185,7 +199,7 @@ export function EnterpriseAdminPanel({ rows, currentUserId }: Props) {
       setMessage(payload?.error ?? "Unable to change role.");
       return;
     }
-    setMessage(role === "admin" ? "Promoted to admin." : "Removed admin access.");
+    setMessage(role === "admin" ? "Promoted to admin." : "Admin access removed.");
     startTransition(() => router.refresh());
   }
 
@@ -226,21 +240,36 @@ export function EnterpriseAdminPanel({ rows, currentUserId }: Props) {
               <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-900 md:text-5xl">
                 {selectedRows[0]?.organization_name ?? "Organisation"}
               </h1>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
-                Manage employee access and usage without viewing private resumes, cover letters, applications or notes.
-              </p>
             </div>
           </div>
+
           {organizations.length > 1 ? (
             <label className="block min-w-64">
-              <span className="label">Organisation</span>
+              <span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Program</span>
               <select className="field mt-2" value={selectedOrgId} onChange={(event) => setSelectedOrgId(event.target.value)}>
                 {organizations.map((org) => (
                   <option key={org.id} value={org.id}>{org.name}</option>
                 ))}
               </select>
             </label>
-          ) : null}
+          ) : (
+            <div className="rounded-2xl bg-slate-50 px-5 py-3 text-sm lg:text-right">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Program</p>
+              <p className="mt-1 font-bold text-slate-900">{selectedOrg?.name}</p>
+              <p className="mt-0.5 text-xs text-slate-500">{seatLimit} seats · 90-day access</p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Trust banner */}
+      <section className="flex items-start gap-3 rounded-2xl bg-[#ece8ff] px-5 py-4">
+        <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-[#2200ff]" />
+        <div>
+          <p className="text-sm font-bold text-[#2200ff]">Employee Privacy Protected</p>
+          <p className="mt-0.5 text-sm leading-6 text-[#4422cc]">
+            Administrators can see seat usage and program participation only. Resumes, applications, cover letters and job activity remain private to each employee.
+          </p>
         </div>
       </section>
 
@@ -252,24 +281,31 @@ export function EnterpriseAdminPanel({ rows, currentUserId }: Props) {
       )}
 
       {/* Stats */}
-      <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <section id="usage" className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-[1.4rem] border border-slate-100 bg-white p-5 shadow-sm">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Employee seats</p>
-          <p className="mt-2 text-3xl font-bold text-slate-900">{allocatedSeats}/{seatLimit} used</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Employee Seats</p>
+          <p className="mt-2 text-3xl font-bold text-slate-900">{allocatedSeats}/{seatLimit}</p>
           <p className="mt-1 text-xs text-slate-400">
-            {seatsRemaining} remaining{revokedSeats ? ` | ${revokedSeats} revoked` : ""}
+            {seatsRemaining} remaining{revokedSeats ? ` · ${revokedSeats} removed` : ""}
           </p>
         </div>
-        {[
-          ["Active seats", activeSeats],
-          ["Pending invites", pendingInvites],
-          ["Application credits", totalApplicationLimit],
-        ].map(([label, value]) => (
-          <div key={label} className="rounded-[1.4rem] border border-slate-100 bg-white p-5 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">{label}</p>
-            <p className="mt-2 text-3xl font-bold text-slate-900">{value}</p>
-          </div>
-        ))}
+        <div className="rounded-[1.4rem] border border-slate-100 bg-white p-5 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Participation</p>
+          <p className="mt-2 text-3xl font-bold text-slate-900">{activeSeats} / {seatLimit}</p>
+          <p className="mt-1 text-xs text-slate-400">{participationPct}% of seats active</p>
+        </div>
+        <div className="rounded-[1.4rem] border border-slate-100 bg-white p-5 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Awaiting Signup</p>
+          <p className="mt-2 text-3xl font-bold text-slate-900">{pendingInvites}</p>
+          <p className="mt-1 text-xs text-slate-400">invite{pendingInvites === 1 ? "" : "s"} pending</p>
+        </div>
+        <div className="rounded-[1.4rem] border border-slate-100 bg-white p-5 shadow-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Applications Generated</p>
+          <p className="mt-2 text-3xl font-bold text-slate-900">{totalApplicationsUsed} / {totalApplicationLimit}</p>
+          <p className="mt-1 text-xs text-slate-400">
+            {Math.max(0, totalApplicationLimit - totalApplicationsUsed)} remaining
+          </p>
+        </div>
       </section>
 
       {/* Admins table */}
@@ -340,7 +376,7 @@ export function EnterpriseAdminPanel({ rows, currentUserId }: Props) {
       </section>
 
       {/* Employees table */}
-      <section className="rounded-[1.6rem] border border-slate-100 bg-white p-5 shadow-sm md:p-6">
+      <section id="employees" className="rounded-[1.6rem] border border-slate-100 bg-white p-5 shadow-sm md:p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-lg font-bold text-slate-900">Employees</h2>
@@ -376,7 +412,7 @@ export function EnterpriseAdminPanel({ rows, currentUserId }: Props) {
         {message ? <p className="mt-4 text-sm font-medium text-slate-600">{message}</p> : null}
 
         <div className="mt-4 overflow-hidden rounded-[1.2rem] border border-slate-100">
-          <div className="hidden bg-slate-50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400 md:grid md:grid-cols-[1.6fr_0.8fr_0.9fr_0.9fr_0.6fr]">
+          <div className="hidden bg-slate-50 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-400 md:grid md:grid-cols-[1.6fr_0.8fr_0.9fr_0.9fr_0.7fr]">
             <span>Employee</span>
             <span>Status</span>
             <span>Usage</span>
@@ -394,7 +430,7 @@ export function EnterpriseAdminPanel({ rows, currentUserId }: Props) {
               return (
                 <div
                   key={`${row.organization_id}-${row.row_type}-${row.user_id ?? row.invitation_id}`}
-                  className="grid gap-3 px-4 py-4 text-sm md:grid-cols-[1.6fr_0.8fr_0.9fr_0.9fr_0.6fr] md:items-center"
+                  className="grid gap-3 px-4 py-4 text-sm md:grid-cols-[1.6fr_0.8fr_0.9fr_0.9fr_0.7fr] md:items-center"
                 >
                   <div className="min-w-0">
                     <p className="truncate font-semibold text-slate-900">{row.email}</p>
@@ -403,12 +439,12 @@ export function EnterpriseAdminPanel({ rows, currentUserId }: Props) {
                     </p>
                   </div>
                   <p>
-                    <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold capitalize ${rowStatusClass(row)}`}>
-                      {rowStatus(row)}
+                    <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${friendlyStatusClass(row)}`}>
+                      {friendlyStatus(row)}
                     </span>
                   </p>
                   <p className="text-slate-600">
-                    {row.row_type === "invitation" ? "-" : `${row.applications_used ?? 0} used`}
+                    {row.row_type === "invitation" ? "-" : `${row.applications_used ?? 0} / ${row.application_limit ?? 0}`}
                     <span className="block text-xs text-slate-400">
                       {row.row_type === "invitation" ? "Awaiting signup" : hasActiveAccess ? `${remaining} remaining` : "Access not active"}
                     </span>
@@ -425,7 +461,7 @@ export function EnterpriseAdminPanel({ rows, currentUserId }: Props) {
                     ) : row.entitlement_status === "active" && row.user_id ? (
                       <button type="button" disabled={isPending} onClick={() => revokeEmployee(row.user_id as string)}
                         className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-rose-100 hover:bg-rose-50 hover:text-rose-600 disabled:opacity-60">
-                        Revoke
+                        Remove Access
                       </button>
                     ) : (
                       <span className="text-xs text-slate-400">-</span>
@@ -436,11 +472,6 @@ export function EnterpriseAdminPanel({ rows, currentUserId }: Props) {
             })}
           </div>
         </div>
-
-        <p className="mt-4 flex items-start gap-2 text-xs leading-5 text-slate-500">
-          <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#2200ff]" />
-          Admins can see seat status and usage only. Employee job search content remains private.
-        </p>
       </section>
 
       {isPending ? (

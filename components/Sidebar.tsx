@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ArrowRight, Bookmark, Building2, FileText, Home, LogOut, Plus, Settings } from "lucide-react";
+import { ArrowRight, BarChart2, Bookmark, Building2, FileText, Home, LayoutDashboard, LogOut, Plus, Settings, Users } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 const navItems = [
@@ -32,8 +32,10 @@ function initialsFrom(name?: string | null, email?: string | null) {
 }
 
 const enterpriseNavItems = [
-  { href: "/enterprise", label: "Enterprise", icon: Building2 },
-  { href: "/profile",    label: "Settings",   icon: Settings },
+  { href: "/enterprise",            label: "Overview",    icon: LayoutDashboard },
+  { href: "/enterprise#employees",  label: "Employees",   icon: Users },
+  { href: "/enterprise#usage",      label: "Usage",       icon: BarChart2 },
+  { href: "/profile",               label: "Settings",    icon: Settings },
 ];
 
 export function Sidebar({ userName, userEmail, avatarUrl, showEnterpriseAdmin, planType }: SidebarProps) {
