@@ -309,19 +309,6 @@ export function LandingPage() {
 
         </section>
 
-        {/* â"€â"€ Trusted by â"€â"€ */}
-        <section className="Koalapply-fade-up mx-auto mt-20 max-w-5xl px-5 pb-4 sm:px-8 lg:px-10">
-          <p className="text-center text-sm font-semibold text-slate-400 uppercase tracking-[0.18em]">
-            Job seekers using Koalapply apply to roles at
-          </p>
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-x-10 gap-y-5">
-            {trustLabels.map(({ name, color }) => (
-              <span key={name} className="text-xl font-extrabold tracking-tight sm:text-2xl" style={{ color }}>
-                {name}
-              </span>
-            ))}
-          </div>
-        </section>
 
         {/* â"€â"€ Stats â"€â"€ */}
         <section className="Koalapply-fade-up mx-auto mt-12 max-w-4xl px-5 pb-20 sm:px-8 lg:px-10">
