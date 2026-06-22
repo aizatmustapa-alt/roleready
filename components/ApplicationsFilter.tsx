@@ -106,13 +106,55 @@ function SummaryPanel({ state, fallbackSummary }: { state?: SummaryState; fallba
   );
 }
 
-const statusPill: Record<string, string> = {
-  New: "bg-sky-50 text-sky-700",
-  Ready: "bg-emerald-50 text-emerald-700",
-  Applied: "bg-amber-50 text-amber-700",
-  Interview: "bg-orange-50 text-orange-700",
-  Rejected: "bg-rose-50 text-rose-600",
+const statusStyles: Record<string, { pill: string; select: string; dot: string }> = {
+  New:       { pill: "bg-sky-50 text-sky-700",       select: "bg-sky-50 text-sky-800 ring-sky-200",           dot: "bg-sky-400" },
+  Ready:     { pill: "bg-emerald-50 text-emerald-700", select: "bg-emerald-50 text-emerald-800 ring-emerald-200", dot: "bg-emerald-500" },
+  Applied:   { pill: "bg-amber-50 text-amber-700",   select: "bg-amber-50 text-amber-800 ring-amber-200",     dot: "bg-amber-400" },
+  Interview: { pill: "bg-orange-50 text-orange-700", select: "bg-orange-50 text-orange-800 ring-orange-200",  dot: "bg-orange-400" },
+  Rejected:  { pill: "bg-rose-50 text-rose-600",     select: "bg-rose-50 text-rose-700 ring-rose-200",        dot: "bg-rose-400" },
 };
+
+function InlineStatusSelect({ applicationId, initialStatus }: { applicationId: string; initialStatus: ApplicationStatus }) {
+  const router = useRouter();
+  const [status, setStatus] = useState<ApplicationStatus>(initialStatus);
+  const [saving, setSaving] = useState(false);
+  const style = statusStyles[status] ?? statusStyles.New;
+
+  async function handleChange(next: ApplicationStatus) {
+    if (next === status || saving) return;
+    const prev = status;
+    setStatus(next);
+    setSaving(true);
+    try {
+      const res = await fetch(`/api/applications/${applicationId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: next }),
+      });
+      if (!res.ok) { setStatus(prev); }
+      else { router.refresh(); }
+    } catch {
+      setStatus(prev);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <label className="relative block w-full max-w-[140px]" onClick={(e) => e.stopPropagation()}>
+      <span className={`pointer-events-none absolute left-2.5 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full ${style.dot}`} />
+      <select
+        value={status}
+        disabled={saving}
+        onChange={(e) => handleChange(e.target.value as ApplicationStatus)}
+        className={`w-full appearance-none rounded-full py-1 pl-5 pr-6 text-xs font-semibold outline-none ring-1 transition disabled:opacity-60 ${style.select}`}
+      >
+        {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+      </select>
+      <ChevronDown className="pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 opacity-40" />
+    </label>
+  );
+}
 
 type RowProps = {
   application: ApplicationWithJob;
@@ -159,7 +201,11 @@ function MobileCard({ application, expanded, summaryState, onToggleSummary }: Ro
         </div>
       ) : null}
 
-      <div className="mt-3 flex items-center gap-2">
+      <div className="mt-3">
+        <InlineStatusSelect applicationId={application.id} initialStatus={(application.status ?? "New") as ApplicationStatus} />
+      </div>
+
+      <div className="mt-2 flex items-center gap-2">
         <button
           type="button"
           onClick={() => onToggleSummary(application)}
@@ -257,9 +303,7 @@ function DesktopRow({ application, expanded, summaryState, onToggleSummary }: Ro
         </td>
 
         <td className={`${tdBase} px-2`}>
-          <span className={`inline-block rounded-full px-2.5 py-1 text-xs font-semibold ${statusPill[status] ?? "bg-slate-100 text-slate-600"}`}>
-            {status}
-          </span>
+          <InlineStatusSelect applicationId={application.id} initialStatus={status as ApplicationStatus} />
         </td>
 
         <td className={`${tdBase} rounded-r-[1.2rem] pl-2 pr-4`}>
@@ -398,11 +442,11 @@ export function ApplicationsFilter({ applications }: { applications: Application
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-50 text-slate-400">
               <SlidersHorizontal className="h-3.5 w-3.5" />
             </span>
-            <button type="button" onClick={() => setFilter("All")} className={`rounded-full px-3.5 py-1.5 text-sm font-semibold transition hover:-translate-y-0.5 ${filter === "All" ? "bg-[#2200ff] text-white shadow-[0_8px_20px_rgba(34,0,255,0.2)]" : "bg-white text-slate-600 ring-1 ring-slate-100 hover:text-[#2200ff]"}`}>
+            <button type="button" onClick={() => setFilter("All")} className={`rounded-full px-3 py-1 text-xs font-semibold transition hover:-translate-y-0.5 ${filter === "All" ? "bg-[#2200ff] text-white shadow-[0_6px_16px_rgba(34,0,255,0.2)]" : "bg-white text-slate-600 ring-1 ring-slate-100 hover:text-[#2200ff]"}`}>
               All
             </button>
             {STATUSES.map((s) => (
-              <button key={s} type="button" onClick={() => setFilter(s)} className={`rounded-full px-3.5 py-1.5 text-sm font-semibold transition hover:-translate-y-0.5 ${filter === s ? "bg-[#2200ff] text-white shadow-[0_8px_20px_rgba(34,0,255,0.2)]" : "bg-white text-slate-600 ring-1 ring-slate-100 hover:text-[#2200ff]"}`}>
+              <button key={s} type="button" onClick={() => setFilter(s)} className={`rounded-full px-3 py-1 text-xs font-semibold transition hover:-translate-y-0.5 ${filter === s ? "bg-[#2200ff] text-white shadow-[0_6px_16px_rgba(34,0,255,0.2)]" : "bg-white text-slate-600 ring-1 ring-slate-100 hover:text-[#2200ff]"}`}>
                 <span className="mr-1 tabular-nums">{statusCounts[s] ?? 0}</span>{s}
               </button>
             ))}
