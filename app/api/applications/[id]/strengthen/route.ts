@@ -36,6 +36,9 @@ function cleanDocument(text: string): string {
 
 export async function POST(request: Request, { params }: Props) {
   const { id: appId } = await params;
+  const url = new URL(request.url);
+  const preview = url.searchParams.get("preview") === "true";
+
   const supabase = await createSupabaseServerClient();
   if (!supabase) return NextResponse.json({ error: "Not configured" }, { status: 500 });
 
@@ -131,22 +134,24 @@ export async function POST(request: Request, { params }: Props) {
     return NextResponse.json({ error: err instanceof Error ? err.message : "AI failed" }, { status: 500 });
   }
 
-  const patch: Record<string, unknown> = {};
-  if (result.tailoredResume && target !== "cover_letter") patch.tailored_resume = cleanDocument(result.tailoredResume);
-  if (result.coverLetter && target !== "resume") patch.cover_letter = cleanDocument(result.coverLetter);
+  const cleanedResume = result.tailoredResume && target !== "cover_letter" ? cleanDocument(result.tailoredResume) : null;
+  const cleanedCover = result.coverLetter && target !== "resume" ? cleanDocument(result.coverLetter) : null;
 
-  const currentStrengthened = (application.strengthened_keywords as string[]) ?? [];
-  patch.strengthened_keywords = [...new Set([...currentStrengthened, keyword])];
-
-  const currentSnippets = (application.strengthened_keyword_snippets as Record<string, string>) ?? {};
-  patch.strengthened_keyword_snippets = { ...currentSnippets, [keyword]: result.changedSnippet ?? "" };
-
-  await supabase.from("applications").update(patch).eq("id", appId).eq("user_id", user.id);
+  if (!preview) {
+    const currentStrengthened = (application.strengthened_keywords as string[]) ?? [];
+    const currentSnippets = (application.strengthened_keyword_snippets as Record<string, string>) ?? {};
+    await supabase.from("applications").update({
+      ...(cleanedResume ? { tailored_resume: cleanedResume } : {}),
+      ...(cleanedCover ? { cover_letter: cleanedCover } : {}),
+      strengthened_keywords: [...new Set([...currentStrengthened, keyword])],
+      strengthened_keyword_snippets: { ...currentSnippets, [keyword]: result.changedSnippet ?? "" },
+    }).eq("id", appId).eq("user_id", user.id);
+  }
 
   return NextResponse.json({
     ok: true,
-    tailoredResume: patch.tailored_resume ?? null,
-    coverLetter: patch.cover_letter ?? null,
+    tailoredResume: cleanedResume,
+    coverLetter: cleanedCover,
     changedSnippet: result.changedSnippet ?? "",
   });
 }

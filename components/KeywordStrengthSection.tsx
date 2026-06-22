@@ -12,6 +12,8 @@ type KeywordState =
   | { phase: "idle" }
   | { phase: "expanding" }
   | { phase: "loading" }
+  | { phase: "reviewing"; target: Target; tailoredResume: string | null; coverLetter: string | null; snippet: string }
+  | { phase: "saving" }
   | { phase: "success"; target: Target | null; snippet: string }
   | { phase: "error"; message: string };
 
@@ -104,7 +106,7 @@ export function KeywordStrengthSection({
     setState(keyword, { phase: "loading" });
 
     try {
-      const res = await fetch(`/api/applications/${applicationId}/strengthen`, {
+      const res = await fetch(`/api/applications/${applicationId}/strengthen?preview=true`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ keyword, evidence, target }),
@@ -114,15 +116,45 @@ export function KeywordStrengthSection({
         setState(keyword, { phase: "error", message: data.error ?? "Something went wrong." });
         return;
       }
-      onDocumentUpdate({
-        resume: data.tailoredResume ?? null,
-        cover: data.coverLetter ?? null,
-        keyword,
+      setState(keyword, {
+        phase: "reviewing",
+        target,
+        tailoredResume: data.tailoredResume ?? null,
+        coverLetter: data.coverLetter ?? null,
         snippet: data.changedSnippet ?? "",
       });
-      setState(keyword, { phase: "success", target, snippet: data.changedSnippet ?? "" });
     } catch {
       setState(keyword, { phase: "error", message: "Network error. Please try again." });
+    }
+  }
+
+  async function acceptDraft(keyword: string) {
+    const state = getState(keyword);
+    if (state.phase !== "reviewing") return;
+    setState(keyword, { phase: "saving" });
+
+    const body: Record<string, unknown> = {
+      strengthened_keywords: [...new Set([...strengthenedKeywords, keyword])],
+      strengthened_keyword_snippets: { ...strengthenedKeywordSnippets, [keyword]: state.snippet },
+    };
+    if (state.tailoredResume) body.tailored_resume = state.tailoredResume;
+    if (state.coverLetter) body.cover_letter = state.coverLetter;
+
+    try {
+      await fetch(`/api/applications/${applicationId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      onDocumentUpdate({
+        resume: state.tailoredResume ?? null,
+        cover: state.coverLetter ?? null,
+        keyword,
+        snippet: state.snippet,
+      });
+      setState(keyword, { phase: "success", target: state.target, snippet: state.snippet });
+    } catch {
+      setState(keyword, { phase: "error", message: "Failed to save. Please try again." });
     }
   }
 
@@ -162,13 +194,15 @@ export function KeywordStrengthSection({
               const isSuccess = state.phase === "success";
               const isExpanding = state.phase === "expanding";
               const isLoading = state.phase === "loading";
+              const isReviewing = state.phase === "reviewing";
+              const isSaving = state.phase === "saving";
               const isError = state.phase === "error";
 
               return (
                 <div
                   key={item}
                   className={`rounded-2xl px-4 py-3 transition-colors ${
-                    isSuccess ? "bg-green-50" : isError ? "bg-rose-50" : "bg-slate-50"
+                    isSuccess ? "bg-green-50" : isError ? "bg-rose-50" : isReviewing || isSaving ? "bg-amber-50" : "bg-slate-50"
                   }`}
                 >
                   <div className="flex items-center gap-2">
@@ -202,6 +236,35 @@ export function KeywordStrengthSection({
                         Retry
                       </button>
                     </>
+                  ) : isReviewing || isSaving ? (
+                    <div className="mt-3 space-y-3">
+                      <p className="text-xs font-semibold text-amber-700">Review the change before saving:</p>
+                      {state.phase === "reviewing" && state.snippet ? (
+                        <p className="rounded-xl bg-amber-100 px-3 py-2 text-xs italic leading-5 text-amber-900">
+                          &ldquo;{state.snippet}&rdquo;
+                        </p>
+                      ) : null}
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          disabled={isSaving}
+                          onClick={() => acceptDraft(item)}
+                          className="inline-flex items-center gap-1.5 rounded-full bg-green-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-green-700 disabled:opacity-50"
+                        >
+                          {isSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3" />}
+                          {isSaving ? "Saving..." : "Looks good, save it"}
+                        </button>
+                        {!isSaving && (
+                          <button
+                            type="button"
+                            onClick={() => setState(item, { phase: "expanding" })}
+                            className="text-xs text-slate-400 hover:text-slate-600"
+                          >
+                            Try again
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   ) : isExpanding || isLoading ? (
                     <div className="mt-3 space-y-2">
                       <textarea
