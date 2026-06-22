@@ -91,42 +91,6 @@ export function Sidebar({ userName, userEmail, avatarUrl, showEnterpriseAdmin, p
               <Plus className="h-4.5 w-4.5 shrink-0" />
               Add Job
             </Link>
-
-            <div className="mt-2 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Your plan</p>
-                <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold ${planType === "free" ? "bg-slate-100 text-slate-600" : "bg-[#ece8ff] text-[#2200ff]"}`}>
-                  <Zap className="h-2.5 w-2.5" />
-                  {planLabel ?? "Free"}
-                </span>
-              </div>
-
-              <div className="mt-3">
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
-                  <div
-                    className={`h-full rounded-full ${applicationsRemaining === 0 ? "bg-rose-400" : "bg-[#2200ff]"}`}
-                    style={{ width: `${applicationLimit > 0 ? Math.round((applicationsUsed / applicationLimit) * 100) : 0}%` }}
-                  />
-                </div>
-                <p className="mt-1.5 text-xs text-slate-400">{applicationsRemaining} of {applicationLimit} remaining</p>
-              </div>
-
-              {planType === "free" ? (
-                <Link
-                  href="/pricing"
-                  className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-[#2200ff] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#1a00cc]"
-                >
-                  Upgrade <ArrowRight className="h-3 w-3" />
-                </Link>
-              ) : (
-                <Link
-                  href="/profile"
-                  className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-500 transition hover:border-[#d4ccff] hover:text-[#2200ff]"
-                >
-                  View details <ArrowRight className="h-3 w-3" />
-                </Link>
-              )}
-            </div>
           </div>
         )}
       </nav>
@@ -144,6 +108,44 @@ export function Sidebar({ userName, userEmail, avatarUrl, showEnterpriseAdmin, p
             <span className="block truncate text-xs text-slate-400">{userEmail}</span>
           </span>
         </Link>
+
+        {!showEnterpriseAdmin && (
+          <div className="mb-3 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">Your plan</p>
+              <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold ${planType === "free" ? "bg-slate-100 text-slate-600" : "bg-[#ece8ff] text-[#2200ff]"}`}>
+                <Zap className="h-2.5 w-2.5" />
+                {planLabel ?? "Free"}
+              </span>
+            </div>
+
+            <div className="mt-3">
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+                <div
+                  className={`h-full rounded-full ${applicationsRemaining === 0 ? "bg-rose-400" : "bg-[#2200ff]"}`}
+                  style={{ width: `${applicationLimit > 0 ? Math.round((applicationsUsed / applicationLimit) * 100) : 0}%` }}
+                />
+              </div>
+              <p className="mt-1.5 text-xs text-slate-400">{applicationsRemaining} of {applicationLimit} remaining</p>
+            </div>
+
+            {planType === "free" ? (
+              <Link
+                href="/pricing"
+                className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-[#2200ff] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#1a00cc]"
+              >
+                Upgrade <ArrowRight className="h-3 w-3" />
+              </Link>
+            ) : (
+              <Link
+                href="/profile"
+                className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-500 transition hover:border-[#d4ccff] hover:text-[#2200ff]"
+              >
+                View details <ArrowRight className="h-3 w-3" />
+              </Link>
+            )}
+          </div>
+        )}
 
         <button
           type="button"
