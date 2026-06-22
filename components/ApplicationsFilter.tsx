@@ -141,7 +141,7 @@ function InlineStatusSelect({ applicationId, initialStatus }: { applicationId: s
   }
 
   return (
-    <label className="relative block w-full max-w-[140px]" onClick={(e) => e.stopPropagation()}>
+    <label className="relative block w-full max-w-[160px]" onClick={(e) => e.stopPropagation()}>
       <span className={`pointer-events-none absolute left-2.5 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full ${style.dot}`} />
       <select
         value={status}
@@ -498,7 +498,7 @@ export function ApplicationsFilter({ applications }: { applications: Application
                 <th className="pb-1 px-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Salary</th>
                 <th className="pb-1 px-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Applied</th>
                 <th className="pb-1 px-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Closes</th>
-                <th className="pb-1 px-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Status</th>
+                <th className="pb-1 px-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400 min-w-[130px]">Status</th>
                 <th className="pb-1 pr-4" />
               </tr>
             </thead>
