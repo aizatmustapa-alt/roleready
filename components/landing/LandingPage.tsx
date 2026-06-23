@@ -98,11 +98,11 @@ export function LandingPage() {
   const [heroImageIndex, setHeroImageIndex] = useState(0);
 
   const heroImages = [
-    "/landing/hero-celebration.png",
-    "/landing/hero-job-seeker.png",
+    "/landing/slide-1.png",
     "/landing/slide-2.png",
     "/landing/slide-3.png",
     "/landing/slide-4.png",
+    "/landing/slide-5.png",
   ];
 
   useEffect(() => {
