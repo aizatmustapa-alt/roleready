@@ -42,6 +42,50 @@ export const blogCategories: BlogCategory[] = [
 
 export const blogArticles: BlogArticle[] = [
   {
+    slug: "show-what-good-looks-like",
+    title: "Show What Good Looks Like",
+    excerpt: "The best leaders do not just set the tone. They demonstrate it.",
+    category: "Career Growth",
+    author: "Koalapply",
+    publishDate: "23 Jun 2026",
+    readingTime: "2 min read",
+    image: "/blog/show-what-good-looks-like.png",
+    imageAlt: "Leader demonstrating high standards through example",
+    sections: [
+      {
+        id: "more-than-words",
+        title: "More Than Words",
+        paragraphs: [
+          "Sometimes the best way for leaders to build respect and inspire high performance is simple: show what good looks like.",
+          "Not just through words. Not just through expectations. Not just through telling people to raise the bar. But by modelling it.",
+        ],
+      },
+      {
+        id: "leadership-is-often-unspoken",
+        title: "Leadership Is Often Unspoken",
+        paragraphs: [
+          "Because leadership is not always loud. Sometimes leadership is unspoken.",
+        ],
+        bullets: [
+          "It is in the standard you hold yourself to.",
+          "The care you put into the work.",
+          "The way you stay calm under pressure.",
+          "The way you listen before deciding.",
+          "The way you give people room to think, contribute, and grow.",
+          "The way you show accountability without needing to announce it.",
+        ],
+      },
+      {
+        id: "the-standard-worth-following",
+        title: "The Standard Worth Following",
+        paragraphs: [
+          "People do not always need more instructions. Sometimes they need a clear example of the standard, the behaviour, and the mindset worth following.",
+          "The best leaders do not just set the tone. They demonstrate it.",
+        ],
+      },
+    ],
+  },
+  {
     slug: "your-reputation-is-not-on-your-cv",
     title: "Your Reputation Is Not on Your CV",
     excerpt: "Your CV explains what you have done. Your reputation tells people what it was like to do it with you.",
