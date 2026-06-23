@@ -42,6 +42,76 @@ export const blogCategories: BlogCategory[] = [
 
 export const blogArticles: BlogArticle[] = [
   {
+    slug: "your-reputation-is-not-on-your-cv",
+    title: "Your Reputation Is Not on Your CV",
+    excerpt: "Your CV explains what you have done. Your reputation tells people what it was like to do it with you.",
+    category: "Career Growth",
+    author: "Koalapply",
+    publishDate: "23 Jun 2026",
+    readingTime: "3 min read",
+    image: "/blog/reputation-cv.png",
+    imageAlt: "Professional reflecting on their career reputation",
+    sections: [
+      {
+        id: "what-you-carry-with-you",
+        title: "What You Carry With You",
+        paragraphs: [
+          "Your reputation is not on your CV. But it follows you everywhere.",
+          "When you leave a workplace, you are not just walking out with a list of roles, projects and achievements. You are taking your reputation with you.",
+        ],
+        bullets: [
+          "The way you showed up.",
+          "The way you treated people.",
+          "The things you followed through on.",
+          "The problems you helped solve.",
+          "The trust you built over time.",
+        ],
+      },
+      {
+        id: "advice-worth-carrying",
+        title: "Advice Worth Carrying",
+        paragraphs: [
+          "When I was young, my dad gave me advice I still think about often.",
+          "It's not only what you say, it's how you say it. If you don't have anything meaningful or kind to say, sometimes it is better not to say anything at all. And don't force people to do things. Inspire them.",
+          "I did not fully understand the weight of that advice then. But over time, especially through work, leadership, change, pressure and difficult conversations, I have realised how much it matters.",
+        ],
+      },
+      {
+        id: "roles-change-reputation-doesnt",
+        title: "Roles Change. Reputation Doesn't.",
+        paragraphs: [
+          "Roles change. Teams change. Organisations change. Sometimes people move on by choice, and sometimes circumstances change around them.",
+          "But your reputation often continues long after your last day. It follows you into future opportunities, reference checks, quiet recommendations, and conversations where your name comes up.",
+          "So it is worth asking yourself: what are you known for? What do people trust you with? What do you hope people remember about working with you?",
+        ],
+      },
+      {
+        id: "what-people-remember",
+        title: "What People Remember",
+        paragraphs: [
+          "None of us get it right all the time. We all have moments we could have handled better.",
+          "But over time, people remember consistency.",
+        ],
+        bullets: [
+          "Whether you were reliable.",
+          "Whether you were kind.",
+          "Whether you gave credit.",
+          "Whether you followed through.",
+          "Whether you made things better, even in small ways.",
+          "Whether people felt respected in your presence.",
+        ],
+      },
+      {
+        id: "the-difference",
+        title: "The Difference",
+        paragraphs: [
+          "Your CV may explain what you have done.",
+          "Your reputation tells people what it was like to do it with you.",
+        ],
+      },
+    ],
+  },
+  {
     slug: "why-youre-not-getting-interviews-even-with-experience",
     title: "Why You're Not Getting Interviews (Even With Experience)",
     excerpt: "If your inbox is quiet despite strong experience, the problem is usually not your background. It is your job search process.",
