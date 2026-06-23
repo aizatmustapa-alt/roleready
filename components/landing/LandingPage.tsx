@@ -313,11 +313,6 @@ export function LandingPage() {
                     onError={(e) => { e.currentTarget.style.display = "none"; }}
                   />
                 ))}
-                <p className="absolute top-4 left-4 right-4 text-center text-base font-black leading-tight tracking-tight text-black">
-                  <span className="box-decoration-clone bg-white px-2 py-1 leading-[1.7]">
-                    I'm not tailoring CVs.. are you? 😏
-                  </span>
-                </p>
                 <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
                   {heroImages.map((_, i) => (
                     <button
