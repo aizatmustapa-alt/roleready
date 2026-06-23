@@ -102,7 +102,7 @@ export const blogArticles: BlogArticle[] = [
         title: "",
         paragraphs: [
           "There's a version of you that exists beyond the borders of your resume. A version that your former colleagues talk about when your name comes up. A version that lives in Slack messages, LinkedIn recommendations, and the memory of every manager you've ever had.",
-          "That version — your professional reputation — is doing more work in your job search than you probably realise.",
+          "That version, your professional reputation, is doing more work in your job search than you probably realise.",
         ],
       },
       {
@@ -110,7 +110,7 @@ export const blogArticles: BlogArticle[] = [
         title: "The CV Gets You Considered. Your Reputation Gets You Hired.",
         paragraphs: [
           "Hiring managers shortlist based on what's written on the page. But when the decision comes down to two equally qualified candidates? They call someone who knows you.",
-          "This is not an exaggeration. Informal reference checks happen constantly — often before the formal stage. A hiring manager might message a mutual contact on LinkedIn, ask a colleague who used to work at your old company, or simply Google your name to see what comes up. By the time you're sitting in the interview, a version of your reputation has often already arrived before you.",
+          "This is not an exaggeration. Informal reference checks happen constantly, often before the formal stage. A hiring manager might message a mutual contact on LinkedIn, ask a colleague who used to work at your old company, or simply Google your name to see what comes up. By the time you're sitting in the interview, a version of your reputation has often already arrived before you.",
           "Your CV opens doors. Your reputation decides whether you walk through them.",
         ],
       },
@@ -118,18 +118,18 @@ export const blogArticles: BlogArticle[] = [
         id: "what-reputation-is-made-of",
         title: "What Your Reputation Is Actually Made Of",
         paragraphs: [
-          "Most people think of reputation as something abstract — a feeling others have about you. But in a professional context, it's actually quite specific. It's made up of how you showed up over time.",
+          "Most people think of reputation as something abstract, a feeling others have about you. But in a professional context, it's actually quite specific. It's made up of how you showed up over time.",
           "Did you deliver? Reputation is built on outcomes. Not just completing tasks, but being the kind of person people could rely on to follow through, even when things got hard.",
-          "How did you treat people? Competence without character gets noticed, and not in the right way. The way you treated junior team members, how you handled conflict, whether you gave credit generously — these things stick in people's memories far longer than any project you shipped.",
+          "How did you treat people? Competence without character gets noticed, and not in the right way. The way you treated junior team members, how you handled conflict, whether you gave credit generously. These things stick in people's memories far longer than any project you shipped.",
           "Were you easy to work with? This sounds soft, but it's decisive. Employers want skilled people who don't create drag. If working with you made people feel energised and supported, that reputation will precede you.",
-          "What do you stand for? People with a clear point of view — a perspective on their industry, a way of working, a visible area of expertise — are far more memorable than those who simply do their job and go home.",
+          "What do you stand for? People with a clear point of view, a perspective on their industry, a way of working, a visible area of expertise, are far more memorable than those who simply do their job and go home.",
         ],
       },
       {
         id: "quiet-gap",
         title: "The Quiet Gap Most Job Seekers Ignore",
         paragraphs: [
-          "Here's what tends to happen: someone spends hours perfecting their resume, tailoring their cover letter, and preparing for interview questions — then neglects the part of the process that actually builds long-term career leverage.",
+          "Here's what tends to happen: someone spends hours perfecting their resume, tailoring their cover letter, and preparing for interview questions. Then neglects the part of the process that actually builds long-term career leverage.",
           "Reputation compounds. Every interaction, every piece of work, every conversation either adds to it or chips away at it. And unlike a CV, which you update every few years, your reputation is being written in real time, even when you're not looking for a job.",
           "The people who find great opportunities most consistently aren't always the best on paper. They're often the people who have invested in being genuinely good to work with, generous with their knowledge, and present in their professional communities.",
         ],
@@ -139,9 +139,9 @@ export const blogArticles: BlogArticle[] = [
         title: "What You Can Do Right Now",
         paragraphs: [
           "You don't need to overhaul your personal brand or start posting daily on LinkedIn. Reputation-building is quieter than that.",
-          "Reach back out. Contact two or three former colleagues you genuinely liked working with. Not to ask for a favour — just to reconnect. Strong professional relationships are the infrastructure your reputation travels on.",
+          "Reach back out. Contact two or three former colleagues you genuinely liked working with. Not to ask for a favour, just to reconnect. Strong professional relationships are the infrastructure your reputation travels on.",
           "Make your expertise visible. Share something useful in your field: a perspective, a lesson learned, a resource. You don't need a large audience. Even a handful of relevant people seeing your thinking is enough to shift how you're perceived.",
-          "Think about what people say when you're not in the room. Seriously ask yourself: what would a former manager say about working with you? If the honest answer is \"good, but...\" — that's worth sitting with.",
+          "Think about what people say when you're not in the room. Seriously ask yourself: what would a former manager say about working with you? If the honest answer is \"good, but...\" then that's worth sitting with.",
           "Be excellent in small moments. Reputation isn't built in big gestures. It's built in whether you respond promptly, whether you credit people properly, whether you bring energy or drain it.",
         ],
       },
@@ -150,8 +150,8 @@ export const blogArticles: BlogArticle[] = [
         title: "Let Your Application Reflect Both",
         paragraphs: [
           "A great resume backed by a strong reputation is almost unstoppable. But it requires that both sides of the equation are working.",
-          "That's where Koalapply comes in. We help you put your best professional self on paper — tailoring your resume and cover letter to each role with language that's specific, confident, and true to who you are.",
-          "Because when your application lands on someone's desk, and they go looking to find out more about you — you want everything they find to confirm the same story.",
+          "That's where Koalapply comes in. We help you put your best professional self on paper, tailoring your resume and cover letter to each role with language that's specific, confident, and true to who you are.",
+          "Because when your application lands on someone's desk and they go looking to find out more about you, you want everything they find to confirm the same story.",
         ],
       },
     ],
