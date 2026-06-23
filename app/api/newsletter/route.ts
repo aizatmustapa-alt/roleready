@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
-const TOPIC_ID = "906daf0c-8eaa-43e3-8273-f297022c386a";
-
 export async function POST(request: Request) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return NextResponse.json({ error: "Not configured" }, { status: 500 });
@@ -14,11 +12,7 @@ export async function POST(request: Request) {
   }
 
   const resend = new Resend(apiKey);
-  const { error } = await resend.contacts.create({
-    email,
-    unsubscribed: false,
-    topics: [{ id: TOPIC_ID, subscription: "opt_in" }],
-  });
+  const { error } = await resend.contacts.create({ email, unsubscribed: false });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   return NextResponse.json({ ok: true });
