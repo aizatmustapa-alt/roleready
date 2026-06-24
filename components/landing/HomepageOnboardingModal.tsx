@@ -132,6 +132,7 @@ export function HomepageOnboardingModal({ open, initialResumeFile, initialDraft,
   const [extracting, setExtracting] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [newsletterOptIn, setNewsletterOptIn] = useState(true);
 
   useEffect(() => {
     if (!open) return;
@@ -381,6 +382,9 @@ export function HomepageOnboardingModal({ open, initialResumeFile, initialDraft,
       }
 
       if (signUpData.session) {
+        if (newsletterOptIn) {
+          fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) }).catch(() => {});
+        }
         setIsAuthenticated(true);
         await submitAuthenticated();
         return;
@@ -433,6 +437,9 @@ export function HomepageOnboardingModal({ open, initialResumeFile, initialDraft,
         throw new Error(error.message);
       }
 
+      if (newsletterOptIn) {
+        fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) }).catch(() => {});
+      }
       setIsAuthenticated(true);
       await submitAuthenticated();
     } catch (error) {
@@ -752,6 +759,15 @@ export function HomepageOnboardingModal({ open, initialResumeFile, initialDraft,
                         <Eye className="h-5 w-5" />
                       </button>
                     </span>
+                  </label>
+                  <label className="flex cursor-pointer items-start gap-2 text-sm text-slate-500">
+                    <input
+                      type="checkbox"
+                      checked={newsletterOptIn}
+                      onChange={(e) => setNewsletterOptIn(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-[#2200ff] focus:ring-[#d4ccff]"
+                    />
+                    Send me career tips and job search advice (unsubscribe anytime)
                   </label>
                   <button
                     type="submit"

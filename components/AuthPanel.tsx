@@ -16,6 +16,7 @@ export function AuthPanel({ redirectTo = "/" }: { redirectTo?: string }) {
   const [showPassword, setShowPassword] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [otp, setOtp] = useState("");
+  const [newsletterOptIn, setNewsletterOptIn] = useState(true);
 
   function getSupabase() {
     const supabase = createSupabaseBrowserClient();
@@ -75,6 +76,9 @@ export function AuthPanel({ redirectTo = "/" }: { redirectTo?: string }) {
     }
 
     if (data.session) {
+      if (newsletterOptIn) {
+        fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) }).catch(() => {});
+      }
       window.location.href = redirectTo;
       return;
     }
@@ -100,6 +104,9 @@ export function AuthPanel({ redirectTo = "/" }: { redirectTo?: string }) {
       return;
     }
 
+    if (newsletterOptIn) {
+      fetch("/api/newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) }).catch(() => {});
+    }
     window.location.href = redirectTo;
   }
 
@@ -253,6 +260,18 @@ export function AuthPanel({ redirectTo = "/" }: { redirectTo?: string }) {
               Forgot password?
             </button>
           </div>
+        )}
+
+        {isSignup && (
+          <label className="flex cursor-pointer items-start gap-2 text-sm text-slate-500">
+            <input
+              type="checkbox"
+              checked={newsletterOptIn}
+              onChange={(e) => setNewsletterOptIn(e.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 text-[#2200ff] focus:ring-[#d4ccff]"
+            />
+            Send me career tips and job search advice (unsubscribe anytime)
+          </label>
         )}
 
         <button
