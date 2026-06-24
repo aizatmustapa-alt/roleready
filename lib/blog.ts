@@ -49,7 +49,7 @@ export const blogArticles: BlogArticle[] = [
     author: "Koalapply",
     publishDate: "23 Jun 2026",
     readingTime: "6 min read",
-    image: "/blog/show-what-good-looks-like.png",
+    image: "/blog/show-what-good-looks-like.jpg",
     imageAlt: "Leader demonstrating high standards through example",
     sections: [
       {
