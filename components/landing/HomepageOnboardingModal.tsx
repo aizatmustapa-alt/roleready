@@ -773,6 +773,7 @@ export function HomepageOnboardingModal({ open, initialResumeFile, initialDraft,
                     />
                     Send me career tips and job search advice (unsubscribe anytime)
                   </label>
+                  <ErrorToast message={message} onDismiss={() => setMessage("")} />
                   <button
                     type="submit"
                     disabled={loading}
@@ -797,7 +798,6 @@ export function HomepageOnboardingModal({ open, initialResumeFile, initialDraft,
           </>
         )}
 
-        <ErrorToast message={message} onDismiss={() => setMessage("")} />
       </div>
     </div>
   );

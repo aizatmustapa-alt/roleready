@@ -148,7 +148,6 @@ export function AuthPanel({ redirectTo = "/" }: { redirectTo?: string }) {
   if (otpSent) {
     return (
       <div className="rounded-[2rem] border border-slate-100 bg-white p-6 shadow-[0_32px_100px_rgba(34,0,255,0.1)] sm:p-9 lg:p-12">
-        <ErrorToast message={message} onDismiss={() => setMessage("")} />
         <div className="text-center">
           <div className="mx-auto">
             <Link href="/"><img src="/brand/koalapply-favicon-wordmark.png" alt="Koalapply" className="h-20 w-auto" /></Link>
@@ -177,6 +176,7 @@ export function AuthPanel({ redirectTo = "/" }: { redirectTo?: string }) {
             />
           </label>
 
+          <ErrorToast message={message} onDismiss={() => setMessage("")} />
           <button
             className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#2200ff] px-6 py-4 text-base font-semibold text-white shadow-[0_18px_48px_rgba(34,0,255,0.22)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#1a00cc] disabled:cursor-not-allowed disabled:opacity-70"
             disabled={loading}
@@ -199,7 +199,6 @@ export function AuthPanel({ redirectTo = "/" }: { redirectTo?: string }) {
 
   return (
     <div className="rounded-[2rem] border border-slate-100 bg-white p-6 shadow-[0_32px_100px_rgba(34,0,255,0.1)] sm:p-9 lg:p-12">
-      <ErrorToast message={message} onDismiss={() => setMessage("")} />
       <div className="text-center">
         <div className="flex justify-center">
           <Link href="/"><img src="/brand/koalapply-favicon-wordmark.png" alt="Koalapply" className="h-20 w-auto" /></Link>
@@ -280,6 +279,7 @@ export function AuthPanel({ redirectTo = "/" }: { redirectTo?: string }) {
           </label>
         )}
 
+        <ErrorToast message={message} onDismiss={() => setMessage("")} />
         <button
           className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#2200ff] px-6 py-4 text-base font-semibold text-white shadow-[0_18px_48px_rgba(34,0,255,0.22)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#1a00cc] disabled:cursor-not-allowed disabled:opacity-70"
           disabled={loading}
