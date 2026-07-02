@@ -68,27 +68,25 @@ export default async function BlogArticlePage({ params }: Props) {
         </section>
 
         <section className="px-5 py-8 sm:px-8 lg:px-10">
-          <div className="mx-auto max-w-6xl">
+          <div className="mx-auto max-w-4xl">
             <div className="relative aspect-[16/9] overflow-hidden rounded-[2rem] bg-slate-50 shadow-[0_24px_70px_rgba(34,0,255,0.08)]">
-              <Image src={article.image} alt={article.imageAlt} fill sizes="(min-width: 1024px) 1152px, 100vw" className="object-contain" priority />
+              <Image src={article.image} alt={article.imageAlt} fill sizes="(min-width: 1024px) 896px, 100vw" className="object-contain" priority />
             </div>
           </div>
         </section>
 
         <section className="px-5 pb-14 sm:px-8 lg:px-10 lg:pb-20">
-          <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[260px_1fr]">
-            <aside className="lg:sticky lg:top-8 lg:self-start">
-              <div className="rounded-[1.5rem] border border-slate-100 bg-white p-5 shadow-sm">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Table of contents</p>
-                <nav className="mt-4 space-y-2">
-                  {article.sections.map((section) => (
-                    <a key={section.id} href={`#${section.id}`} className="block text-sm font-semibold leading-6 text-slate-600 transition hover:text-[#2200ff]">
-                      {section.title}
-                    </a>
-                  ))}
-                </nav>
-              </div>
-            </aside>
+          <div className="mx-auto max-w-4xl space-y-8">
+            <div className="rounded-[1.5rem] border border-slate-100 bg-white p-5 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Table of contents</p>
+              <nav className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
+                {article.sections.map((section) => (
+                  <a key={section.id} href={`#${section.id}`} className="text-sm font-semibold leading-6 text-slate-600 transition hover:text-[#2200ff]">
+                    {section.title}
+                  </a>
+                ))}
+              </nav>
+            </div>
 
             <div className="rounded-[2rem] border border-slate-100 bg-white px-6 py-8 shadow-sm sm:px-8 lg:px-12 lg:py-12">
               <div className="space-y-10">

@@ -18,7 +18,7 @@ export function BlogResumeCTA() {
   return (
     <>
       <section className="px-5 py-10 sm:px-8 lg:px-10">
-        <div className="mx-auto max-w-6xl">
+        <div className="mx-auto max-w-4xl">
           <div
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => { e.preventDefault(); handleFile(e.dataTransfer.files?.[0]); }}
