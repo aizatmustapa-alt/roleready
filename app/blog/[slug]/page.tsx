@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { BlogArticleCard } from "@/components/blog/BlogArticleCard";
+import { BlogResumeCTA } from "@/components/blog/BlogResumeCTA";
 import { NewsletterSignup } from "@/components/blog/NewsletterSignup";
 import { blogArticles, getArticleBySlug, getRelatedArticles } from "@/lib/blog";
 
@@ -116,6 +117,8 @@ export default async function BlogArticlePage({ params }: Props) {
           </div>
         </section>
       </article>
+
+      <BlogResumeCTA />
 
       <section className="px-5 pb-14 sm:px-8 lg:px-10 lg:pb-20">
         <div className="mx-auto max-w-7xl">
