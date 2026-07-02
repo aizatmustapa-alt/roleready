@@ -17,7 +17,7 @@ export function BlogResumeCTA() {
 
   return (
     <>
-      <section className="px-5 py-10 sm:px-8 lg:px-10">
+      <section className="px-5 pb-10 pt-2 sm:px-8 lg:px-10">
         <div className="mx-auto max-w-4xl">
           <div
             onDragOver={(e) => e.preventDefault()}

@@ -75,7 +75,7 @@ export default async function BlogArticlePage({ params }: Props) {
           </div>
         </section>
 
-        <section className="px-5 pb-14 sm:px-8 lg:px-10 lg:pb-20">
+        <section className="px-5 pb-6 sm:px-8 lg:px-10 lg:pb-8">
           <div className="mx-auto max-w-4xl space-y-8">
             <div className="rounded-[1.5rem] border border-slate-100 bg-white p-5 shadow-sm sm:p-6">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Table of contents</p>
