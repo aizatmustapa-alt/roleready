@@ -650,7 +650,7 @@ export const blogArticles: BlogArticle[] = [
   {
     slug: "how-to-tailor-your-resume-for-each-job",
     title: "How to Tailor Your Resume for Each Job Without Starting From Scratch",
-    excerpt: "Tailoring your resume doesn't mean starting over every time. Here's a system that lets you adapt quickly — without the manual grind.",
+    excerpt: "Tailoring your resume doesn't mean starting over every time. Here's a system that lets you adapt quickly, without the manual grind.",
     category: "Resumes",
     author: "Koalapply Team",
     publishDate: "30 May 2026",
@@ -662,7 +662,7 @@ export const blogArticles: BlogArticle[] = [
         id: "intro",
         title: "",
         paragraphs: [
-          "You've heard it a hundred times: \"Tailor your resume for every job you apply to.\" It's solid advice — recruiters and applicant tracking systems (ATS) both favour resumes that speak directly to the role. But if you're applying to ten, twenty, or fifty jobs, rewriting your resume from scratch each time isn't just tedious — it's unsustainable.",
+          "You've heard it a hundred times: \"Tailor your resume for every job you apply to.\" It's solid advice, as recruiters and applicant tracking systems (ATS) both favour resumes that speak directly to the role. But if you're applying to ten, twenty, or fifty jobs, rewriting your resume from scratch each time isn't just tedious. It's unsustainable.",
           "The good news is that tailoring doesn't mean starting over. It means being strategic about what you change, and building a system that lets you adapt quickly. Here's how."
         ]
       },
@@ -670,7 +670,7 @@ export const blogArticles: BlogArticle[] = [
         id: "why-tailoring-matters",
         title: "Why Tailoring Actually Matters",
         paragraphs: [
-          "Most companies now use an ATS to filter applications before a human ever sees them. These systems scan for keywords, skills, and phrases that match the job description. A generic resume — even a strong one — can get filtered out simply because it doesn't mirror the language of the posting.",
+          "Most companies now use an ATS to filter applications before a human ever sees them. These systems scan for keywords, skills, and phrases that match the job description. A generic resume, even a strong one, can get filtered out simply because it doesn't mirror the language of the posting.",
           "Beyond the ATS, hiring managers skim resumes in seconds. A resume that clearly reflects the role you're applying for signals that you understand the job and took the application seriously. A generic one signals the opposite, even if your experience is a great fit."
         ]
       },
@@ -678,7 +678,7 @@ export const blogArticles: BlogArticle[] = [
         id: "build-master-resume",
         title: "Step 1: Build a \"Master Resume\" First",
         paragraphs: [
-          "Before you tailor anything, create one comprehensive master resume that includes everything: every role, every achievement, every skill, every metric you've got. This document is never sent to an employer — it's your source material.",
+          "Before you tailor anything, create one comprehensive master resume that includes everything: every role, every achievement, every skill, every metric you've got. This document is never sent to an employer. It's your source material.",
           "Think of it as a library you pull from, not a draft you edit live. Having this in place means tailoring becomes a matter of selecting and rephrasing, not writing from a blank page every time."
         ]
       },
@@ -692,16 +692,16 @@ export const blogArticles: BlogArticle[] = [
         bullets: [
           "Hard skills and tools (e.g. \"SQL,\" \"Salesforce,\" \"project management\")",
           "Soft skills and traits (e.g. \"collaborative,\" \"detail-oriented,\" \"self-starter\")",
-          "Key responsibilities (the actual verbs — \"manage,\" \"lead,\" \"coordinate,\" \"analyse\")"
+          "Key responsibilities (the actual verbs: \"manage,\" \"lead,\" \"coordinate,\" \"analyse\")"
         ]
       },
       {
         id: "swap-the-summary",
         title: "Step 3: Swap the Summary, Not the Structure",
         paragraphs: [
-          "Your resume's top section — whether it's a summary or headline — is the highest-leverage place to tailor. This is the first thing a recruiter reads, and it should immediately connect your background to the role.",
+          "Your resume's top section (whether it's a summary or headline) is the highest-leverage place to tailor. This is the first thing a recruiter reads, and it should immediately connect your background to the role.",
           "Instead of a generic opener like \"Experienced professional with a background in marketing,\" tailor it to the specific job: \"Marketing coordinator with 4 years' experience in content strategy and campaign analytics, specialising in B2B SaaS growth.\"",
-          "This single paragraph can change every time — while the rest of your resume's structure stays exactly the same."
+          "This single paragraph can change every time, while the rest of your resume's structure stays exactly the same."
         ]
       },
       {
@@ -710,14 +710,14 @@ export const blogArticles: BlogArticle[] = [
         paragraphs: [
           "You don't need new achievements for every job. You need to reframe existing ones to highlight what's relevant.",
           "For example, if you managed a project that involved both budgeting and team leadership, and you're applying for a finance-focused role, lead with the budgeting outcome. If you're applying for a people-management role, lead with the leadership outcome. Same experience, different emphasis.",
-          "Also consider reordering your bullet points within each role so the most relevant achievements sit at the top — that's what gets read first."
+          "Also consider reordering your bullet points within each role so the most relevant achievements sit at the top. That's what gets read first."
         ]
       },
       {
         id: "match-keywords-naturally",
         title: "Step 5: Match Keywords Naturally",
         paragraphs: [
-          "Once you've identified keywords from Step 2, weave them into your bullet points and skills section where they genuinely apply. Don't force a skill you don't have just because it's in the posting — but if you have \"cross-functional collaboration\" and the posting says \"works well across teams,\" use their phrasing.",
+          "Once you've identified keywords from Step 2, weave them into your bullet points and skills section where they genuinely apply. Don't force a skill you don't have just because it's in the posting, but if you have \"cross-functional collaboration\" and the posting says \"works well across teams,\" use their phrasing.",
           "This is less about gaming the system and more about speaking the same language as the person (or algorithm) reading your resume."
         ]
       },
@@ -725,22 +725,22 @@ export const blogArticles: BlogArticle[] = [
         id: "keep-tailoring-log",
         title: "Step 6: Keep a Tailoring Log",
         paragraphs: [
-          "As you apply to more roles, you'll start noticing patterns — certain industries or job types will need similar tweaks. Keep a simple log or folder of your tailored versions so you're not reinventing the wheel each time. Over time, you'll build a set of \"modular\" summaries and bullet variations you can mix and match in minutes."
+          "As you apply to more roles, you'll start noticing patterns. Certain industries or job types will need similar tweaks. Keep a simple log or folder of your tailored versions so you're not reinventing the wheel each time. Over time, you'll build a set of modular summaries and bullet variations you can mix and match in minutes."
         ]
       },
       {
         id: "systemise-not-sacrifice",
         title: "The Real Time-Saver: Systemise, Don't Sacrifice Quality",
         paragraphs: [
-          "The mistake most job seekers make is treating tailoring as all-or-nothing: either send the same resume everywhere, or spend an hour rewriting each one. Neither is necessary. With a master resume, a clear read of the job description, and a few targeted edits — the summary, the bullet emphasis, the keywords — you can tailor a resume in minutes rather than hours, without losing the polish or personalisation that gets you noticed."
+          "The mistake most job seekers make is treating tailoring as all-or-nothing: either send the same resume everywhere, or spend an hour rewriting each one. Neither is necessary. With a master resume, a clear read of the job description, and a few targeted edits (the summary, the bullet emphasis, the keywords), you can tailor a resume in minutes rather than hours, without losing the polish or personalisation that gets you noticed."
         ]
       },
       {
         id: "let-koalapply-help",
         title: "Let Koalapply Do the Heavy Lifting",
         paragraphs: [
-          "Tailoring a resume well takes a good eye for detail — and a bit of time you may not have between applications. That's exactly what Koalapply is built for.",
-          "Koalapply takes your master resume and a job description, and instantly generates a tailored resume and cover letter matched to that specific role — pulling out the right keywords, reframing your achievements, and rewriting your summary, all in a fraction of the time it'd take to do manually.",
+          "Tailoring a resume well takes a good eye for detail, and a bit of time you may not have between applications. That's exactly what Koalapply is built for.",
+          "Koalapply takes your master resume and a job description, and instantly generates a tailored resume and cover letter matched to that specific role, pulling out the right keywords, reframing your achievements, and rewriting your summary, all in a fraction of the time it'd take to do manually.",
           "If you're applying to multiple roles and want every application to feel custom without the manual grind, give Koalapply a try."
         ]
       }
@@ -761,7 +761,7 @@ export const blogArticles: BlogArticle[] = [
         id: "intro",
         title: "",
         paragraphs: [
-          "Job searching often feels chaotic — dozens of tabs open, half-remembered application dates, and that sinking feeling when a recruiter emails you and you can't quite recall which version of your resume you sent them. The problem usually isn't a lack of effort. It's a lack of system.",
+          "Job searching often feels chaotic: dozens of tabs open, half-remembered application dates, and that sinking feeling when a recruiter emails you and you can't quite recall which version of your resume you sent them. The problem usually isn't a lack of effort. It's a lack of system.",
           "You don't need fancy software or a complicated process to fix this. You need a simple, repeatable system that tracks what matters and takes the mental load off your plate. Here's how to build one."
         ]
       },
@@ -769,33 +769,33 @@ export const blogArticles: BlogArticle[] = [
         id: "why-system-matters",
         title: "Why a System Matters More Than Motivation",
         paragraphs: [
-          "Most people start a job search with a burst of energy — updating their resume, applying to five roles in a day. Then the follow-ups pile up, the applications blur together, and momentum stalls. Not because they stopped caring, but because there was no structure holding it together.",
+          "Most people start a job search with a burst of energy, updating their resume and applying to five roles in a day. Then the follow-ups pile up, the applications blur together, and momentum stalls. Not because they stopped caring, but because there was no structure holding it together.",
           "A good system does three things for you:"
         ],
         bullets: [
-          "Removes decision fatigue — you always know what to do next",
-          "Prevents dropped balls — no missed follow-ups or forgotten interviews",
-          "Shows you progress — so the search feels less like a black hole"
+          "Removes decision fatigue: you always know what to do next",
+          "Prevents dropped balls: no missed follow-ups or forgotten interviews",
+          "Shows you progress: the search feels less like a black hole"
         ]
       },
       {
         id: "set-up-tracker",
         title: "Step 1: Set Up a Single Tracker",
         paragraphs: [
-          "The foundation of any job search system is one central place to track every application. A spreadsheet works perfectly well — you don't need specialised software. At minimum, track the company, role, date applied, resume version, status, and follow-up date.",
-          "The resume version column matters more than people think — if you're tailoring your resume per role (as you should be), you need to know exactly what you sent where, in case you're asked about it in an interview.",
-          "Status should follow a simple pipeline: Applied → Screening → Interview → Offer → Rejected. This alone gives you a clear view of where your search is bottlenecking."
+          "The foundation of any job search system is one central place to track every application. A spreadsheet works perfectly well; you don't need specialised software. At minimum, track the company, role, date applied, resume version, status, and follow-up date.",
+          "The resume version column matters more than people think. If you're tailoring your resume per role (as you should be), you need to know exactly what you sent where, in case you're asked about it in an interview.",
+          "Status should follow a simple pipeline: Applied, Screening, Interview, Offer, Rejected. This alone gives you a clear view of where your search is bottlenecking."
         ]
       },
       {
         id: "batch-applications",
         title: "Step 2: Batch Your Applications",
         paragraphs: [
-          "Rather than applying to jobs the moment you see them, set aside dedicated blocks of time — say, 90 minutes, two or three times a week — to search and apply. Batching keeps your search intentional rather than reactive, and it means you can tailor each application properly instead of rushing.",
+          "Rather than applying to jobs the moment you see them, set aside dedicated blocks of time (say, 90 minutes, two or three times a week) to search and apply. Batching keeps your search intentional rather than reactive, and it means you can tailor each application properly instead of rushing.",
           "During these blocks:"
         ],
         bullets: [
-          "Search and shortlist 5–10 relevant roles",
+          "Search and shortlist 5 to 10 relevant roles",
           "Tailor your resume and cover letter for each",
           "Apply and log each one in your tracker immediately"
         ]
@@ -804,11 +804,11 @@ export const blogArticles: BlogArticle[] = [
         id: "follow-up-rhythm",
         title: "Step 3: Build a Follow-Up Rhythm",
         paragraphs: [
-          "Most job seekers apply and then wait. A simple follow-up rhythm changes that. This single habit puts you ahead of most candidates — a large share of applicants never follow up at all, and a short, polite check-in can be the difference between being forgotten and staying top of mind."
+          "Most job seekers apply and then wait. A simple follow-up rhythm changes that. This single habit puts you ahead of most candidates. A large share of applicants never follow up at all, and a short, polite check-in can be the difference between being forgotten and staying top of mind."
         ],
         bullets: [
-          "Follow up 7–10 days after applying if you haven't heard back",
-          "Follow up 2–3 days after an interview with a thank-you note",
+          "Follow up 7 to 10 days after applying if you haven't heard back",
+          "Follow up 2 to 3 days after an interview with a thank-you note",
           "Set a calendar reminder the moment you apply, so follow-ups never rely on memory"
         ]
       },
@@ -816,13 +816,13 @@ export const blogArticles: BlogArticle[] = [
         id: "master-resume-assets",
         title: "Step 4: Keep a Master Resume and Application Assets",
         paragraphs: [
-          "Rather than digging through old files every time you apply, keep one organised folder with everything you need. This turns \"finding the right file\" from a five-minute scramble into a ten-second task."
+          "Rather than digging through old files every time you apply, keep one organised folder with everything you need. This turns finding the right file from a five-minute scramble into a ten-second task."
         ],
         bullets: [
           "Your master resume (the full, unedited version with everything)",
           "A folder of tailored resume versions, named clearly by company and role",
           "A generic but adaptable cover letter template",
-          "Saved job descriptions for roles you've applied to (postings get taken down — you'll want the reference later)"
+          "Saved job descriptions for roles you've applied to (postings get taken down, so you'll want the reference later)"
         ]
       },
       {
@@ -841,7 +841,7 @@ export const blogArticles: BlogArticle[] = [
         id: "track-patterns",
         title: "Step 6: Track Patterns, Not Just Applications",
         paragraphs: [
-          "After a few weeks, your tracker becomes more than a to-do list — it becomes data. You'll start to notice things like:"
+          "After a few weeks, your tracker becomes more than a to-do list; it becomes data. You'll start to notice things like:"
         ],
         bullets: [
           "Which resume version gets more responses",
@@ -853,15 +853,15 @@ export const blogArticles: BlogArticle[] = [
         id: "reduce-friction",
         title: "The Goal: Reduce Friction, Not Add More Work",
         paragraphs: [
-          "The best job search system is the one you'll actually maintain. Keep it simple — a single tracker, a batching rhythm, a follow-up habit, and an organised folder of assets. That's enough to turn a chaotic search into a manageable, trackable process that keeps moving forward even when motivation dips."
+          "The best job search system is the one you'll actually maintain. Keep it simple: a single tracker, a batching rhythm, a follow-up habit, and an organised folder of assets. That's enough to turn a chaotic search into a manageable, trackable process that keeps moving forward even when motivation dips."
         ]
       },
       {
         id: "let-koalapply-help",
         title: "Let Koalapply Handle the Tailoring Piece",
         paragraphs: [
-          "One of the most time-consuming parts of staying organised is tailoring your resume for every role you log in your tracker. Koalapply takes care of that step — generating a tailored resume and cover letter for each job in minutes, so you can keep your system moving without the manual rewrite every time.",
-          "Pair a solid tracking system with fast, tailored applications, and your job search stops feeling like chaos — and starts feeling like progress."
+          "One of the most time-consuming parts of staying organised is tailoring your resume for every role you log in your tracker. Koalapply takes care of that step, generating a tailored resume and cover letter for each job in minutes, so you can keep your system moving without the manual rewrite every time.",
+          "Pair a solid tracking system with fast, tailored applications, and your job search stops feeling like chaos and starts feeling like progress."
         ]
       }
     ]
