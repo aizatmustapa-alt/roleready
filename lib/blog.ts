@@ -869,7 +869,7 @@ export const blogArticles: BlogArticle[] = [
   {
     slug: "cover-letter-that-does-not-sound-generic",
     title: "How to Write a Cover Letter That Does Not Sound Generic",
-    excerpt: "Generic openers, recycled phrases and vague claims about being a \"hard worker\" don't stand out. Here's how to write a cover letter that sounds like you — and speaks directly to the role.",
+    excerpt: "Generic openers, recycled phrases and vague claims about being a \"hard worker\" don't stand out. Here's how to write a cover letter that sounds like you and speaks directly to the role.",
     category: "Cover Letters",
     author: "Koalapply Team",
     publishDate: "26 May 2026",
@@ -881,8 +881,8 @@ export const blogArticles: BlogArticle[] = [
         id: "why-cover-letters-fail",
         title: "Why Generic Cover Letters Fail",
         paragraphs: [
-          "\"I am writing to express my interest in the position of...\" If you've ever started a cover letter with a line like that, you're not alone — and you're also not standing out. Generic openers, recycled phrases, and vague statements about being a \"hard worker\" are so common that hiring managers barely register them anymore.",
-          "The good news is that writing a cover letter that actually sounds like you — and speaks directly to the role — doesn't take a complete rewrite of your approach. It takes a shift in what you focus on.",
+          "\"I am writing to express my interest in the position of...\" If you've ever started a cover letter with a line like that, you're not alone, and you're also not standing out. Generic openers, recycled phrases, and vague statements about being a \"hard worker\" are so common that hiring managers barely register them anymore.",
+          "The good news is that writing a cover letter that actually sounds like you, and speaks directly to the role, doesn't take a complete rewrite of your approach. It takes a shift in what you focus on.",
           "A generic cover letter usually fails for one of three reasons:"
         ],
         bullets: [
@@ -896,7 +896,7 @@ export const blogArticles: BlogArticle[] = [
         title: "Step 1: Open With Something Specific, Not a Formula",
         paragraphs: [
           "Skip the \"I am writing to apply for...\" opener entirely. Instead, open with something that immediately signals you understand the role or the company.",
-          "For example, instead of \"I am excited to apply for the Marketing Coordinator role,\" try: \"Your team's recent shift toward video-first content caught my attention — it's exactly the kind of strategy I helped drive in my current role, where short-form campaigns lifted engagement by 40%.\"",
+          "For example, instead of \"I am excited to apply for the Marketing Coordinator role,\" try: \"Your team's recent shift toward video-first content caught my attention. It's exactly the kind of strategy I helped drive in my current role, where short-form campaigns lifted engagement by 40%.\"",
           "This does two things immediately: it proves you researched the company, and it gets straight to relevant value instead of a throat-clearing introduction. Strong openers draw on one of the following:"
         ],
         bullets: [
@@ -909,24 +909,24 @@ export const blogArticles: BlogArticle[] = [
         id: "focus-on-their-problem",
         title: "Step 2: Focus on Their Problem, Not Your Biography",
         paragraphs: [
-          "A generic cover letter often reads like a mini autobiography — where you went to school, every job you've had, why you're a \"people person.\" A strong cover letter instead reads like a pitch: here's the problem you're likely trying to solve, and here's evidence I can solve it.",
-          "Look at the job description again and ask: what pain point is this role solving for the company? Then structure your middle paragraph around how your experience addresses that pain point directly, using one or two concrete examples — not a summary of your whole career."
+          "A generic cover letter often reads like a mini autobiography: where you went to school, every job you've had, why you're a \"people person.\" A strong cover letter instead reads like a pitch: here's the problem you're likely trying to solve, and here's evidence I can solve it.",
+          "Look at the job description again and ask: what pain point is this role solving for the company? Then structure your middle paragraph around how your experience addresses that pain point directly, using one or two concrete examples, not a summary of your whole career."
         ]
       },
       {
         id: "use-specific-language",
         title: "Step 3: Use Specific, Not Generic, Language",
         paragraphs: [
-          "Words like \"hardworking,\" \"team player,\" \"passionate,\" and \"detail-oriented\" are so overused that they've lost meaning. They also don't prove anything on their own — anyone can claim them.",
+          "Words like \"hardworking,\" \"team player,\" \"passionate,\" and \"detail-oriented\" are so overused that they've lost meaning. They also don't prove anything on their own. Anyone can claim them.",
           "Instead of saying you're detail-oriented, show it: \"I caught a $12,000 billing discrepancy during a routine audit that had been missed for two quarters.\" Instead of saying you're a team player, show it: \"I coordinated a cross-functional launch between design, engineering, and sales with zero missed deadlines.\"",
-          "Specificity is what separates a claim from a proof point — and proof points are what actually get remembered."
+          "Specificity is what separates a claim from a proof point, and proof points are what actually get remembered."
         ]
       },
       {
         id: "mirror-company-tone",
         title: "Step 4: Mirror the Company's Tone",
         paragraphs: [
-          "A cover letter for a fast-growing startup should probably read differently from one for a government department or a traditional law firm. Look at how the company communicates — their website, job posting, and any public content — and match that register.",
+          "A cover letter for a fast-growing startup should probably read differently from one for a government department or a traditional law firm. Look at how the company communicates: their website, job posting, and any public content. Match that register.",
           "This doesn't mean changing who you are. It means adjusting formality and energy so the letter feels like it belongs in their world, rather than reading like a template dropped into the wrong context."
         ]
       },
@@ -942,7 +942,7 @@ export const blogArticles: BlogArticle[] = [
         id: "end-with-confidence",
         title: "Step 6: End With Confidence, Not a Cliché",
         paragraphs: [
-          "Avoid closing lines like \"I look forward to hearing from you\" or \"Thank you for your consideration\" as your only sign-off — they're forgettable because everyone uses them.",
+          "Avoid closing lines like \"I look forward to hearing from you\" or \"Thank you for your consideration\" as your only sign-off. They're forgettable because everyone uses them.",
           "Instead, close with a line that reinforces your fit or shows initiative: \"I'd welcome the chance to talk through how I could help your team hit its Q3 targets.\" It's a small shift, but it leaves the reader with momentum rather than a formality."
         ]
       },
@@ -950,7 +950,7 @@ export const blogArticles: BlogArticle[] = [
         id: "core-principle",
         title: "The Core Principle: Write to Them, Not About You",
         paragraphs: [
-          "Every technique above comes back to one idea — a cover letter that doesn't sound generic is one that's clearly written for this company, about this role, not a template with the name swapped out. When you focus on their problem and back it up with specific proof, the letter stops sounding like everyone else's and starts sounding like you."
+          "Every technique above comes back to one idea: a cover letter that doesn't sound generic is one that's clearly written for this company, about this role, not a template with the name swapped out. When you focus on their problem and back it up with specific proof, the letter stops sounding like everyone else's and starts sounding like you."
         ]
       }
     ]
@@ -967,22 +967,67 @@ export const blogArticles: BlogArticle[] = [
     imageAlt: "Candidate preparing interview notes",
     sections: [
       {
-        id: "choose-the-right-stories",
-        title: "Choose the Right Stories",
+        id: "what-star-stands-for",
+        title: "What STAR Actually Stands For",
         paragraphs: [
-          "Strong STAR answers begin before the interview. Pick examples that match the role's responsibilities, seniority and working environment."
+          "You've landed the interview. Your resume did its job. Now comes the part that trips up even strong candidates: turning years of experience into a handful of answers that actually land.",
+          "Most people walk in with a vague sense of their \"best examples\" floating around in their head. Then the question comes: \"Tell me about a time you dealt with a conflict at work\" and what comes out is a rambling, chronological account that loses the interviewer somewhere around minute two.",
+          "The STAR method fixes this. Not by making your answers longer or more impressive, but by making them easier to follow.",
+          "It looks simple written out like that. The hard part isn't remembering the acronym; it's applying it under pressure, live, to a question you didn't see coming."
         ],
         bullets: [
-          "One story about solving a difficult problem.",
-          "One story about influencing stakeholders.",
-          "One story about improving a process or outcome."
+          "Situation: the context. Where were you, what was the environment, what was at stake.",
+          "Task: your specific responsibility or goal in that situation.",
+          "Action: what you actually did. This is the part most people rush through, and it's the part interviewers care about most.",
+          "Result: what happened because of your action. Numbers, outcomes, what changed."
         ]
       },
       {
-        id: "keep-the-result-clear",
-        title: "Keep the Result Clear",
+        id: "why-interviewers-ask",
+        title: "Why Interviewers Ask These Questions At All",
         paragraphs: [
-          "The result is what makes your answer memorable. Use numbers, decisions, feedback or business outcomes where you can."
+          "Behavioural questions exist because past behaviour is a better predictor of future performance than a confident answer to \"what would you do if...\". An interviewer asking about a time you missed a deadline isn't trying to catch you out. They're trying to understand how you actually operate when things don't go to plan.",
+          "That means the goal of a STAR answer isn't to sound impressive. It's to give the interviewer a clear, honest picture of how you think and act. Confidence comes from clarity, not from polish."
+        ]
+      },
+      {
+        id: "where-star-answers-go-wrong",
+        title: "Where Most STAR Answers Go Wrong",
+        paragraphs: [
+          "Too much Situation, not enough Action. It's tempting to set the scene in detail because it feels safer than talking about yourself. But the interviewer is hiring you, not the situation. Aim to spend the least time on Situation and Task, and the most time on Action.",
+          "Vague verbs. \"I helped coordinate the project\" tells the interviewer almost nothing. What did you actually do? Did you build the schedule, run the meetings, resolve the disagreement between two stakeholders? Specificity is what makes an answer believable.",
+          "No result, or a result with no number. \"It worked out well\" is forgettable. \"We cut onboarding time from three weeks to five days\" is not. If you can't attach a number, attach a concrete outcome: a decision that got made, a relationship that got repaired, a process that's still used today.",
+          "Answering the question you wish they'd asked. If they ask about a conflict and you tell a story about a tight deadline, it shows. Match the story to the actual question, even if it means using a less polished example."
+        ]
+      },
+      {
+        id: "how-to-prepare",
+        title: "A Simple Way to Prepare, Without Memorising Scripts",
+        paragraphs: [
+          "Trying to write and memorise full answers word-for-word usually backfires. You either sound robotic or freeze when the question is phrased slightly differently than you rehearsed. A better approach:"
+        ],
+        bullets: [
+          "List 6–8 stories from your actual experience, not questions. Think in terms of moments: a time something went wrong, a time you influenced someone, a time you had to learn something fast, a time you disagreed with a decision. Real interviews reuse the same handful of stories across many different questions.",
+          "For each story, jot down four bullet points, one per STAR letter. Bullets, not paragraphs. You're building recall, not a script.",
+          "Say them out loud once. Not to yourself in your head; actually speak them. This is where you find out which parts are clear and which parts you're still stumbling over.",
+          "Time yourself. A tight STAR answer usually lands in 60–90 seconds. If you're going past two minutes, you're probably over-explaining the Situation."
+        ]
+      },
+      {
+        id: "example-before-after",
+        title: "An Example, Before and After",
+        paragraphs: [
+          "Before: \"So there was this time at my old job where things were pretty hectic, we had a lot going on, and I was kind of the one who ended up stepping in to sort it out, which was good because it all worked out in the end.\"",
+          "After: \"(Situation) Two weeks before a product launch, our lead developer went on unplanned leave and the remaining timeline was unrealistic. (Task) As project coordinator, I needed to keep the launch date without burning out the rest of the team. (Action) I re-scoped the release into a smaller v1, reassigned two tasks to a contractor I'd worked with before, and moved our daily check-in to mornings so blockers surfaced early instead of at end of day. (Result) We shipped on the original date with the core features intact, and the re-scoping approach became the template our team still uses for tight timelines.\"",
+          "Same underlying story. One version is forgettable. The other tells the interviewer exactly how you think under pressure."
+        ]
+      },
+      {
+        id: "resume-to-stories",
+        title: "Turning Your Resume Into Interview-Ready Stories",
+        paragraphs: [
+          "If you're already using Koalapply to tailor your resume and cover letter to each role, you're sitting on the raw material for this exact exercise. Every bullet point on your resume that quantifies an achievement is really a compressed STAR story waiting to be unpacked.",
+          "Before your next interview, go back through your tailored resume and ask, for each line: what's the full story behind this number? That's your prep list, already sorted by relevance to the job you applied for."
         ]
       }
     ]
