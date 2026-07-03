@@ -1044,18 +1044,74 @@ export const blogArticles: BlogArticle[] = [
     imageAlt: "Career transition planning at a laptop",
     sections: [
       {
-        id: "pause-before-applying",
-        title: "Pause Before Applying Everywhere",
+        id: "days-1-2-practical-financial",
+        title: "Days 1–2: Handle the practical and the financial first",
         paragraphs: [
-          "It is natural to want momentum immediately, but the first week is also the right time to reset your positioning.",
-          "Update your resume, decide what roles you want next and prepare a simple explanation for your transition."
+          "Redundancy rarely feels fair, even when you know intellectually that it isn't personal. Whatever the reason on paper, whether it's restructure, budget cuts, or a role made obsolete, the effect on your week is the same: the routine you built your life around is suddenly gone, and there's a long list of things that feel urgent all at once.",
+          "You don't need to solve everything in the first week. You need to get a handful of things right so the weeks after are easier. Here's what that actually looks like.",
+          "Before job hunting even enters the picture, get the logistics sorted. This is the least emotionally taxing work you'll do all week, and doing it early takes it off your mind."
+        ],
+        bullets: [
+          "Read your final pay documentation carefully. Confirm your redundancy payment, any accrued leave payout, and your actual last day of employment or income.",
+          "Check your eligibility for support. In Australia, this may include Centrelink's JobSeeker Payment. Note that a redundancy payout can affect when payments start, so check the waiting period rules rather than assuming.",
+          "Review your finances with a clear number in mind, not a vague sense of worry. Work out how many months your current savings plus any payout will realistically cover at your normal spending level.",
+          "Sort out your superannuation and any employee benefits. Health insurance, phone plans, or software licences tied to your old employer often lapse faster than people expect."
         ]
       },
       {
-        id: "build-a-shortlist",
-        title: "Build a Focused Shortlist",
+        id: "days-2-3-the-reaction",
+        title: "Days 2–3: Let yourself have the reaction, on a timer",
         paragraphs: [
-          "Aim for quality over volume. A smaller list of aligned roles gives you more time to tailor each application and prepare well."
+          "None of this is glamorous, but it's the foundation everything else sits on.",
+          "It's common to feel a mix of relief, anger, embarrassment, and grief, sometimes within the same hour. That's a normal response to losing something that structured your days and, for many people, a good part of their identity.",
+          "Give it space, but give it a boundary too. Tell a partner, friend, or family member what happened in plain terms, rather than downplaying it. Talking about it early tends to make the following weeks easier, not harder. If you notice the low mood sticking around and getting in the way of eating, sleeping, or getting through the day, that's worth mentioning to a GP. It's a common and treatable response, not a personal failing.",
+          "What's less useful is spending days 2–3 doomscrolling job boards or firing off applications while still in the thick of it. Applications written from a place of panic tend to read that way."
+        ]
+      },
+      {
+        id: "day-4-paperwork",
+        title: "Day 4: Get your paperwork in order",
+        paragraphs: [
+          "By day four, you're ready to start looking forward. Before you touch job ads, get your core documents current:"
+        ],
+        bullets: [
+          "Update your resume with your most recent role properly described. Not just the job title, but what you were actually responsible for and what you achieved in it.",
+          "Write down your redundancy story in one or two sentences, factually and without editorialising. You'll be asked \"so, what happened at your last job?\" more times than you'd like, and having a calm, consistent answer ready removes a source of stress from every future conversation. Something like: \"My team's function was restructured as part of a wider cost review, and my role was made redundant along with two others.\"",
+          "Pull together your references while the details are fresh and your former manager or colleagues are easy to reach."
+        ]
+      },
+      {
+        id: "day-5-take-stock",
+        title: "Day 5: Take stock before you apply to anything",
+        paragraphs: [
+          "This is also a good moment to update your LinkedIn, not to over-explain, but so your profile reflects where you actually are rather than a role you no longer hold.",
+          "Before sending out applications, spend some real time on one question: what do you actually want next? A redundancy is disruptive, but it's also one of the few natural pause points where you can ask that honestly, rather than sliding sideways into the next available role.",
+          "You don't need a five-year plan by Friday. You need enough clarity to target your search instead of applying broadly and hoping something sticks."
+        ],
+        bullets: [
+          "Did you like the industry, or just tolerate it?",
+          "What part of your last role did you actually look forward to?",
+          "Is there a skill gap you've been meaning to close, or a direction you've been curious about?"
+        ]
+      },
+      {
+        id: "days-6-7-start-slow",
+        title: "Days 6–7: Start slow, not scattered",
+        paragraphs: [
+          "By the end of the first week, it's reasonable to start looking at roles, but resist the urge to mass-apply. A handful of well-tailored applications will outperform twenty generic ones, both in response rate and in how they feel to send."
+        ],
+        bullets: [
+          "Shortlist 5–10 roles that actually fit the direction you settled on in Day 5.",
+          "Tailor your resume and cover letter to each one rather than reusing the same version everywhere. This is where a tool like Koalapply is built to help. It takes your base resume and adjusts it to match what each specific job is actually asking for, so you're not rewriting from scratch every time.",
+          "Set a modest, sustainable pace. Two or three strong applications a day is a better rhythm than a burst of fifteen followed by three days of nothing."
+        ]
+      },
+      {
+        id: "one-thing-worth-remembering",
+        title: "The one thing worth remembering",
+        paragraphs: [
+          "A redundancy is a statement about a role, a budget, or a business decision, not a verdict on your ability. The first week isn't about proving anything to anyone. It's about getting your footing: the finances handled, the reaction acknowledged, the paperwork current, and a clear enough sense of direction that your applications, when they go out, actually sound like you.",
+          "When you're ready to start applying, Koalapply helps you tailor your resume and cover letter to each role in minutes, so you can move at a steady pace without starting from a blank page every time."
         ]
       }
     ]
