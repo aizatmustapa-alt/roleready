@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ArrowRight, BarChart2, Bookmark, Building2, FileText, Home, LayoutDashboard, LogOut, Plus, Settings, Users, Zap } from "lucide-react";
+import { ArrowRight, BarChart2, BookOpen, Bookmark, Building2, FileText, Home, LayoutDashboard, LogOut, Plus, Settings, Users, Zap } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 const navItems = [
@@ -10,6 +10,7 @@ const navItems = [
   { href: "/applications", label: "Applications",     icon: FileText },
   { href: "/saved",   label: "Saved Jobs",       icon: Bookmark },
   { href: "/documents", label: "Documents",        icon: FileText },
+  { href: "/blog",     label: "Career Tips",      icon: BookOpen },
   { href: "/profile", label: "Profile/Settings", icon: Settings },
 ];
 
