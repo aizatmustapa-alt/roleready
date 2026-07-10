@@ -70,7 +70,7 @@ export function SignupChart({ data }: SignupChartProps) {
               boxShadow: "0 4px 16px rgba(0,0,0,0.08)",
             }}
             labelFormatter={(label) => formatDay(String(label))}
-            formatter={(v: number) => [v, "signups"]}
+            formatter={(v) => [v, "signups"]}
           />
           <Area
             type="monotone"
