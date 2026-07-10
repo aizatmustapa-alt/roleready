@@ -53,6 +53,8 @@ export async function POST(request: Request) {
   });
 
   if (!response.ok) {
+    const body = await response.text().catch(() => "");
+    console.error("[contact] Resend error:", response.status, body);
     return NextResponse.json({ error: "Failed to send. Please try again." }, { status: 500 });
   }
 
