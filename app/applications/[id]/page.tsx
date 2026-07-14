@@ -139,10 +139,11 @@ export default async function ApplicationDetailPage({ params, searchParams }: Pr
     );
   }
 
-  const [{ data }, { data: masterResume }, access] = await Promise.all([
+  const [{ data }, { data: masterResume }, access, { data: profile }] = await Promise.all([
     supabase.from("applications").select("*, jobs(*)").eq("id", id).eq("user_id", user.id).maybeSingle(),
     supabase.from("master_resumes").select("id").eq("user_id", user.id).order("updated_at", { ascending: false }).limit(1).maybeSingle(),
     getAccessState(supabase, user.id),
+    supabase.from("profiles").select("newsletter_subscribed").eq("id", user.id).maybeSingle(),
   ]);
   const application = data as ApplicationWithJob | null;
 
@@ -278,7 +279,7 @@ export default async function ApplicationDetailPage({ params, searchParams }: Pr
                       </a>
                     </>
                   )}
-                  <GenerateButton applicationId={application.id} hasDocuments={hasDocuments} canGenerate={access.canGenerate} autoGenerate={autoGenerate} generateHint={generateHint} />
+                  <GenerateButton applicationId={application.id} hasDocuments={hasDocuments} canGenerate={access.canGenerate} newsletterSubscribed={profile?.newsletter_subscribed ?? false} autoGenerate={autoGenerate} generateHint={generateHint} />
                 </div>
               </div>
             </section>

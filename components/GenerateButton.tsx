@@ -1,6 +1,6 @@
 "use client";
 
-import { Sparkles } from "lucide-react";
+import { Gift, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -12,6 +12,7 @@ type Props = {
   applicationId: string;
   hasDocuments: boolean;
   canGenerate: boolean;
+  newsletterSubscribed?: boolean;
   autoGenerate?: boolean;
   generateHint?: string | null;
 };
@@ -42,7 +43,7 @@ function nextProgress(current: number) {
   return current + 0.06;
 }
 
-export function GenerateButton({ applicationId, hasDocuments, canGenerate, autoGenerate, generateHint }: Props) {
+export function GenerateButton({ applicationId, hasDocuments, canGenerate, newsletterSubscribed, autoGenerate, generateHint }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [provider, setProvider] = useState<AiProvider>("anthropic");
@@ -50,6 +51,8 @@ export function GenerateButton({ applicationId, hasDocuments, canGenerate, autoG
   const [progress, setProgress] = useState(0);
   const [showNewsletterOffer, setShowNewsletterOffer] = useState(false);
   const [showSubscribeSuccess, setShowSubscribeSuccess] = useState(false);
+  const [subscribingInline, setSubscribingInline] = useState(false);
+  const [inlineSubscribeDone, setInlineSubscribeDone] = useState(false);
   const generatingRef = useRef(false);
   const autoGenerateStartedRef = useRef(false);
 
@@ -121,6 +124,14 @@ export function GenerateButton({ applicationId, hasDocuments, canGenerate, autoG
     setShowNewsletterOffer(false);
   }
 
+  async function subscribeInline() {
+    setSubscribingInline(true);
+    await fetch("/api/newsletter/bonus", { method: "POST" });
+    setSubscribingInline(false);
+    setInlineSubscribeDone(true);
+    router.refresh();
+  }
+
   return (
     <>
       {!canGenerate ? (
@@ -132,7 +143,24 @@ export function GenerateButton({ applicationId, hasDocuments, canGenerate, autoG
             <Sparkles className="h-4 w-4 shrink-0" />
             Upgrade to generate
           </Link>
-          <p className="text-xs text-slate-500">You've used your free application this month.</p>
+          {!newsletterSubscribed && !inlineSubscribeDone && (
+            <button
+              type="button"
+              onClick={subscribeInline}
+              disabled={subscribingInline}
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-[#2200ff] px-4 py-2.5 text-sm font-semibold text-[#2200ff] transition hover:-translate-y-0.5 hover:bg-[#ece8ff] disabled:opacity-70 sm:px-5"
+            >
+              <Gift className="h-4 w-4 shrink-0" />
+              {subscribingInline ? "Unlocking…" : "Get 1 free generation"}
+            </button>
+          )}
+          <p className="text-xs text-slate-500">
+            {inlineSubscribeDone
+              ? "Unlocked! Refresh the page to use your free generation."
+              : !newsletterSubscribed
+              ? "Or subscribe to career tips for a free extra generation."
+              : "You've used your free application this month."}
+          </p>
         </div>
       ) : (
         <div className="flex w-full flex-col gap-3 lg:w-auto">

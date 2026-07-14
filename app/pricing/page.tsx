@@ -6,6 +6,7 @@ import { CheckoutButton } from "@/components/CheckoutButton";
 import { isSupabaseConfigured } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getAccessState } from "@/lib/entitlements";
+import { NewsletterBonusBanner } from "@/components/NewsletterBonusBanner";
 import type { EntitlementPlanType } from "@/types/database";
 
 export const metadata: Metadata = {
@@ -105,7 +106,11 @@ export default async function PricingPage() {
   } = supabase ? await supabase.auth.getUser() : { data: { user: null } };
 
   if (user && supabase) {
-    const access = await getAccessState(supabase, user.id);
+    const [access, { data: profile }] = await Promise.all([
+      getAccessState(supabase, user.id),
+      supabase.from("profiles").select("newsletter_subscribed").eq("id", user.id).maybeSingle(),
+    ]);
+    const newsletterSubscribed = profile?.newsletter_subscribed ?? false;
 
     return (
       <main className="min-h-screen bg-slate-50 px-4 py-10 sm:px-8">
@@ -127,6 +132,12 @@ export default async function PricingPage() {
                 </p>
               )}
             </div>
+
+            {access.planType === "free" && !newsletterSubscribed && (
+              <div className="px-7 pt-7 sm:px-10 sm:pt-10">
+                <NewsletterBonusBanner />
+              </div>
+            )}
 
             <div className="grid gap-5 p-7 sm:grid-cols-3 sm:p-10">
               {paidPlans.map((plan) => (
