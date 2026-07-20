@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, ChevronDown, Loader2, MapPin, Search, SlidersHorizontal, Sparkles, Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { ArrowRight, ChevronDown, Loader2, MapPin, Search, SlidersHorizontal, Sparkles, Trash2, Undo2 } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ApplicationStatus, ApplicationWithJob } from "@/types/database";
 
@@ -12,6 +12,7 @@ type SummaryStateMap = Record<string, SummaryState>;
 
 const STATUSES: ApplicationStatus[] = ["New", "Ready", "Applied", "Interview", "Rejected"];
 const EMPTY = "-";
+const UNDO_DELAY_MS = 5000;
 
 function scoreStyle(score: number | null) {
   if (score === null) return "bg-slate-100 text-slate-500";
@@ -46,18 +47,15 @@ function ExpiryBadge({ expiresAt }: { expiresAt: string }) {
 function summaryBullets(text?: string | null) {
   const clean = text?.trim();
   if (!clean) return [];
-
   const explicitBullets = clean
     .split(/\r?\n/)
     .map((line) => line.replace(/^[-*]\s*/, "").trim())
     .filter(Boolean);
-
   if (explicitBullets.length >= 2) return explicitBullets.slice(0, 3);
-
   return clean
     .replace(/\s+/g, " ")
     .split(/(?<=[.!?])\s+/)
-    .map((sentence) => sentence.trim())
+    .map((s) => s.trim())
     .filter(Boolean)
     .slice(0, 3);
 }
@@ -74,15 +72,9 @@ function SummaryPanel({ state, fallbackSummary }: { state?: SummaryState; fallba
       </div>
     );
   }
-
   if (state?.error) {
-    return (
-      <div className="rounded-2xl bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-600">
-        {state.error}
-      </div>
-    );
+    return <div className="rounded-2xl bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-600">{state.error}</div>;
   }
-
   if (bullets.length === 0) {
     return (
       <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-500">
@@ -90,13 +82,12 @@ function SummaryPanel({ state, fallbackSummary }: { state?: SummaryState; fallba
       </div>
     );
   }
-
   return (
     <div className="rounded-2xl bg-slate-50 px-4 py-3">
       <p className="mb-2 text-xs font-semibold uppercase tracking-[0.13em] text-slate-400">Job summary</p>
       <ul className="space-y-2">
-        {bullets.map((bullet, index) => (
-          <li key={`${bullet}-${index}`} className="flex gap-2.5 text-sm leading-6 text-slate-600">
+        {bullets.map((bullet, i) => (
+          <li key={`${bullet}-${i}`} className="flex gap-2.5 text-sm leading-6 text-slate-600">
             <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#2200ff]/50" />
             <span>{bullet}</span>
           </li>
@@ -106,12 +97,12 @@ function SummaryPanel({ state, fallbackSummary }: { state?: SummaryState; fallba
   );
 }
 
-const statusStyles: Record<string, { pill: string; select: string; dot: string }> = {
-  New:       { pill: "bg-sky-50 text-sky-700",       select: "bg-sky-50 text-sky-800 ring-sky-200",           dot: "bg-sky-400" },
-  Ready:     { pill: "bg-emerald-50 text-emerald-700", select: "bg-emerald-50 text-emerald-800 ring-emerald-200", dot: "bg-emerald-500" },
-  Applied:   { pill: "bg-amber-50 text-amber-700",   select: "bg-amber-50 text-amber-800 ring-amber-200",     dot: "bg-amber-400" },
-  Interview: { pill: "bg-orange-50 text-orange-700", select: "bg-orange-50 text-orange-800 ring-orange-200",  dot: "bg-orange-400" },
-  Rejected:  { pill: "bg-rose-50 text-rose-600",     select: "bg-rose-50 text-rose-700 ring-rose-200",        dot: "bg-rose-400" },
+const statusStyles: Record<string, { select: string; dot: string }> = {
+  New:       { select: "bg-sky-50 text-sky-800 ring-sky-200",           dot: "bg-sky-400" },
+  Ready:     { select: "bg-emerald-50 text-emerald-800 ring-emerald-200", dot: "bg-emerald-500" },
+  Applied:   { select: "bg-amber-50 text-amber-800 ring-amber-200",     dot: "bg-amber-400" },
+  Interview: { select: "bg-orange-50 text-orange-800 ring-orange-200",  dot: "bg-orange-400" },
+  Rejected:  { select: "bg-rose-50 text-rose-700 ring-rose-200",        dot: "bg-rose-400" },
 };
 
 function InlineStatusSelect({ applicationId, initialStatus }: { applicationId: string; initialStatus: ApplicationStatus }) {
@@ -131,8 +122,8 @@ function InlineStatusSelect({ applicationId, initialStatus }: { applicationId: s
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: next }),
       });
-      if (!res.ok) { setStatus(prev); }
-      else { router.refresh(); }
+      if (!res.ok) setStatus(prev);
+      else router.refresh();
     } catch {
       setStatus(prev);
     } finally {
@@ -158,12 +149,15 @@ function InlineStatusSelect({ applicationId, initialStatus }: { applicationId: s
 
 type RowProps = {
   application: ApplicationWithJob;
+  index: number;
   expanded: boolean;
   summaryState?: SummaryState;
   onToggleSummary: (application: ApplicationWithJob) => void;
+  selected: boolean;
+  onToggleSelect: (index: number, shiftKey: boolean) => void;
 };
 
-function MobileCard({ application, expanded, summaryState, onToggleSummary }: RowProps) {
+function MobileCard({ application, index, expanded, summaryState, onToggleSummary, selected, onToggleSelect }: RowProps) {
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
   const job = application.jobs;
@@ -181,8 +175,16 @@ function MobileCard({ application, expanded, summaryState, onToggleSummary }: Ro
   }
 
   return (
-    <div className="rounded-[1.4rem] border border-slate-100 bg-white p-4 shadow-sm">
+    <div className={`rounded-[1.4rem] border bg-white p-4 shadow-sm transition ${selected ? "border-[#2200ff]/30 bg-[#ece8ff]/20" : "border-slate-100"}`}>
       <div className="flex items-start gap-3">
+        <input
+          type="checkbox"
+          checked={selected}
+          onChange={() => {}}
+          onClick={(e) => { e.stopPropagation(); onToggleSelect(index, e.shiftKey); }}
+          className="mt-1 h-4 w-4 shrink-0 rounded border-slate-300 accent-[#2200ff]"
+          aria-label="Select application"
+        />
         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#d4ccff] to-violet-50 text-sm font-bold text-[#2200ff]">
           {companyInitial(job?.company)}
         </div>
@@ -195,11 +197,11 @@ function MobileCard({ application, expanded, summaryState, onToggleSummary }: Ro
         </span>
       </div>
 
-      {expanded ? (
+      {expanded && (
         <div className="mt-3">
           <SummaryPanel state={summaryState} fallbackSummary={application.role_summary} />
         </div>
-      ) : null}
+      )}
 
       <div className="mt-3">
         <InlineStatusSelect applicationId={application.id} initialStatus={(application.status ?? "New") as ApplicationStatus} />
@@ -227,14 +229,14 @@ function MobileCard({ application, expanded, summaryState, onToggleSummary }: Ro
   );
 }
 
-function DesktopRow({ application, expanded, summaryState, onToggleSummary }: RowProps) {
+function DesktopRow({ application, index, expanded, summaryState, onToggleSummary, selected, onToggleSelect }: RowProps) {
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
   const job = application.jobs;
   const score = application.match_score;
   const status = application.status ?? "New";
 
-  const tdBase = "bg-white py-3.5 transition-colors group-hover:bg-slate-50";
+  const tdBase = `py-3.5 transition-colors ${selected ? "bg-[#ece8ff]/30" : "bg-white group-hover:bg-slate-50"}`;
 
   async function del() {
     if (!window.confirm(`Delete ${job?.title ?? "this application"}?`)) return;
@@ -251,7 +253,18 @@ function DesktopRow({ application, expanded, summaryState, onToggleSummary }: Ro
   return (
     <>
       <tr className="group">
-        <td className={`${tdBase} rounded-l-[1.2rem] pl-4 pr-3`}>
+        <td className={`${tdBase} rounded-l-[1.2rem] pl-4 pr-2`}>
+          <input
+            type="checkbox"
+            checked={selected}
+            onChange={() => {}}
+            onClick={(e) => { e.stopPropagation(); onToggleSelect(index, e.shiftKey); }}
+            className="h-4 w-4 rounded border-slate-300 accent-[#2200ff]"
+            aria-label="Select application"
+          />
+        </td>
+
+        <td className={`${tdBase} pr-3`}>
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#d4ccff] to-violet-50 text-sm font-bold text-[#2200ff]">
               {companyInitial(job?.company)}
@@ -295,11 +308,7 @@ function DesktopRow({ application, expanded, summaryState, onToggleSummary }: Ro
         </td>
 
         <td className={`${tdBase} px-2 text-sm`}>
-          {job?.expires_at ? (
-            <ExpiryBadge expiresAt={job.expires_at} />
-          ) : (
-            <span className="text-slate-300">{EMPTY}</span>
-          )}
+          {job?.expires_at ? <ExpiryBadge expiresAt={job.expires_at} /> : <span className="text-slate-300">{EMPTY}</span>}
         </td>
 
         <td className={`${tdBase} px-2`}>
@@ -330,22 +339,124 @@ function DesktopRow({ application, expanded, summaryState, onToggleSummary }: Ro
         </td>
       </tr>
 
-      {expanded ? (
+      {expanded && (
         <tr>
-          <td colSpan={7} className="px-4 pb-2">
+          <td colSpan={8} className="px-4 pb-2">
             <SummaryPanel state={summaryState} fallbackSummary={application.role_summary} />
           </td>
         </tr>
-      ) : null}
+      )}
     </>
   );
 }
 
 export function ApplicationsFilter({ applications }: { applications: ApplicationWithJob[] }) {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<Filter>("All");
   const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set());
   const [summaries, setSummaries] = useState<SummaryStateMap>({});
+
+  // Selection
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
+  const [confirming, setConfirming] = useState(false);
+  const lastSelectedIndexRef = useRef<number | null>(null);
+  const selectAllRef = useRef<HTMLInputElement>(null);
+
+  // Undo
+  const [pendingDeleteIds, setPendingDeleteIds] = useState<string[]>([]);
+  const [showUndo, setShowUndo] = useState(false);
+  const undoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const statusCounts = useMemo(() => {
+    const counts: Partial<Record<ApplicationStatus, number>> = {};
+    for (const app of applications) {
+      const s = (app.status ?? "New") as ApplicationStatus;
+      counts[s] = (counts[s] ?? 0) + 1;
+    }
+    return counts;
+  }, [applications]);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return applications.filter((app) => {
+      if (pendingDeleteIds.includes(app.id)) return false;
+      if (filter !== "All" && app.status !== filter) return false;
+      if (!q) return true;
+      const text = [app.jobs?.title, app.jobs?.company, app.jobs?.location, app.status].filter(Boolean).join(" ").toLowerCase();
+      return text.includes(q);
+    });
+  }, [applications, filter, query, pendingDeleteIds]);
+
+  const allVisibleSelected = filtered.length > 0 && filtered.every((a) => selectedIds.has(a.id));
+  const someVisibleSelected = !allVisibleSelected && filtered.some((a) => selectedIds.has(a.id));
+
+  useEffect(() => {
+    if (selectAllRef.current) {
+      selectAllRef.current.indeterminate = someVisibleSelected;
+    }
+  }, [someVisibleSelected]);
+
+  function toggleSelectAll() {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (allVisibleSelected) filtered.forEach((a) => next.delete(a.id));
+      else filtered.forEach((a) => next.add(a.id));
+      return next;
+    });
+    setConfirming(false);
+  }
+
+  // Shift+click range select
+  function handleToggleSelect(index: number, shiftKey: boolean) {
+    const app = filtered[index];
+    if (!app) return;
+
+    if (shiftKey && lastSelectedIndexRef.current !== null && lastSelectedIndexRef.current !== index) {
+      const start = Math.min(lastSelectedIndexRef.current, index);
+      const end = Math.max(lastSelectedIndexRef.current, index);
+      const rangeIds = filtered.slice(start, end + 1).map((a) => a.id);
+      const adding = !selectedIds.has(app.id);
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        rangeIds.forEach((id) => (adding ? next.add(id) : next.delete(id)));
+        return next;
+      });
+    } else {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        if (next.has(app.id)) next.delete(app.id);
+        else next.add(app.id);
+        return next;
+      });
+      lastSelectedIndexRef.current = index;
+    }
+    setConfirming(false);
+  }
+
+  // Commit the actual deletes after undo window expires
+  function executeDeletes(ids: string[]) {
+    Promise.all(ids.map((id) => fetch(`/api/applications/${id}`, { method: "DELETE" }))).then(() => {
+      setShowUndo(false);
+      setPendingDeleteIds([]);
+      router.refresh();
+    });
+  }
+
+  function confirmBulkDelete() {
+    const ids = Array.from(selectedIds);
+    setPendingDeleteIds(ids);
+    setSelectedIds(new Set());
+    setConfirming(false);
+    setShowUndo(true);
+    undoTimerRef.current = setTimeout(() => executeDeletes(ids), UNDO_DELAY_MS);
+  }
+
+  function undoDelete() {
+    if (undoTimerRef.current) clearTimeout(undoTimerRef.current);
+    setPendingDeleteIds([]);
+    setShowUndo(false);
+  }
 
   async function loadSummary(application: ApplicationWithJob) {
     if (application.role_summary?.trim() || summaries[application.id]?.summary || summaries[application.id]?.loading) return;
@@ -362,60 +473,26 @@ export function ApplicationsFilter({ applications }: { applications: Application
         body: JSON.stringify({ format: "bullets", save: true }),
       });
       const data = await res.json().catch(() => null);
-
       if (!res.ok) {
-        setSummaries((current) => ({
-          ...current,
-          [application.id]: { loading: false, error: data?.error ?? "Could not summarise this job." },
-        }));
+        setSummaries((current) => ({ ...current, [application.id]: { loading: false, error: data?.error ?? "Could not summarise this job." } }));
         return;
       }
-
-      setSummaries((current) => ({
-        ...current,
-        [application.id]: { loading: false, summary: data?.summary ?? "" },
-      }));
+      setSummaries((current) => ({ ...current, [application.id]: { loading: false, summary: data?.summary ?? "" } }));
     } catch {
-      setSummaries((current) => ({
-        ...current,
-        [application.id]: { loading: false, error: "Network error. Try again." },
-      }));
+      setSummaries((current) => ({ ...current, [application.id]: { loading: false, error: "Network error. Try again." } }));
     }
   }
 
   function toggleSummary(application: ApplicationWithJob) {
     const nextExpanded = !expandedIds.has(application.id);
-
     setExpandedIds((current) => {
       const next = new Set(current);
       if (nextExpanded) next.add(application.id);
       else next.delete(application.id);
       return next;
     });
-
-    if (nextExpanded) {
-      void loadSummary(application);
-    }
+    if (nextExpanded) void loadSummary(application);
   }
-
-  const statusCounts = useMemo(() => {
-    const counts: Partial<Record<ApplicationStatus, number>> = {};
-    for (const app of applications) {
-      const s = (app.status ?? "New") as ApplicationStatus;
-      counts[s] = (counts[s] ?? 0) + 1;
-    }
-    return counts;
-  }, [applications]);
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return applications.filter((app) => {
-      if (filter !== "All" && app.status !== filter) return false;
-      if (!q) return true;
-      const text = [app.jobs?.title, app.jobs?.company, app.jobs?.location, app.status].filter(Boolean).join(" ").toLowerCase();
-      return text.includes(q);
-    });
-  }, [applications, filter, query]);
 
   if (applications.length === 0) {
     return (
@@ -430,92 +507,183 @@ export function ApplicationsFilter({ applications }: { applications: Application
     );
   }
 
+  const selectedCount = selectedIds.size;
+
   return (
-    <section className="space-y-3">
-      <div className="rounded-[1.6rem] border border-slate-100 bg-white p-3 shadow-sm md:p-4">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center">
-          <label className="flex min-h-11 flex-1 items-center gap-2 rounded-2xl bg-slate-50 px-4 ring-1 ring-slate-100 focus-within:ring-[#d4ccff]">
-            <Search className="h-4 w-4 shrink-0 text-slate-400" />
-            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search roles" className="min-w-0 flex-1 bg-transparent py-2.5 text-[16px] outline-none placeholder:text-slate-400 md:text-sm" type="search" />
-          </label>
-          <div className="hidden flex-wrap items-center gap-1.5 md:flex">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-50 text-slate-400">
-              <SlidersHorizontal className="h-3.5 w-3.5" />
-            </span>
-            <button type="button" onClick={() => setFilter("All")} className={`rounded-full px-3 py-1 text-xs font-semibold transition hover:-translate-y-0.5 ${filter === "All" ? "bg-[#2200ff] text-white shadow-[0_6px_16px_rgba(34,0,255,0.2)]" : "bg-white text-slate-600 ring-1 ring-slate-100 hover:text-[#2200ff]"}`}>
-              All
-            </button>
-            {STATUSES.map((s) => (
-              <button key={s} type="button" onClick={() => setFilter(s)} className={`rounded-full px-3 py-1 text-xs font-semibold transition hover:-translate-y-0.5 ${filter === s ? "bg-[#2200ff] text-white shadow-[0_6px_16px_rgba(34,0,255,0.2)]" : "bg-white text-slate-600 ring-1 ring-slate-100 hover:text-[#2200ff]"}`}>
-                <span className="mr-1 tabular-nums">{statusCounts[s] ?? 0}</span>{s}
+    <>
+      <section className="space-y-3">
+        <div className="rounded-[1.6rem] border border-slate-100 bg-white p-3 shadow-sm md:p-4">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center">
+            <label className="flex min-h-11 flex-1 items-center gap-2 rounded-2xl bg-slate-50 px-4 ring-1 ring-slate-100 focus-within:ring-[#d4ccff]">
+              <Search className="h-4 w-4 shrink-0 text-slate-400" />
+              <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search roles" className="min-w-0 flex-1 bg-transparent py-2.5 text-[16px] outline-none placeholder:text-slate-400 md:text-sm" type="search" />
+            </label>
+            <div className="hidden flex-wrap items-center gap-1.5 md:flex">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-50 text-slate-400">
+                <SlidersHorizontal className="h-3.5 w-3.5" />
+              </span>
+              <button type="button" onClick={() => setFilter("All")} className={`rounded-full px-3 py-1 text-xs font-semibold transition hover:-translate-y-0.5 ${filter === "All" ? "bg-[#2200ff] text-white shadow-[0_6px_16px_rgba(34,0,255,0.2)]" : "bg-white text-slate-600 ring-1 ring-slate-100 hover:text-[#2200ff]"}`}>
+                All
               </button>
-            ))}
+              {STATUSES.map((s) => (
+                <button key={s} type="button" onClick={() => setFilter(s)} className={`rounded-full px-3 py-1 text-xs font-semibold transition hover:-translate-y-0.5 ${filter === s ? "bg-[#2200ff] text-white shadow-[0_6px_16px_rgba(34,0,255,0.2)]" : "bg-white text-slate-600 ring-1 ring-slate-100 hover:text-[#2200ff]"}`}>
+                  <span className="mr-1 tabular-nums">{statusCounts[s] ?? 0}</span>{s}
+                </button>
+              ))}
+            </div>
+            <select value={filter} onChange={(e) => setFilter(e.target.value as Filter)} className="min-h-11 w-full appearance-none rounded-2xl bg-slate-50 px-4 text-sm font-semibold text-slate-900 outline-none ring-1 ring-slate-100 md:hidden">
+              <option value="All">All statuses</option>
+              {STATUSES.map((s) => <option key={s} value={s}>{statusCounts[s] ?? 0} {s}</option>)}
+            </select>
           </div>
-          <select value={filter} onChange={(e) => setFilter(e.target.value as Filter)} className="min-h-11 w-full appearance-none rounded-2xl bg-slate-50 px-4 text-sm font-semibold text-slate-900 outline-none ring-1 ring-slate-100 md:hidden">
-            <option value="All">All statuses</option>
-            {STATUSES.map((s) => <option key={s} value={s}>{statusCounts[s] ?? 0} {s}</option>)}
-          </select>
+          <p className="mt-2.5 text-xs text-slate-400">Showing {filtered.length} of {applications.length - pendingDeleteIds.length} applications</p>
         </div>
-        <p className="mt-2.5 text-xs text-slate-400">Showing {filtered.length} of {applications.length} applications</p>
-      </div>
 
-      {filtered.length === 0 ? (
-        <div className="rounded-[1.75rem] border border-slate-100 bg-white px-6 py-12 text-center shadow-sm">
-          <Search className="mx-auto h-9 w-9 text-slate-300" />
-          <h2 className="mt-4 text-xl font-bold text-slate-900">Nothing matches that filter.</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-600">Try another status or clear the search.</p>
-        </div>
-      ) : (
-        <>
-          <div className="space-y-2 lg:hidden">
-            {filtered.map((app) => (
-              <MobileCard
-                key={app.id}
-                application={app}
-                expanded={expandedIds.has(app.id)}
-                summaryState={summaries[app.id]}
-                onToggleSummary={toggleSummary}
-              />
-            ))}
+        {filtered.length === 0 && pendingDeleteIds.length === 0 ? (
+          <div className="rounded-[1.75rem] border border-slate-100 bg-white px-6 py-12 text-center shadow-sm">
+            <Search className="mx-auto h-9 w-9 text-slate-300" />
+            <h2 className="mt-4 text-xl font-bold text-slate-900">Nothing matches that filter.</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-600">Try another status or clear the search.</p>
           </div>
-
-          <table className="hidden w-full border-separate border-spacing-y-2 lg:table">
-            <colgroup>
-              <col />
-              <col className="w-[90px]" />
-              <col className="w-[150px]" />
-              <col className="w-[120px]" />
-              <col className="w-[85px]" />
-              <col className="w-[100px]" />
-              <col className="w-[90px]" />
-              <col className="w-[125px]" />
-            </colgroup>
-            <thead>
-              <tr>
-                <th className="pb-1 pl-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-400" />
-                <th className="pb-1 px-2 text-center text-xs font-semibold uppercase tracking-wider text-slate-400">Match</th>
-                <th className="pb-1 px-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Recruiter</th>
-                <th className="pb-1 px-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Salary</th>
-                <th className="pb-1 px-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Applied</th>
-                <th className="pb-1 px-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Closes</th>
-                <th className="pb-1 px-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400 min-w-[130px]">Status</th>
-                <th className="pb-1 pr-4" />
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((app) => (
-                <DesktopRow
+        ) : (
+          <>
+            <div className="space-y-2 lg:hidden">
+              {filtered.map((app, i) => (
+                <MobileCard
                   key={app.id}
                   application={app}
+                  index={i}
                   expanded={expandedIds.has(app.id)}
                   summaryState={summaries[app.id]}
                   onToggleSummary={toggleSummary}
+                  selected={selectedIds.has(app.id)}
+                  onToggleSelect={handleToggleSelect}
                 />
               ))}
-            </tbody>
-          </table>
-        </>
+            </div>
+
+            <table className="hidden w-full border-separate border-spacing-y-2 lg:table">
+              <colgroup>
+                <col className="w-[44px]" />
+                <col />
+                <col className="w-[90px]" />
+                <col className="w-[150px]" />
+                <col className="w-[120px]" />
+                <col className="w-[85px]" />
+                <col className="w-[100px]" />
+                <col className="w-[160px]" />
+                <col className="w-[125px]" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th className="pb-1 pl-4">
+                    <input
+                      ref={selectAllRef}
+                      type="checkbox"
+                      checked={allVisibleSelected}
+                      onChange={toggleSelectAll}
+                      className="h-4 w-4 rounded border-slate-300 accent-[#2200ff]"
+                      aria-label="Select all visible applications"
+                    />
+                  </th>
+                  <th className="pb-1 pl-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400" />
+                  <th className="pb-1 px-2 text-center text-xs font-semibold uppercase tracking-wider text-slate-400">Match</th>
+                  <th className="pb-1 px-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Recruiter</th>
+                  <th className="pb-1 px-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Salary</th>
+                  <th className="pb-1 px-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Applied</th>
+                  <th className="pb-1 px-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">Closes</th>
+                  <th className="pb-1 px-2 text-left text-xs font-semibold uppercase tracking-wider text-slate-400 min-w-[130px]">Status</th>
+                  <th className="pb-1 pr-4" />
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((app, i) => (
+                  <DesktopRow
+                    key={app.id}
+                    application={app}
+                    index={i}
+                    expanded={expandedIds.has(app.id)}
+                    summaryState={summaries[app.id]}
+                    onToggleSummary={toggleSummary}
+                    selected={selectedIds.has(app.id)}
+                    onToggleSelect={handleToggleSelect}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </>
+        )}
+      </section>
+
+      {/* Floating bulk action bar */}
+      {selectedCount > 0 && (
+        <div className="fixed bottom-[84px] left-1/2 z-40 -translate-x-1/2 lg:bottom-8">
+          <div className="flex items-center gap-1 rounded-full bg-slate-900 p-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.25)]">
+            <span className="px-3 text-sm font-semibold text-white">
+              {selectedCount} selected
+            </span>
+            <span className="h-4 w-px bg-white/20" />
+            <button
+              type="button"
+              onClick={() => { setSelectedIds(new Set()); setConfirming(false); }}
+              className="rounded-full px-3 py-1.5 text-sm font-semibold text-slate-400 transition hover:text-white"
+            >
+              Clear
+            </button>
+            {confirming ? (
+              <>
+                <span className="px-2 text-sm font-semibold text-white">
+                  Delete {selectedCount} permanently?
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setConfirming(false)}
+                  className="rounded-full px-3 py-1.5 text-sm font-semibold text-slate-400 transition hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmBulkDelete}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-rose-600 px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-rose-500"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  Yes, delete
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setConfirming(true)}
+                className="inline-flex items-center gap-1.5 rounded-full bg-rose-600 px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-rose-500"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Delete {selectedCount}
+              </button>
+            )}
+          </div>
+        </div>
       )}
-    </section>
+
+      {/* Undo toast */}
+      {showUndo && (
+        <div className="fixed bottom-[84px] left-1/2 z-40 -translate-x-1/2 lg:bottom-8">
+          <div className="flex items-center gap-3 rounded-full bg-slate-900 px-5 py-3 shadow-[0_8px_32px_rgba(0,0,0,0.25)]">
+            <span className="text-sm font-semibold text-white">
+              {pendingDeleteIds.length} application{pendingDeleteIds.length === 1 ? "" : "s"} deleted
+            </span>
+            <span className="h-4 w-px bg-white/20" />
+            <button
+              type="button"
+              onClick={undoDelete}
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#c8ff00] transition hover:text-white"
+            >
+              <Undo2 className="h-3.5 w-3.5" />
+              Undo
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

@@ -7,6 +7,70 @@ import type { ApplicationStatus, InterviewQuestion, Reference } from "@/types/da
 
 type AnalysisSection = { heading: string; bullets: string[]; body: string };
 
+function JobDescriptionRenderer({ text }: { text: string }) {
+  const lines = text
+    .replace(/!\[.*?\]\(.*?\)/g, "")                       // strip image markdown
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")               // links → text only
+    .replace(/\n{3,}/g, "\n\n")                             // collapse excess blank lines
+    .split("\n");
+
+  const elements: React.ReactNode[] = [];
+  let bulletBuffer: string[] = [];
+
+  function flushBullets(key: string) {
+    if (bulletBuffer.length === 0) return;
+    elements.push(
+      <ul key={key} className="my-2 space-y-1">
+        {bulletBuffer.map((b, i) => (
+          <li key={i} className="flex gap-2 text-sm leading-7 text-slate-700">
+            <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-slate-400" />
+            <span>{b}</span>
+          </li>
+        ))}
+      </ul>
+    );
+    bulletBuffer = [];
+  }
+
+  lines.forEach((raw, i) => {
+    const line = raw.trimEnd();
+
+    const headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
+    if (headingMatch) {
+      flushBullets(`b-${i}`);
+      const level = headingMatch[1].length;
+      const content = headingMatch[2].replace(/\*\*(.+?)\*\*/g, "$1");
+      if (level <= 2) {
+        elements.push(<h3 key={i} className="mb-1 mt-5 text-base font-bold text-slate-900 first:mt-0">{content}</h3>);
+      } else {
+        elements.push(<h4 key={i} className="mb-1 mt-4 text-sm font-semibold text-slate-800">{content}</h4>);
+      }
+      return;
+    }
+
+    const bulletMatch = line.match(/^[-*+]\s+(.+)$/);
+    if (bulletMatch) {
+      bulletBuffer.push(bulletMatch[1].replace(/\*\*(.+?)\*\*/g, "$1"));
+      return;
+    }
+
+    flushBullets(`b-${i}`);
+
+    if (!line.trim()) {
+      elements.push(<div key={i} className="h-2" />);
+      return;
+    }
+
+    const rendered = line.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>").replace(/\*(.+?)\*/g, "<em>$1</em>");
+    elements.push(
+      <p key={i} className="text-sm leading-7 text-slate-700" dangerouslySetInnerHTML={{ __html: rendered }} />
+    );
+  });
+
+  flushBullets("b-end");
+  return <>{elements}</>;
+}
+
 function parseMatchExplanation(text: string): AnalysisSection[] | null {
   const normalised = text.replace(/\r\n/g, "\n");
   if (!normalised.includes("## ")) return null;
@@ -531,7 +595,7 @@ export function ApplicationDetailTabs({
     if (tab === "jd") return (
       <div className="max-h-[680px] overflow-auto rounded-b-[1.6rem] bg-slate-50 px-4 py-6 md:px-8 md:py-8">
         <div className="mx-auto w-full max-w-[794px] bg-white px-10 py-10 shadow-[0_2px_16px_rgba(0,0,0,0.10)] md:px-16 md:py-14">
-          <p className="whitespace-pre-wrap text-sm leading-7 text-slate-700">{jobDescription}</p>
+          <JobDescriptionRenderer text={jobDescription} />
         </div>
       </div>
     );
