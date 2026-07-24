@@ -3,10 +3,11 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
-type Step = 1 | 2 | 3 | 4 | 5;
+type Step = 1 | 2 | 3 | 4 | 5 | 6;
 
 const STEP_LABELS = [
   "Your situation",
+  "Target role",
   "Upload CV",
   "Upload master cover letter",
   "Paste job URL",
@@ -28,6 +29,7 @@ export function OnboardingWizard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [jobSearchIntent, setJobSearchIntent] = useState("");
+  const [targetRole, setTargetRole] = useState("");
   const [jobUrl, setJobUrl] = useState("");
   const [location, setLocation] = useState("");
   const [applicationId, setApplicationId] = useState<string | null>(null);
@@ -64,22 +66,33 @@ export function OnboardingWizard() {
     setStep(2);
   }
 
+  async function handleTargetRoleNext() {
+    if (targetRole.trim()) {
+      await fetch("/api/profile/settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ target_job_titles: [targetRole.trim()] }),
+      }).catch(() => {});
+    }
+    setStep(3);
+  }
+
   async function handleResumeFile(file: File) {
     const ok = await uploadFile(file, "resume_file");
     if (!ok) return;
     setSuccess(true);
-    setTimeout(() => { setSuccess(false); setStep(3); }, 1500);
+    setTimeout(() => { setSuccess(false); setStep(4); }, 1500);
   }
 
   async function handleCoverFile(file: File) {
     const ok = await uploadFile(file, "cover_letter_file");
     if (!ok) return;
     setSuccess(true);
-    setTimeout(() => { setSuccess(false); setStep(4); }, 1500);
+    setTimeout(() => { setSuccess(false); setStep(5); }, 1500);
   }
 
   async function handleJobUrl() {
-    if (!jobUrl.trim() && !descText.trim()) { setStep(5); return; }
+    if (!jobUrl.trim() && !descText.trim()) { setStep(6); return; }
     setLoading(true);
     setError("");
     const fd = new FormData();
@@ -98,7 +111,7 @@ export function OnboardingWizard() {
       return;
     }
     if (data?.applicationId) setApplicationId(data.applicationId);
-    setStep(5);
+    setStep(6);
   }
 
   async function handleFinish() {
@@ -182,8 +195,42 @@ export function OnboardingWizard() {
           </>
         )}
 
-        {/* Step 2 — Upload CV */}
+        {/* Step 2 — Target role */}
         {step === 2 && (
+          <>
+            <h2 className="text-2xl font-bold text-slate-900">What role are you looking for?</h2>
+            <p className="mt-2 text-slate-500">We'll use this to find the most relevant jobs for you.</p>
+            <div className="mt-8">
+              <input
+                type="text"
+                value={targetRole}
+                onChange={(e) => setTargetRole(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") handleTargetRoleNext(); }}
+                placeholder="e.g. Project Manager"
+                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 outline-none placeholder:text-slate-400 focus:border-[#2200ff] focus:ring-2 focus:ring-[#d4ccff]"
+              />
+            </div>
+            <div className="mt-6 flex flex-col items-center gap-3">
+              <button
+                type="button"
+                onClick={handleTargetRoleNext}
+                className="inline-flex items-center gap-2 rounded-full bg-[#2200ff] px-8 py-3.5 text-base font-semibold text-white shadow-md transition hover:-translate-y-0.5 hover:bg-[#1a00cc]"
+              >
+                Next
+              </button>
+              <button
+                type="button"
+                onClick={() => setStep(3)}
+                className="text-sm text-slate-400 underline underline-offset-2 hover:text-slate-600"
+              >
+                Skip for now
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* Step 3 — Upload CV */}
+        {step === 3 && (
           <>
             <h2 className="text-2xl font-bold text-slate-900">First, upload your CV here</h2>
             {success ? (
@@ -214,8 +261,8 @@ export function OnboardingWizard() {
           </>
         )}
 
-        {/* Step 3 — Upload cover letter */}
-        {step === 3 && (
+        {/* Step 4 — Upload cover letter */}
+        {step === 4 && (
           <>
             <h2 className="text-2xl font-bold text-slate-900">Now, upload your current cover letter</h2>
             <p className="mt-2 text-slate-500">We'll fine tune it to match the job you want.</p>
@@ -244,7 +291,7 @@ export function OnboardingWizard() {
                 {error && <p className="mt-3 text-sm text-rose-600">{error}</p>}
                 <button
                   type="button"
-                  onClick={() => setStep(4)}
+                  onClick={() => setStep(5)}
                   className="mt-5 text-sm text-slate-400 underline underline-offset-2 hover:text-slate-600"
                 >
                   Skip for now
@@ -254,8 +301,8 @@ export function OnboardingWizard() {
           </>
         )}
 
-        {/* Step 4 — Job URL */}
-        {step === 4 && (
+        {/* Step 5 — Job URL */}
+        {step === 5 && (
           <>
             <h2 className="text-2xl font-bold text-slate-900">Which job are you applying for?</h2>
             <p className="mt-2 text-slate-500">Paste a Seek or LinkedIn link — or paste the full job description below.</p>
@@ -300,7 +347,7 @@ export function OnboardingWizard() {
               </button>
               <button
                 type="button"
-                onClick={() => { setError(""); setStep(5); }}
+                onClick={() => { setError(""); setStep(6); }}
                 className="text-sm text-slate-400 underline underline-offset-2 hover:text-slate-600"
               >
                 Skip for now
@@ -309,8 +356,8 @@ export function OnboardingWizard() {
           </>
         )}
 
-        {/* Step 5 — Location */}
-        {step === 5 && (
+        {/* Step 6 — Location */}
+        {step === 6 && (
           <>
             <h2 className="text-2xl font-bold text-slate-900">Where is the job located?</h2>
             <p className="mt-2 text-slate-500">So we can show you more local opportunities.</p>

@@ -97,6 +97,10 @@ export async function PATCH(request: Request) {
     }
   }
 
+  if (Array.isArray(body.target_job_titles)) {
+    (patch as Record<string, unknown>).target_job_titles = body.target_job_titles;
+  }
+
   const { error } = await supabase.from("profiles").upsert(patch);
 
   if (error) {

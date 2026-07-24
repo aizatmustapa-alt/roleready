@@ -338,13 +338,20 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Sign in to grab jobs." }, { status: 401 });
   }
 
-  const { data: masterResume } = await supabase
-    .from("master_resumes")
-    .select("resume_text")
-    .eq("user_id", user.id)
-    .order("updated_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const [{ data: masterResume }, { data: profile }] = await Promise.all([
+    supabase
+      .from("master_resumes")
+      .select("resume_text")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("profiles")
+      .select("target_job_titles, preferred_locations")
+      .eq("id", user.id)
+      .maybeSingle(),
+  ]);
 
   if (!masterResume?.resume_text?.trim()) {
     return NextResponse.json({ error: "Upload a master resume first." }, { status: 400 });
@@ -364,10 +371,11 @@ export async function GET(request: Request) {
 
   const url = new URL(request.url);
   const manualQuery = url.searchParams.get("q")?.trim();
-  const locationParam = url.searchParams.get("location")?.trim() || undefined;
+  const explicitLocation = url.searchParams.get("location")?.trim();
+  const locationParam = explicitLocation || profile?.preferred_locations?.[0] || undefined;
   const workTypeParam = url.searchParams.get("work_type")?.trim() || undefined;
   const salaryMinParam = url.searchParams.get("salary_min") ? Number(url.searchParams.get("salary_min")) : undefined;
-  const forceRefresh = url.searchParams.get("refresh") === "true" || Boolean(manualQuery) || Boolean(locationParam) || Boolean(workTypeParam) || Boolean(salaryMinParam);
+  const forceRefresh = url.searchParams.get("refresh") === "true" || Boolean(manualQuery) || Boolean(explicitLocation) || Boolean(workTypeParam) || Boolean(salaryMinParam);
 
   if (!forceRefresh) {
     const { data: cachedRows } = await supabase
@@ -393,6 +401,9 @@ export async function GET(request: Request) {
   let keywords: { jobTitle: string; searchQuery: string };
   if (manualQuery) {
     keywords = { jobTitle: "", searchQuery: manualQuery };
+  } else if (profile?.target_job_titles?.length) {
+    const title = profile.target_job_titles[0];
+    keywords = { jobTitle: title, searchQuery: title };
   } else {
     try {
       keywords = await extractKeywords(masterResume.resume_text, provider);

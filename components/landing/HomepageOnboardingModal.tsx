@@ -145,6 +145,7 @@ export function HomepageOnboardingModal({ open, initialResumeFile, initialDraft,
   const [showPassword, setShowPassword] = useState(false);
   const [newsletterOptIn, setNewsletterOptIn] = useState(true);
   const [jobSearchIntent, setJobSearchIntent] = useState(initialDraft?.jobSearchIntent ?? "");
+  const [targetRole, setTargetRole] = useState("");
 
   useEffect(() => {
     if (!open) return;
@@ -260,11 +261,14 @@ export function HomepageOnboardingModal({ open, initialResumeFile, initialDraft,
   async function submitAuthenticated() {
     setMessage("");
 
-    if (jobSearchIntent) {
+    if (jobSearchIntent || targetRole.trim()) {
       await fetch("/api/profile/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ job_search_intent: jobSearchIntent }),
+        body: JSON.stringify({
+          ...(jobSearchIntent ? { job_search_intent: jobSearchIntent } : {}),
+          ...(targetRole.trim() ? { target_job_titles: [targetRole.trim()] } : {}),
+        }),
       }).catch(() => {});
     }
 
@@ -803,6 +807,19 @@ export function HomepageOnboardingModal({ open, initialResumeFile, initialDraft,
                       <p className="mt-0.5 text-sm text-slate-500">{opt.sub}</p>
                     </button>
                   ))}
+                </div>
+                <div className="mt-6">
+                  <label className="block text-sm font-semibold text-slate-700">
+                    What role are you looking for? <span className="font-normal text-slate-400">(optional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={targetRole}
+                    onChange={(e) => setTargetRole(e.target.value)}
+                    placeholder="e.g. Project Manager"
+                    className="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 text-base text-slate-900 outline-none placeholder:text-slate-400 focus:ring-2 focus:ring-[#d4ccff]"
+                  />
+                  <p className="mt-1.5 text-xs text-slate-400">We use this to find the most relevant jobs for you on the dashboard.</p>
                 </div>
                 {message && <p className="mt-4 text-sm text-rose-600">{message}</p>}
                 <div className="mt-6 flex justify-end">
